@@ -4546,7 +4546,8 @@ void CMainFrame::OnPatchTab()
       {
         e = b->owner;
         Select_Deselect();
-		    for (brush_t * b2 = e->brushes.onext ; b2 != &e->brushes ; b2 = b2->onext)
+		brush_t * b2 = NULL;
+		    for (b2 = e->brushes.onext ; b2 != &e->brushes ; b2 = b2->onext)
 		    {
           if (b == b2)
           {

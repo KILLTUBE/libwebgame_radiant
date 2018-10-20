@@ -90,8 +90,5 @@ void SetPrintfHandler(PFN_PRINTF pe);
 void SetErrorHandlerNum(PFN_ERR_NUM pe);
 void SetPrintfHandlerNum(PFN_PRINTF_NUM pe);
 void ConvertDOSToUnixName( char *dst, const char *src );
-char* StrDup(char* pStr);
-char* StrDup(const char* pStr);
-
 
 #endif
