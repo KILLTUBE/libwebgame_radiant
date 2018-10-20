@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "RadiantDoc.h"
 #include "RadiantView.h"
 #include "PrefsDlg.h"
+#include "ccall.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -63,7 +64,11 @@ CRadiantApp::CRadiantApp()
 /////////////////////////////////////////////////////////////////////////////
 // The one and only CRadiantApp object
 
-CRadiantApp theApp;
+CRadiantApp *theApp = NULL;
+
+CCALL void init_app() {
+	theApp = new CRadiantApp();
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // CRadiantApp initialization
