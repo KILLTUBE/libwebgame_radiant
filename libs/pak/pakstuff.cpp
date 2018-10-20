@@ -61,37 +61,6 @@ struct PK3FileInfo
 
 #define __PATHSEPERATOR   '/'
 
-#define LOG_PAKFAIL
-
-#ifdef LOG_PAKFAIL
-
-class LogFile
-{
-public:
-  FILE *m_pFile;
-  LogFile(const char* pName)
-  {
-    m_pFile = fopen(pName, "w");
-  }
-  ~LogFile()
-  {
-    if (m_pFile)
-    {
-      fclose(m_pFile);
-    }
-  }
-  void Log(const char *pFormat, ...)
-  {
-    va_list arg_ptr;
-    va_start(arg_ptr, pFormat);
-    fprintf(m_pFile, pFormat, arg_ptr);
-    va_end(arg_ptr);
-  }
-};
-
-LogFile g_LogFile("c:\\paklog.txt");
-#endif
-
 template <class T> class StrPtr : public Str
 {
 protected:
