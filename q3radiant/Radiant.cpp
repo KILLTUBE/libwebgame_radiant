@@ -64,11 +64,145 @@ CRadiantApp::CRadiantApp()
 /////////////////////////////////////////////////////////////////////////////
 // The one and only CRadiantApp object
 
-CRadiantApp *theApp = NULL;
+//CRadiantApp *theApp = NULL;
+CRadiantApp theApp;
+
+
+const char g_szClassName[] = "myWindowClass";
+
+// Step 4: the Window Procedure
+LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    switch(msg)
+    {
+        case WM_CLOSE:
+            DestroyWindow(hwnd);
+        break;
+        case WM_DESTROY:
+            PostQuitMessage(0);
+        break;
+        default:
+            return DefWindowProc(hwnd, msg, wParam, lParam);
+    }
+    return 0;
+}
+
+
+class MFC_Tutorial_Window :public CFrameWnd
+{
+public:
+    MFC_Tutorial_Window()
+    {
+        Create(NULL,"MFC Tutorial Part 1 CoderSource Window");
+    }
+
+};
+
+class MyApp2 :public CWinApp
+{
+   //MFC_Tutorial_Window *wnd; 
+   MFC_Tutorial_Window *wnd; 
+public:
+   BOOL InitInstance()
+   {
+       //wnd = new MFC_Tutorial_Window();
+       //m_pMainWnd = wnd;
+       //m_pMainWnd->ShowWindow(SW_SHOW);
+       wnd = new MFC_Tutorial_Window();
+       m_pMainWnd = wnd;
+       m_pMainWnd->ShowWindow(SW_SHOW);
+       return TRUE;
+   }
+};
+
+extern int AFXAPI AfxWinInit(HINSTANCE hInstance, HINSTANCE hPrevInstance, _In_ LPTSTR lpCmdLine, int nCmdShow);
 
 CCALL void init_app() {
-	theApp = new CRadiantApp();
+
+	int nCmdShow = 10;
+
+
+    WNDCLASSEX wc;
+    HWND hwnd;
+    MSG Msg;
+
+    //Step 1: Registering the Window Class
+    wc.cbSize        = sizeof(WNDCLASSEX);
+    wc.style         = 0;
+    wc.lpfnWndProc   = WndProc;
+    wc.cbClsExtra    = 0;
+    wc.cbWndExtra    = 0;
+    wc.hInstance     = GetModuleHandle(NULL);
+    wc.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
+    wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+    wc.lpszMenuName  = NULL;
+    wc.lpszClassName = g_szClassName;
+    wc.hIconSm       = LoadIcon(NULL, IDI_APPLICATION);
+
+    if (!RegisterClassEx(&wc)) {
+        MessageBox(NULL, "Window Registration Failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
+        return;
+    }
+
+    // Step 2: Creating the Window
+    hwnd = CreateWindowEx(
+        WS_EX_CLIENTEDGE,
+        g_szClassName,
+        "The title of my window",
+        WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT, CW_USEDEFAULT, 240, 120,
+        NULL, NULL, GetModuleHandle(NULL), NULL);
+
+    if (hwnd == NULL) {
+        MessageBox(NULL, "Window Creation Failed!", "Error!", MB_ICONEXCLAMATION | MB_OK);
+        return;
+    }
+
+    ShowWindow(hwnd, nCmdShow);
+    UpdateWindow(hwnd);
+
+
+
+	HINSTANCE hInstance = (HINSTANCE) GetWindowLong(hwnd, GWL_HINSTANCE);
+
+
+	//theApp = new CRadiantApp();
+	MyApp2 *myApp = new MyApp2;
+	//AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 10);
+	AfxWinInit(hInstance, NULL, ::GetCommandLine(), 10);
+	//CWinThread* pThread = AfxGetThread();
+	//CWinApp* pApp = AfxGetApp();
+
+	//HINSTANCE hInstance = NULL;
+	//HINSTANCE hPrevInstance = NULL;
+	//LPTSTR lpCmdLine = "";
+	//int nCmdShow = 10;
+	//AfxWinInit(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+	//theApp = new CRadiantApp();
+	//theApp->m_pszAppName = "radiant";
+#if 0
+	theApp->InitApplication();
+	theApp->InitInstance();
 	theApp->Run();
+#else
+	myApp->InitApplication();
+	myApp->InitInstance();
+	myApp->Run();
+#endif
+
+	AfxWinTerm();
+
+    // Step 3: The Message Loop
+#if 0
+    while(GetMessage(&Msg, NULL, 0, 0) > 0)
+    {
+        TranslateMessage(&Msg);
+        DispatchMessage(&Msg);
+		theApp->OnIdle(1);
+    }
+#endif
+   // return Msg.wParam;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -206,9 +340,9 @@ BOOL CRadiantApp::InitInstance()
   }
 
 	CString strTemp = m_lpCmdLine;
-  strTemp.MakeLower();
-  if (strTemp.Find("builddefs") >= 0)
-    g_bBuildList = true;
+	strTemp.MakeLower();
+	if (strTemp.Find("builddefs") >= 0)
+		g_bBuildList = true;
 
 	CMainFrame* pMainFrame = new CMainFrame;
 	if (!pMainFrame->LoadFrame(nMenu))
@@ -254,10 +388,9 @@ int CRadiantApp::ExitInstance()
 	return CWinApp::ExitInstance();
 }
 
-BOOL CRadiantApp::OnIdle(LONG lCount) 
-{
+BOOL CRadiantApp::OnIdle(LONG lCount) {
 	if (g_pParentWnd)
-    g_pParentWnd->RoutineProcessing();
+		g_pParentWnd->RoutineProcessing();
 	return CWinApp::OnIdle(lCount);
 }
 
