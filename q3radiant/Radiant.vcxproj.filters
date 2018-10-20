@@ -28,6 +28,9 @@
       <UniqueIdentifier>{00020f1d-482e-4435-9fd6-8ba505152ec4}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;cnt;rtf;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
+    <Filter Include="Source Files\docks">
+      <UniqueIdentifier>{d03c9639-4d4a-4f7a-966c-16dd7b2153b2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BrushScript.cpp">
@@ -37,9 +40,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cameratargetdlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CamWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CapDialog.cpp">
@@ -150,9 +150,6 @@
     <ClCompile Include="TextureLayout.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TexWnd.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Undo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -160,12 +157,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Winding.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="XYWnd.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ZWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Bmp.cpp">
@@ -254,6 +245,18 @@
     </ClCompile>
     <ClCompile Include="SurfacePlugin.cpp">
       <Filter>Source Files\interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="dock_camera.cpp">
+      <Filter>Source Files\docks</Filter>
+    </ClCompile>
+    <ClCompile Include="dock_Tex.cpp">
+      <Filter>Source Files\docks</Filter>
+    </ClCompile>
+    <ClCompile Include="dock_XY.cpp">
+      <Filter>Source Files\docks</Filter>
+    </ClCompile>
+    <ClCompile Include="dock_Z.cpp">
+      <Filter>Source Files\docks</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
