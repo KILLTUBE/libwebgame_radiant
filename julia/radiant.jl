@@ -1,8 +1,8 @@
-const libradiant = "C:\\msys64\\mingw64\\bin\\libradiant.dll";
+const libradiant = "D:/Quake-III-Arena-master/q3radiant/Debug/Radiant.dll";
 
 juliasources = "C:/DATA/GtkRadiant/julia/"
 
-include(juliasources * "console.jl")
+#include(juliasources * "console.jl")
 
 function includes()::Void
 	include(juliasources * "PointerHackery.jl/pointerhackery.jl")
@@ -30,7 +30,7 @@ function includes()::Void
 end
 
 try
-	includes()
+	#includes()
 	
 	#Timer(function(timer)
 	#	Base.invokelatest(mainloop)
@@ -40,10 +40,7 @@ catch ex
 	log(console, ex)
 end
 
-startRadiant() = ccall(("startRadiant", libradiant), Int32, ())
+startRadiant() = ccall(("init_app", libradiant), Void, ())
 
 # start it up...
 startRadiant()
-
-# without blocking REPL and in the same thread, so we can mess around with GTK "from inside"
-gtk_start_timer()

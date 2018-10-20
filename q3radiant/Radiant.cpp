@@ -68,6 +68,7 @@ CRadiantApp *theApp = NULL;
 
 CCALL void init_app() {
 	theApp = new CRadiantApp();
+	theApp->Run();
 }
 
 /////////////////////////////////////////////////////////////////////////////
