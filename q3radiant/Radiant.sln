@@ -1,95 +1,80 @@
-Microsoft Visual Studio Solution File, Format Version 8.00
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Radiant", "Radiant.vcproj", "{D92DD0A3-9D6B-4183-992C-0FF42BC59A62}"
-	ProjectSection(ProjectDependencies) = postProject
-		{EFB1E65A-E86F-4E0D-845A-E5C7A3DF016F} = {EFB1E65A-E86F-4E0D-845A-E5C7A3DF016F}
-		{63F2947A-5BD9-48C2-8BEA-7AB341F6B48F} = {63F2947A-5BD9-48C2-8BEA-7AB341F6B48F}
-		{B80E7E95-566D-4CB0-8151-0567CB206D5A} = {B80E7E95-566D-4CB0-8151-0567CB206D5A}
-		{706CF09C-D767-4ECD-8CA6-EE7CA6CDA3AE} = {706CF09C-D767-4ECD-8CA6-EE7CA6CDA3AE}
-	EndProjectSection
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2026
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Radiant", "Radiant.vcxproj", "{D92DD0A3-9D6B-4183-992C-0FF42BC59A62}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Splines", "splines\Splines.vcproj", "{63F2947A-5BD9-48C2-8BEA-7AB341F6B48F}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Splines", "splines\Splines.vcxproj", "{63F2947A-5BD9-48C2-8BEA-7AB341F6B48F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cmdlib", "..\libs\cmdlib\cmdlib.vcproj", "{EFB1E65A-E86F-4E0D-845A-E5C7A3DF016F}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cmdlib", "..\libs\cmdlib\cmdlib.vcxproj", "{EFB1E65A-E86F-4E0D-845A-E5C7A3DF016F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jpeg6", "..\libs\jpeg6\jpeg6.vcproj", "{B80E7E95-566D-4CB0-8151-0567CB206D5A}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jpeg6", "..\libs\jpeg6\jpeg6.vcxproj", "{B80E7E95-566D-4CB0-8151-0567CB206D5A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pak", "..\libs\pak\pak.vcproj", "{706CF09C-D767-4ECD-8CA6-EE7CA6CDA3AE}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pak", "..\libs\pak\pak.vcxproj", "{706CF09C-D767-4ECD-8CA6-EE7CA6CDA3AE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "q3map", "..\q3map\q3map.vcproj", "{4D768C46-A503-48DE-BD4C-14D2B50C2739}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "q3map", "..\q3map\q3map.vcxproj", "{4D768C46-A503-48DE-BD4C-14D2B50C2739}"
 EndProject
 Global
-	GlobalSection(SourceCodeControl) = preSolution
-		SccNumberOfProjects = 6
-		SccProjectUniqueName0 = Radiant.vcproj
-		SccProjectName0 = \u0022$/source/q3radiant\u0022,\u0020FEFAAAAA
-		SccLocalPath0 = .
-		SccProvider0 = MSSCCI:Perforce\u0020SCM
-		SccProjectUniqueName1 = splines\\Splines.vcproj
-		SccProjectName1 = \u0022$/source/q3radiant/splines\u0022,\u0020XINAAAAA
-		SccLocalPath1 = splines
-		SccProvider1 = MSSCCI:Perforce\u0020SCM
-		SccProjectUniqueName2 = ..\\libs\\cmdlib\\cmdlib.vcproj
-		SccProjectName2 = \u0022$/source/q3radiant\u0022,\u0020FEFAAAAA
-		SccLocalPath2 = .
-		SccProvider2 = MSSCCI:Perforce\u0020SCM
-		SccProjectFilePathRelativizedFromConnection2 = ..\\libs\\cmdlib\\
-		SccProjectUniqueName3 = ..\\libs\\jpeg6\\jpeg6.vcproj
-		SccProjectName3 = \u0022$/source/q3radiant\u0022,\u0020FEFAAAAA
-		SccLocalPath3 = .
-		SccProvider3 = MSSCCI:Perforce\u0020SCM
-		SccProjectFilePathRelativizedFromConnection3 = ..\\libs\\jpeg6\\
-		SccProjectUniqueName4 = ..\\libs\\pak\\pak.vcproj
-		SccProjectName4 = \u0022$/source/q3radiant\u0022,\u0020FEFAAAAA
-		SccLocalPath4 = .
-		SccProvider4 = MSSCCI:Perforce\u0020SCM
-		SccProjectFilePathRelativizedFromConnection4 = ..\\libs\\pak\\
-		SccProjectUniqueName5 = ..\\q3map\\q3map.vcproj
-		SccProjectName5 = \u0022$/source/q3map\u0022,\u0020PADAAAAA
-		SccLocalPath5 = ..\\q3map
-		SccProvider5 = MSSCCI:Perforce\u0020SCM
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		DebugTTimo|x86 = DebugTTimo|x86
+		Release|x86 = Release|x86
+		ReleaseTTimo|x86 = ReleaseTTimo|x86
 	EndGlobalSection
-	GlobalSection(SolutionConfiguration) = preSolution
-		Debug = Debug
-		Release = Release
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D92DD0A3-9D6B-4183-992C-0FF42BC59A62}.Debug|x86.ActiveCfg = Debug|Win32
+		{D92DD0A3-9D6B-4183-992C-0FF42BC59A62}.Debug|x86.Build.0 = Debug|Win32
+		{D92DD0A3-9D6B-4183-992C-0FF42BC59A62}.DebugTTimo|x86.ActiveCfg = DebugTTimo|Win32
+		{D92DD0A3-9D6B-4183-992C-0FF42BC59A62}.DebugTTimo|x86.Build.0 = DebugTTimo|Win32
+		{D92DD0A3-9D6B-4183-992C-0FF42BC59A62}.Release|x86.ActiveCfg = Release|Win32
+		{D92DD0A3-9D6B-4183-992C-0FF42BC59A62}.Release|x86.Build.0 = Release|Win32
+		{D92DD0A3-9D6B-4183-992C-0FF42BC59A62}.ReleaseTTimo|x86.ActiveCfg = ReleaseTTimo|Win32
+		{D92DD0A3-9D6B-4183-992C-0FF42BC59A62}.ReleaseTTimo|x86.Build.0 = ReleaseTTimo|Win32
+		{63F2947A-5BD9-48C2-8BEA-7AB341F6B48F}.Debug|x86.ActiveCfg = Debug|Win32
+		{63F2947A-5BD9-48C2-8BEA-7AB341F6B48F}.Debug|x86.Build.0 = Debug|Win32
+		{63F2947A-5BD9-48C2-8BEA-7AB341F6B48F}.DebugTTimo|x86.ActiveCfg = Debug|Win32
+		{63F2947A-5BD9-48C2-8BEA-7AB341F6B48F}.DebugTTimo|x86.Build.0 = Debug|Win32
+		{63F2947A-5BD9-48C2-8BEA-7AB341F6B48F}.Release|x86.ActiveCfg = Release|Win32
+		{63F2947A-5BD9-48C2-8BEA-7AB341F6B48F}.Release|x86.Build.0 = Release|Win32
+		{63F2947A-5BD9-48C2-8BEA-7AB341F6B48F}.ReleaseTTimo|x86.ActiveCfg = Release|Win32
+		{63F2947A-5BD9-48C2-8BEA-7AB341F6B48F}.ReleaseTTimo|x86.Build.0 = Release|Win32
+		{EFB1E65A-E86F-4E0D-845A-E5C7A3DF016F}.Debug|x86.ActiveCfg = Debug|Win32
+		{EFB1E65A-E86F-4E0D-845A-E5C7A3DF016F}.Debug|x86.Build.0 = Debug|Win32
+		{EFB1E65A-E86F-4E0D-845A-E5C7A3DF016F}.DebugTTimo|x86.ActiveCfg = Debug|Win32
+		{EFB1E65A-E86F-4E0D-845A-E5C7A3DF016F}.DebugTTimo|x86.Build.0 = Debug|Win32
+		{EFB1E65A-E86F-4E0D-845A-E5C7A3DF016F}.Release|x86.ActiveCfg = Release|Win32
+		{EFB1E65A-E86F-4E0D-845A-E5C7A3DF016F}.Release|x86.Build.0 = Release|Win32
+		{EFB1E65A-E86F-4E0D-845A-E5C7A3DF016F}.ReleaseTTimo|x86.ActiveCfg = Release|Win32
+		{EFB1E65A-E86F-4E0D-845A-E5C7A3DF016F}.ReleaseTTimo|x86.Build.0 = Release|Win32
+		{B80E7E95-566D-4CB0-8151-0567CB206D5A}.Debug|x86.ActiveCfg = Debug|Win32
+		{B80E7E95-566D-4CB0-8151-0567CB206D5A}.Debug|x86.Build.0 = Debug|Win32
+		{B80E7E95-566D-4CB0-8151-0567CB206D5A}.DebugTTimo|x86.ActiveCfg = Debug|Win32
+		{B80E7E95-566D-4CB0-8151-0567CB206D5A}.DebugTTimo|x86.Build.0 = Debug|Win32
+		{B80E7E95-566D-4CB0-8151-0567CB206D5A}.Release|x86.ActiveCfg = Release|Win32
+		{B80E7E95-566D-4CB0-8151-0567CB206D5A}.Release|x86.Build.0 = Release|Win32
+		{B80E7E95-566D-4CB0-8151-0567CB206D5A}.ReleaseTTimo|x86.ActiveCfg = Release|Win32
+		{B80E7E95-566D-4CB0-8151-0567CB206D5A}.ReleaseTTimo|x86.Build.0 = Release|Win32
+		{706CF09C-D767-4ECD-8CA6-EE7CA6CDA3AE}.Debug|x86.ActiveCfg = Debug|Win32
+		{706CF09C-D767-4ECD-8CA6-EE7CA6CDA3AE}.Debug|x86.Build.0 = Debug|Win32
+		{706CF09C-D767-4ECD-8CA6-EE7CA6CDA3AE}.DebugTTimo|x86.ActiveCfg = Debug|Win32
+		{706CF09C-D767-4ECD-8CA6-EE7CA6CDA3AE}.DebugTTimo|x86.Build.0 = Debug|Win32
+		{706CF09C-D767-4ECD-8CA6-EE7CA6CDA3AE}.Release|x86.ActiveCfg = Release|Win32
+		{706CF09C-D767-4ECD-8CA6-EE7CA6CDA3AE}.Release|x86.Build.0 = Release|Win32
+		{706CF09C-D767-4ECD-8CA6-EE7CA6CDA3AE}.ReleaseTTimo|x86.ActiveCfg = Release|Win32
+		{706CF09C-D767-4ECD-8CA6-EE7CA6CDA3AE}.ReleaseTTimo|x86.Build.0 = Release|Win32
+		{4D768C46-A503-48DE-BD4C-14D2B50C2739}.Debug|x86.ActiveCfg = Debug|Win32
+		{4D768C46-A503-48DE-BD4C-14D2B50C2739}.Debug|x86.Build.0 = Debug|Win32
+		{4D768C46-A503-48DE-BD4C-14D2B50C2739}.DebugTTimo|x86.ActiveCfg = DebugTTimo|Win32
+		{4D768C46-A503-48DE-BD4C-14D2B50C2739}.DebugTTimo|x86.Build.0 = DebugTTimo|Win32
+		{4D768C46-A503-48DE-BD4C-14D2B50C2739}.Release|x86.ActiveCfg = Release|Win32
+		{4D768C46-A503-48DE-BD4C-14D2B50C2739}.Release|x86.Build.0 = Release|Win32
+		{4D768C46-A503-48DE-BD4C-14D2B50C2739}.ReleaseTTimo|x86.ActiveCfg = ReleaseTTimo|Win32
+		{4D768C46-A503-48DE-BD4C-14D2B50C2739}.ReleaseTTimo|x86.Build.0 = ReleaseTTimo|Win32
 	EndGlobalSection
-	GlobalSection(ProjectConfiguration) = postSolution
-		{D92DD0A3-9D6B-4183-992C-0FF42BC59A62}.Debug.ActiveCfg = Debug|Win32
-		{D92DD0A3-9D6B-4183-992C-0FF42BC59A62}.Debug.Build.0 = Debug|Win32
-		{D92DD0A3-9D6B-4183-992C-0FF42BC59A62}.Release.ActiveCfg = Release|Win32
-		{D92DD0A3-9D6B-4183-992C-0FF42BC59A62}.Release.Build.0 = Release|Win32
-		{63F2947A-5BD9-48C2-8BEA-7AB341F6B48F}.Debug.ActiveCfg = Debug|Win32
-		{63F2947A-5BD9-48C2-8BEA-7AB341F6B48F}.Debug.Build.0 = Debug|Win32
-		{63F2947A-5BD9-48C2-8BEA-7AB341F6B48F}.Release.ActiveCfg = Release|Win32
-		{63F2947A-5BD9-48C2-8BEA-7AB341F6B48F}.Release.Build.0 = Release|Win32
-		{EFB1E65A-E86F-4E0D-845A-E5C7A3DF016F}.Debug.ActiveCfg = Debug|Win32
-		{EFB1E65A-E86F-4E0D-845A-E5C7A3DF016F}.Debug.Build.0 = Debug|Win32
-		{EFB1E65A-E86F-4E0D-845A-E5C7A3DF016F}.Release.ActiveCfg = Release|Win32
-		{EFB1E65A-E86F-4E0D-845A-E5C7A3DF016F}.Release.Build.0 = Release|Win32
-		{B80E7E95-566D-4CB0-8151-0567CB206D5A}.Debug.ActiveCfg = Debug|Win32
-		{B80E7E95-566D-4CB0-8151-0567CB206D5A}.Debug.Build.0 = Debug|Win32
-		{B80E7E95-566D-4CB0-8151-0567CB206D5A}.Release.ActiveCfg = Release|Win32
-		{B80E7E95-566D-4CB0-8151-0567CB206D5A}.Release.Build.0 = Release|Win32
-		{706CF09C-D767-4ECD-8CA6-EE7CA6CDA3AE}.Debug.ActiveCfg = Debug|Win32
-		{706CF09C-D767-4ECD-8CA6-EE7CA6CDA3AE}.Debug.Build.0 = Debug|Win32
-		{706CF09C-D767-4ECD-8CA6-EE7CA6CDA3AE}.Release.ActiveCfg = Release|Win32
-		{706CF09C-D767-4ECD-8CA6-EE7CA6CDA3AE}.Release.Build.0 = Release|Win32
-		{4D768C46-A503-48DE-BD4C-14D2B50C2739}.Debug.ActiveCfg = Debug|Win32
-		{4D768C46-A503-48DE-BD4C-14D2B50C2739}.Debug.Build.0 = Debug|Win32
-		{4D768C46-A503-48DE-BD4C-14D2B50C2739}.Release.ActiveCfg = Release|Win32
-		{4D768C46-A503-48DE-BD4C-14D2B50C2739}.Release.Build.0 = Release|Win32
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-	EndGlobalSection
-	GlobalSection(ExtensibilityAddIns) = postSolution
+		SolutionGuid = {1C8F724B-1776-4C69-9BC0-D9DCF7542250}
 	EndGlobalSection
 EndGlobal
