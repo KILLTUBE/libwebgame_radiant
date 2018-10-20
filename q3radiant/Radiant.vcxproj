@@ -23,7 +23,7 @@
     <SccLocalPath>.</SccLocalPath>
     <Keyword>MFCProj</Keyword>
     <ProjectGuid>{D92DD0A3-9D6B-4183-992C-0FF42BC59A62}</ProjectGuid>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>7.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'" Label="Configuration">
@@ -32,7 +32,7 @@
     <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <PlatformToolset>v141_xp</PlatformToolset>
     <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
@@ -902,6 +902,7 @@
     <ClInclude Include="cameratargetdlg.h" />
     <ClInclude Include="CamWnd.h" />
     <ClInclude Include="CapDialog.h" />
+    <ClInclude Include="ccall.h" />
     <ClInclude Include="ChildFrm.h" />
     <ClInclude Include="CommandsDlg.h" />
     <ClInclude Include="DialogInfo.h" />

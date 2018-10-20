@@ -445,6 +445,9 @@
     <ClInclude Include="Messaging.h">
       <Filter>Header Files\internal interface headers</Filter>
     </ClInclude>
+    <ClInclude Include="ccall.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\bevel.bmp">
