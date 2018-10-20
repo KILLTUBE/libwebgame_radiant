@@ -490,29 +490,15 @@ void Map_SaveFile (char *filename, qboolean use_region )
 	if (use_region)
 		RemoveRegionBrushes ();
 
-	Sys_Printf ("Saved.\n");
+	Sys_Printf ("Map_SaveFile(filename=\"%s\", use_region=%d)\n", filename, use_region);
 	modified = false;
 
 	if ( !strstr( temp, "autosave" ) )
 		Sys_SetTitle (temp);
 
-	if (!use_region)
-	{
-		time_t	timer;
-		FILE	*f;
-
-		time (&timer);
+	if (!use_region) {
+		g_qeglobals.d_workcount = 0;
 		MessageBeep (MB_ICONEXCLAMATION);
-		f = fopen ("c:/tstamps.log", "a");
-		if (f)
-		{
-			fprintf (f, "%s", filename);
-			//fprintf (f, "%4i : %35s : %s", g_qeglobals.d_workcount, filename, ctime(&timer));
-			fclose (f);
-			g_qeglobals.d_workcount = 0;
-		}
-		fclose (f);
-		Sys_Status ("Saved.\n", 0);
 	}
 	
   //Curve_WriteFile (filename);		//.trinity
