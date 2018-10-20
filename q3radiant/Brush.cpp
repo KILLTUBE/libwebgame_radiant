@@ -1007,7 +1007,7 @@ int Brush_MoveVertex_old1(brush_t *b, vec3_t vertex, vec3_t delta, vec3_t end, b
 		if (Winding_VectorIntersect(face->face_winding, &face->plane, vertex, end, INTERSECT_EPSILON))
 			break;
 		//if the end point of the to be moved vertex is near this not move face
-		if (abs(DotProduct(face->plane.normal, end) - face->plane.dist) < 0.5)
+		if (fabs(DotProduct(face->plane.normal, end) - face->plane.dist) < 0.5)
 		{
 			//the end point may not be inside or very close to the not move face winding
 			if (Winding_PointInside(face->face_winding, &face->plane, end, 0.5))
@@ -2340,7 +2340,7 @@ brush_t	*Brush_CreatePyramid (vec3_t mins, vec3_t maxs, texdef_t *texdef)
 	bottom[2] = mins[2];
 
 	// sides
-	for (i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		face_t* f = Face_Alloc();
 		f->texdef = *texdef;
@@ -3288,7 +3288,7 @@ void Brush_Center(brush_t *b, vec3_t vNewCenter)
   // get center of the brush
   for (int j = 0; j < 3; j++)
   {
-    vMid[j] = b->mins[j] + abs((b->maxs[j] - b->mins[j]) * 0.5);
+    vMid[j] = b->mins[j] + fabs((b->maxs[j] - b->mins[j]) * 0.5);
   }
   // calc distance between centers
   VectorSubtract(vNewCenter, vMid, vMid);
@@ -3871,7 +3871,7 @@ void DrawLight(brush_t *b)
   qglBegin(GL_TRIANGLE_FAN);
   qglVertex3fv(vBottom);
   qglVertex3fv(vCorners[0]);
-  for (i = 3; i >= 0; i--)
+  for (int i = 3; i >= 0; i--)
   {
     vTriColor[0] *= 0.95;
     vTriColor[1] *= 0.95;
