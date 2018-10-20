@@ -329,20 +329,19 @@ void CCamWnd::OriginalMouseUp(UINT nFlags, CPoint point)
   	ReleaseCapture ();
 }
 
-void CCamWnd::OriginalMouseDown(UINT nFlags, CPoint point)
-{
-  //if (GetTopWindow()->GetSafeHwnd() != GetSafeHwnd())
-  //  BringWindowToTop();
-  CRect r;
-  GetClientRect(r);
-  SetFocus();
+void CCamWnd::OriginalMouseDown(UINT nFlags, CPoint point) {
+	//if (GetTopWindow()->GetSafeHwnd() != GetSafeHwnd())
+	//  BringWindowToTop();
+	CRect r;
+	GetClientRect(r);
+	SetFocus();
 	SetCapture();
-  //if (!(GetKeyState(VK_MENU) & 0x8000))
-	  Cam_MouseDown (point.x, r.bottom - 1 - point.y, nFlags);
+	//if (!(GetKeyState(VK_MENU) & 0x8000))
+	Sys_Printf("point.x=%d point.y=%d r.bottom-1-point.y=%d\n", point.x, point.y, r.bottom - 1 - point.y);
+	Cam_MouseDown(point.x, r.bottom - 1 - point.y, nFlags);
 }
 
-void CCamWnd::Cam_Init()
-{
+void CCamWnd::Cam_Init() {
 	//m_Camera.draw_mode = cd_texture;
 	m_Camera.timing = false;
 	m_Camera.origin[0] = 0;
@@ -577,6 +576,10 @@ void CCamWnd::Cam_MouseUp (int x, int y, int buttons)
 
 void CCamWnd::Cam_MouseMoved (int x, int y, int buttons)
 {
+	// left bottom is [0,0]
+	// buttons:
+	// left = MK_LBUTTON(1) right=2 middle=16
+	Sys_Printf("x=%d y=%d buttons=%d\n", x, y, buttons);
 	m_nCambuttonstate = buttons;
 	if (!buttons) {
 		if ( ( g_qeglobals.d_select_mode == sel_terrainpoint ) || ( g_qeglobals.d_select_mode == sel_terraintexture ) ) {
