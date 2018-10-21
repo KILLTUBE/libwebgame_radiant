@@ -19,53 +19,64 @@ along with Foobar; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-#if !defined(AFX_EDITWND_H__279AAE22_78C5_11D1_B53C_00AA00A410FC__INCLUDED_)
-#define AFX_EDITWND_H__279AAE22_78C5_11D1_B53C_00AA00A410FC__INCLUDED_
 
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
-// EditWnd.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// CEditWnd window
+class CEditWnd;
+class CTexEdit;
+class CRADEditWnd;
+class CTexWnd;
 
-class CEditWnd : public CEdit
-{
-  DECLARE_DYNCREATE(CEditWnd);
-// Construction
-public:
+class CEditWnd : public CEdit { public:
 	CEditWnd();
-
-// Attributes
-public:
-
-// Operations
-public:
-
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CEditWnd)
-	protected:
-	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-	//}}AFX_VIRTUAL
-
-// Implementation
-public:
 	virtual ~CEditWnd();
-
-	// Generated message map functions
-protected:
-	//{{AFX_MSG(CEditWnd)
-	//}}AFX_MSG
-
+	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+	DECLARE_DYNCREATE(CEditWnd);
 	DECLARE_MESSAGE_MAP()
 };
 
-/////////////////////////////////////////////////////////////////////////////
+class CTexEdit : public CEdit { public:
+	CTexEdit();
+	CTexWnd* m_pTexWnd;
+	CFont m_Font;
+	void SetTexWnd(CTexWnd* pTex) {m_pTexWnd = pTex;};
+	virtual ~CTexEdit();
+	afx_msg HBRUSH CtlColor(CDC* pDC, UINT nCtlColor);
+	afx_msg void OnChange();
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	DECLARE_MESSAGE_MAP()
+};
 
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Developer Studio will insert additional declarations immediately before the previous line.
+class CRADEditWnd : public CWnd { public:
+	CRADEditWnd();
+	CEdit* GetEditWnd() {return dynamic_cast<CEdit*>(&m_wndEdit); };
+	CEditWnd m_wndEdit;
+	virtual ~CRADEditWnd();
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
+	DECLARE_MESSAGE_MAP()
+};
 
-#endif // !defined(AFX_EDITWND_H__279AAE22_78C5_11D1_B53C_00AA00A410FC__INCLUDED_)
+class CTexWnd : public CWnd { public:
+	DECLARE_DYNCREATE(CTexWnd);
+	CTexWnd();
+	void UpdateFilter(const char* pFilter);
+	void UpdatePrefs();
+	void FocusEdit();
+	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+	virtual ~CTexWnd();
+	CTexEdit m_wndFilter;
+	CButton  m_wndShaders;
+	bool m_bNeedRange;
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnParentNotify(UINT message, LPARAM lParam);
+	afx_msg void OnTimer(UINT nIDEvent);
+	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnPaint();
+	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	afx_msg void OnTexturesFlush();
+	afx_msg void OnShaderClick();
+	DECLARE_MESSAGE_MAP()
+};
