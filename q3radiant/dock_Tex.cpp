@@ -19,13 +19,10 @@ along with Foobar; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-// TexWnd.cpp : implementation file
-//
 
 #include "stdafx.h"
 #include <assert.h>
 #include "Radiant.h"
-#include "TexWnd.h"
 #include "qe3.h"
 #include "io.h"
 #include "PrefsDlg.h"
@@ -35,12 +32,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PrefsDlg.h"
 
 Str m_gStr;
-
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
 
 qtexture_t *Texture_ForNamePath(char* name, char* pFullPath);
 #define	TYP_MIPTEX	68

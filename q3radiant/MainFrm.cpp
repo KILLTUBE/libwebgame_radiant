@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qe3.h"
 #include "ZWnd.h"
 #include "CamWnd.h"
-#include "TexWnd.h"
 #include "EditWnd.h"
 #include "entityw.h"
 #include "PrefsDlg.h"
