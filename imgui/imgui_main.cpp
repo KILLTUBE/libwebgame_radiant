@@ -25,7 +25,26 @@ void imgui_set_hwnd(HWND hwnd) {
 	imgui_hwnd = hwnd;
 }
 
+int imgui_ready = 0;
+
+CCALL void imgui_set_mousepos(int left, int top) {
+	if ( ! imgui_ready)
+		return;
+	ImGuiIO& io = ImGui::GetIO();
+	io.MousePos = ImVec2(left, top);
+}
+CCALL void imgui_set_widthheight(int width, int height) {
+	if ( ! imgui_ready)
+		return;
+	ImGuiIO& io = ImGui::GetIO();
+	io.DisplaySize = ImVec2(width, height);
+}
+
+
+
 void imgui_init() {
+	imgui_ready = 1;
+
     // Setup Dear ImGui binding
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -60,7 +79,8 @@ void imgui_init() {
 }
 
 void imgui_step() {
-
+	if (!imgui_ready)
+		return;
     // Main loop
     //bool done = false;
     //while (!done)
