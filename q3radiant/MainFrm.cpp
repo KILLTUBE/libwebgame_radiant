@@ -1306,21 +1306,21 @@ void CMainFrame::OnDestroy() {
 
 	if (m_nCurrentStyle == 0 || m_nCurrentStyle == 3)
 	{
-		SaveWindowState(m_wndSplit.GetSafeHwnd(), "Radiant::Split");
-		SaveWindowState(m_wndSplit2.GetSafeHwnd(), "Radiant::Split2");
+		SaveWindowState(dockTopBottom.GetSafeHwnd(), "Radiant::Split");
+		SaveWindowState(dockTopThree.GetSafeHwnd(), "Radiant::Split2");
 		SaveWindowState(m_wndSplit3.GetSafeHwnd(), "Radiant::Split3");
 
 		SplitInfo spinfo;
-		m_wndSplit.GetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
+		dockTopBottom.GetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
 		SaveRegistryInfo("Radiant::Split::Row_0", &spinfo, sizeof(spinfo));
-		m_wndSplit.GetRowInfo(1, spinfo.m_nCur, spinfo.m_nMin);
+		dockTopBottom.GetRowInfo(1, spinfo.m_nCur, spinfo.m_nMin);
 		SaveRegistryInfo("Radiant::Split::Row_1", &spinfo, sizeof(spinfo));
 
-		m_wndSplit2.GetColumnInfo(0, spinfo.m_nCur, spinfo.m_nMin);
+		dockTopThree.GetColumnInfo(0, spinfo.m_nCur, spinfo.m_nMin);
 		SaveRegistryInfo("Radiant::Split2::Col_0", &spinfo, sizeof(spinfo));
-		m_wndSplit2.GetColumnInfo(1, spinfo.m_nCur, spinfo.m_nMin);
+		dockTopThree.GetColumnInfo(1, spinfo.m_nCur, spinfo.m_nMin);
 		SaveRegistryInfo("Radiant::Split2::Col_1", &spinfo, sizeof(spinfo));
-		m_wndSplit2.GetColumnInfo(2, spinfo.m_nCur, spinfo.m_nMin);
+		dockTopThree.GetColumnInfo(2, spinfo.m_nCur, spinfo.m_nMin);
 		SaveRegistryInfo("Radiant::Split2::Col_2", &spinfo, sizeof(spinfo));
 
 		m_wndSplit3.GetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
@@ -1555,7 +1555,19 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 	if (g_PrefsDlg.m_nView == 0 || g_PrefsDlg.m_nView == 3)
 	{
 
+
+
+
+
+
+
 #if 0
+
+
+
+
+
+
 		m_wndSplit.CreateStatic(this, 2, 1);
 		m_wndSplit2.CreateStatic(&m_wndSplit, 1, 2);
 		m_wndSplit3.CreateStatic(&m_wndSplit2, 2,1);
@@ -1567,26 +1579,29 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 		if (g_pEdit)
 			g_qeglobals.d_hwndEdit = g_pEdit->GetSafeHwnd();
 #else
-		m_wndSplit.CreateStatic(this, 2, 1);
-		m_wndSplit2.CreateStatic(&m_wndSplit, 1, 3);
-		m_wndSplit3.CreateStatic(&m_wndSplit2, 2,1);
+		dockTopBottom.CreateStatic(this, 2, 1);
+		dockTopThree.CreateStatic(&dockTopBottom, 1, 3);
+		m_wndSplit3.CreateStatic(&dockTopThree, 2,1);
 
-		m_wndSplit.CreateView(1,0,RUNTIME_CLASS(CEditWnd), CSize(25, 100), pContext);
-		g_pEdit = dynamic_cast<CEdit*>(m_wndSplit.GetPane(1,0));
+		dockTopBottom.CreateView(1,0,RUNTIME_CLASS(CEditWnd), CSize(25, 100), pContext);
+		g_pEdit = dynamic_cast<CEdit*>(dockTopBottom.GetPane(1,0));
 		if (g_pEdit)
 			g_qeglobals.d_hwndEdit = g_pEdit->GetSafeHwnd();
 #endif
+
+
+
 		m_wndSplit3.CreateView(0,0,RUNTIME_CLASS(CCamWnd), CSize(25, 100), pContext);
 		m_pCamWnd = dynamic_cast<CCamWnd*>(m_wndSplit3.GetPane(0,0));
 	
-		m_wndSplit2.CreateView(0,1,RUNTIME_CLASS(CXYWnd), CSize(25, 100), pContext);
-		m_pXYWnd = dynamic_cast<CXYWnd*>(m_wndSplit2.GetPane(0,1));
+		dockTopThree.CreateView(0,1,RUNTIME_CLASS(CXYWnd), CSize(25, 100), pContext);
+		m_pXYWnd = dynamic_cast<CXYWnd*>(dockTopThree.GetPane(0,1));
 		m_pXYWnd->SetViewType(XY);
 
 		m_pCamWnd->SetXYFriend(m_pXYWnd);
 
-		m_wndSplit2.CreateView(0,2,RUNTIME_CLASS(CZWnd), CSize(25, 100), pContext);
-		m_pZWnd = dynamic_cast<CZWnd*>(m_wndSplit2.GetPane(0,2));
+		dockTopThree.CreateView(0,2,RUNTIME_CLASS(CZWnd), CSize(25, 100), pContext);
+		m_pZWnd = dynamic_cast<CZWnd*>(dockTopThree.GetPane(0,2));
 
 		m_wndSplit3.CreateView(1,0,RUNTIME_CLASS(CTexWnd), CSize(25, 100), pContext);
 		m_pTexWnd = dynamic_cast<CTexWnd*>(m_wndSplit3.GetPane(1,0));
@@ -1596,54 +1611,54 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 		if (g_PrefsDlg.m_nView == 0)
 		{
 			// the following bit switches the left and right views
-			CWnd* pRight = m_wndSplit2.GetPane(0,2);
+			CWnd* pRight = dockTopThree.GetPane(0,2);
 			long lRightID = ::GetWindowLong(pRight->GetSafeHwnd(), GWL_ID);
 			long lLeftID = ::GetWindowLong(m_wndSplit3.GetSafeHwnd(), GWL_ID);
 			::SetWindowLong(pRight->GetSafeHwnd(), GWL_ID, lLeftID);
 			::SetWindowLong(m_wndSplit3.GetSafeHwnd(), GWL_ID, lRightID);
 		}
 
-		m_wndSplit.SetRowInfo(0, rctParent.Height() * .85, 50);
-		m_wndSplit.SetRowInfo(1, rctParent.Height() * .15, 5);
+		dockTopBottom.SetRowInfo(0, rctParent.Height() * .85, 50);
+		dockTopBottom.SetRowInfo(1, rctParent.Height() * .15, 5);
 
 		float fLeft = (g_PrefsDlg.m_nView == 0) ? .05 : .25;
 		float fRight = (g_PrefsDlg.m_nView == 0) ? .25 : .05;
 		int nMin1 = (g_PrefsDlg.m_nView == 0) ? 10 : 25;
 		int nMin2 = (nMin1 == 10) ? 25 : 10;
 
-		m_wndSplit2.SetColumnInfo(0, rctParent.Width() * fLeft, nMin1);
-		m_wndSplit2.SetColumnInfo(1, rctParent.Width() * .70, 100);
-		m_wndSplit2.SetColumnInfo(2, rctParent.Width() * fRight, nMin2);
+		dockTopThree.SetColumnInfo(0, rctParent.Width() * fLeft, nMin1);
+		dockTopThree.SetColumnInfo(1, rctParent.Width() * .70, 100);
+		dockTopThree.SetColumnInfo(2, rctParent.Width() * fRight, nMin2);
 
 		m_wndSplit3.SetRowInfo(1, (rctParent.Height() * .85) * .40, 15);
 		m_wndSplit3.SetRowInfo(0, (rctParent.Height() * .85) * .60, 15);
 
-		LoadWindowState(m_wndSplit.GetSafeHwnd(), "Radiant::Split");
-		LoadWindowState(m_wndSplit2.GetSafeHwnd(), "Radiant::Split2");
+		LoadWindowState(dockTopBottom.GetSafeHwnd(), "Radiant::Split");
+		LoadWindowState(dockTopThree.GetSafeHwnd(), "Radiant::Split2");
 		LoadWindowState(m_wndSplit3.GetSafeHwnd(), "Radiant::Split3");
 		::ShowWindow(g_qeglobals.d_hwndEntity, SW_HIDE);
 
 		SplitInfo spinfo;
 		long lSize = sizeof(spinfo);
 		if (LoadRegistryInfo("Radiant::Split::Row_0", &spinfo, &lSize))
-			m_wndSplit.SetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
+			dockTopBottom.SetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
 		if (LoadRegistryInfo("Radiant::Split::Row_1", &spinfo, &lSize))
-			m_wndSplit.SetRowInfo(1, spinfo.m_nCur, spinfo.m_nMin);
+			dockTopBottom.SetRowInfo(1, spinfo.m_nCur, spinfo.m_nMin);
 
 		if (LoadRegistryInfo("Radiant::Split2::Col_0", &spinfo, &lSize))
-			m_wndSplit2.SetColumnInfo(0, spinfo.m_nCur, spinfo.m_nMin);
+			dockTopThree.SetColumnInfo(0, spinfo.m_nCur, spinfo.m_nMin);
 		if (LoadRegistryInfo("Radiant::Split2::Col_1", &spinfo, &lSize))
-			m_wndSplit2.SetColumnInfo(1, spinfo.m_nCur, spinfo.m_nMin);
+			dockTopThree.SetColumnInfo(1, spinfo.m_nCur, spinfo.m_nMin);
 		if (LoadRegistryInfo("Radiant::Split2::Col_2", &spinfo, &lSize))
-			m_wndSplit2.SetColumnInfo(2, spinfo.m_nCur, spinfo.m_nMin);
+			dockTopThree.SetColumnInfo(2, spinfo.m_nCur, spinfo.m_nMin);
 
 		if (LoadRegistryInfo("Radiant::Split3::Row_0", &spinfo, &lSize))
 			m_wndSplit3.SetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
 		if (LoadRegistryInfo("Radiant::Split3::Row_1", &spinfo, &lSize))
 			m_wndSplit3.SetRowInfo(1, spinfo.m_nCur, spinfo.m_nMin);
 
-		m_wndSplit.RecalcLayout();
-		m_wndSplit2.RecalcLayout();
+		dockTopBottom.RecalcLayout();
+		dockTopThree.RecalcLayout();
 		m_wndSplit3.RecalcLayout();
 	}
 	else if (g_PrefsDlg.m_nView == 1)
@@ -1707,21 +1722,21 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 	}
 	else // 4 way
 	{
-		m_wndSplit.CreateStatic(this, 2, 2);
+		dockTopBottom.CreateStatic(this, 2, 2);
 
-		m_wndSplit.CreateView(0,0,RUNTIME_CLASS(CCamWnd), CSize(25, 100), pContext);
-		m_pCamWnd = dynamic_cast<CCamWnd*>(m_wndSplit.GetPane(0,0));
+		dockTopBottom.CreateView(0,0,RUNTIME_CLASS(CCamWnd), CSize(25, 100), pContext);
+		m_pCamWnd = dynamic_cast<CCamWnd*>(dockTopBottom.GetPane(0,0));
 
-		m_wndSplit.CreateView(0,1,RUNTIME_CLASS(CXYWnd), CSize(25, 100), pContext);
-		m_pXYWnd = dynamic_cast<CXYWnd*>(m_wndSplit.GetPane(0,1));
+		dockTopBottom.CreateView(0,1,RUNTIME_CLASS(CXYWnd), CSize(25, 100), pContext);
+		m_pXYWnd = dynamic_cast<CXYWnd*>(dockTopBottom.GetPane(0,1));
 		m_pXYWnd->SetViewType(XY);
 
-		m_wndSplit.CreateView(1,0,RUNTIME_CLASS(CXYWnd), CSize(25, 100), pContext);
-		m_pYZWnd = dynamic_cast<CXYWnd*>(m_wndSplit.GetPane(1,0));
+		dockTopBottom.CreateView(1,0,RUNTIME_CLASS(CXYWnd), CSize(25, 100), pContext);
+		m_pYZWnd = dynamic_cast<CXYWnd*>(dockTopBottom.GetPane(1,0));
 		m_pYZWnd->SetViewType(YZ);
 
-		m_wndSplit.CreateView(1,1,RUNTIME_CLASS(CXYWnd), CSize(25, 100), pContext);
-		m_pXZWnd = dynamic_cast<CXYWnd*>(m_wndSplit.GetPane(1,1));
+		dockTopBottom.CreateView(1,1,RUNTIME_CLASS(CXYWnd), CSize(25, 100), pContext);
+		m_pXZWnd = dynamic_cast<CXYWnd*>(dockTopBottom.GetPane(1,1));
 		m_pXZWnd->SetViewType(XZ);
 
 		m_pCamWnd->SetXYFriend(m_pXYWnd);
@@ -1750,15 +1765,15 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 		CRect rctParent;
 		GetClientRect(rctParent);
 
-		m_wndSplit.SetRowInfo(0, rctParent.Height() * .5, 50);
-		m_wndSplit.SetRowInfo(1, rctParent.Height() * .5, 50);
+		dockTopBottom.SetRowInfo(0, rctParent.Height() * .5, 50);
+		dockTopBottom.SetRowInfo(1, rctParent.Height() * .5, 50);
 
-		m_wndSplit.SetColumnInfo(0, rctParent.Width() * .5, 50);
-		m_wndSplit.SetColumnInfo(1, rctParent.Width() * .5, 50);
+		dockTopBottom.SetColumnInfo(0, rctParent.Width() * .5, 50);
+		dockTopBottom.SetColumnInfo(1, rctParent.Width() * .5, 50);
 
-		LoadWindowState(m_wndSplit.GetSafeHwnd(), "Radiant::SplitSPLIT");
+		LoadWindowState(dockTopBottom.GetSafeHwnd(), "Radiant::SplitSPLIT");
 
-		m_wndSplit.RecalcLayout();
+		dockTopBottom.RecalcLayout();
 	}
 
 	if (g_pEdit)
@@ -1804,36 +1819,36 @@ void CMainFrame::OnSize(UINT nType, int cx, int cy)
 		if (m_nCurrentStyle == 0 || m_nCurrentStyle == 3)
 		{
 			SplitInfo spinfo;
-			m_wndSplit.GetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
+			dockTopBottom.GetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
 			float fpc1 = (float)spinfo.m_nCur / g_rctOld.Height();
-			m_wndSplit.GetRowInfo(1, spinfo.m_nCur, spinfo.m_nMin);
+			dockTopBottom.GetRowInfo(1, spinfo.m_nCur, spinfo.m_nMin);
 			float fpc2 = (float)spinfo.m_nCur / g_rctOld.Height();
-			m_wndSplit2.GetColumnInfo(0, spinfo.m_nCur, spinfo.m_nMin);
+			dockTopThree.GetColumnInfo(0, spinfo.m_nCur, spinfo.m_nMin);
 			float fpc3 = (float)spinfo.m_nCur / g_rctOld.Width();
-			m_wndSplit2.GetColumnInfo(1, spinfo.m_nCur, spinfo.m_nMin);
+			dockTopThree.GetColumnInfo(1, spinfo.m_nCur, spinfo.m_nMin);
 			float fpc4 = (float)spinfo.m_nCur / g_rctOld.Width();
-			m_wndSplit2.GetColumnInfo(2, spinfo.m_nCur, spinfo.m_nMin);
+			dockTopThree.GetColumnInfo(2, spinfo.m_nCur, spinfo.m_nMin);
 			float fpc5 = (float)spinfo.m_nCur / g_rctOld.Width();
 			m_wndSplit3.GetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
 			float fpc6 = (float)spinfo.m_nCur / g_rctOld.Height();
 			m_wndSplit3.GetRowInfo(1, spinfo.m_nCur, spinfo.m_nMin);
 			float fpc7 = (float)spinfo.m_nCur / g_rctOld.Height();
 
-			m_wndSplit.SetRowInfo(0, rctParent.Height() * fpc1, 100);
-			m_wndSplit.SetRowInfo(1, rctParent.Height() * fpc2, 25);
+			dockTopBottom.SetRowInfo(0, rctParent.Height() * fpc1, 100);
+			dockTopBottom.SetRowInfo(1, rctParent.Height() * fpc2, 25);
 
 			int nMin1 = (m_nCurrentStyle == 0) ? 10 : 25;
 			int nMin2 = (nMin1 == 10) ? 25 : 10;
 
-			m_wndSplit2.SetColumnInfo(0, rctParent.Width() * fpc3, nMin1);
-			m_wndSplit2.SetColumnInfo(1, rctParent.Width() * fpc4, 100);
-			m_wndSplit2.SetColumnInfo(2, rctParent.Width() * fpc5, nMin2);
+			dockTopThree.SetColumnInfo(0, rctParent.Width() * fpc3, nMin1);
+			dockTopThree.SetColumnInfo(1, rctParent.Width() * fpc4, 100);
+			dockTopThree.SetColumnInfo(2, rctParent.Width() * fpc5, nMin2);
 
 			m_wndSplit3.SetRowInfo(0, rctParent.Height() * fpc6, 50);
 			m_wndSplit3.SetRowInfo(1, rctParent.Height() * fpc7, 50);
 
-			m_wndSplit.RecalcLayout();
-			m_wndSplit2.RecalcLayout();
+			dockTopBottom.RecalcLayout();
+			dockTopThree.RecalcLayout();
 			m_wndSplit3.RecalcLayout();
 		}
 	}
