@@ -1241,6 +1241,8 @@ void CMainFrame::RoutineProcessing() {
 		// run time dependant behavior
 		if (m_pCamWnd)
 			m_pCamWnd->Cam_MouseControl(delta);
+		if (m_pTexWnd)
+			m_pTexWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
 		if (g_PrefsDlg.m_bQE4Painting && g_nUpdateBits)
 		{
 			int nBits = g_nUpdateBits;			// this is done to keep this routine from being

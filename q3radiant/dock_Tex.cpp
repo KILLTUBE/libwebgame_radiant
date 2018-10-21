@@ -2692,6 +2692,8 @@ END_MESSAGE_MAP()
 WTexWndProc
 ============
 */
+LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 LONG WINAPI TexWndProc (
     HWND    hWnd,
     UINT    uMsg,
@@ -2702,9 +2704,20 @@ LONG WINAPI TexWndProc (
     RECT	rect;
 
     GetClientRect(hWnd, &rect);
+	//Sys_Printf("left=%d top=%d right=%d bottom=%d\n", rect.left, rect.top, rect.right, rect.bottom);
+	//imgui_set_widthheight(rect.)
+	
+	if (g_pParentWnd->m_pTexWnd) {
+		CRect size;
+		g_pParentWnd->m_pTexWnd->GetWindowRect(&size);
+		int width = size.right - size.left;
+		int height = size.bottom - size.top;
+		imgui_set_widthheight(width, height);
+		Sys_Printf("left=%d top=%d right=%d bottom=%d\n", size.left, size.top, size.right, size.bottom);
+		ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
+	}
 
-    switch (uMsg)
-    {
+    switch (uMsg) {
 	case WM_CREATE:
     s_hdcTexture = GetDC(hWnd);
 		QEW_SetupPixelFormat(s_hdcTexture, false);
