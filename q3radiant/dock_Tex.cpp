@@ -2491,7 +2491,9 @@ void Texture_Draw2 (int width, int height)
 		imgui_set_hwnd(g_qeglobals.d_hwndTexture);
 		imgui_init();
 	}
+	imgui_newframe();
 	imgui_step();
+	imgui_endframe();
 }
 
 
