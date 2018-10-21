@@ -52,237 +52,241 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "splines/splines.h"
 #include "dlgcamera.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
+struct SplitInfo {
+	int m_nMin;
+	int m_nCur;
+};
+
+extern void testCamSpeed();
+extern bool g_bCrossHairs;
+
+void OpenDialog (void);
+void SaveAsDialog (bool bRegion);
+void	Select_Ungroup (void);
 
 
-// globals
-CString g_strAppPath;                   // holds the full path of the executable
-CEdit* g_pEdit = NULL;                  // used originally to make qe4 work with mfc.. still used
-CEdit* g_pREPL = NULL;                  // kung: will replace Edit and REPL at some point with "real" docks
-CMainFrame* g_pParentWnd = NULL;        // used to precast to CMainFrame
-CPrefsDlg g_Preferences;                // global prefs instance
-CPrefsDlg& g_PrefsDlg = g_Preferences;  // reference used throughout
-int g_nUpdateBits = 0;                  // window update flags
-bool g_bScreenUpdates = true;           // whether window painting is active, used in a few places
-                                        // to disable updates for speed reasons
-                                        // both of the above should be made members of CMainFrame
+CRect g_rctOld(0,0,0,0);
+CString g_strAppPath;									 // holds the full path of the executable
+CEdit* g_pEdit = NULL;									// used originally to make qe4 work with mfc.. still used
+CEdit* g_pREPL = NULL;									// kung: will replace Edit and REPL at some point with "real" docks
+CMainFrame* g_pParentWnd = NULL;				// used to precast to CMainFrame
+CPrefsDlg g_Preferences;								// global prefs instance
+CPrefsDlg& g_PrefsDlg = g_Preferences;	// reference used throughout
+int g_nUpdateBits = 0;									// window update flags
+bool g_bScreenUpdates = true;					 // whether window painting is active, used in a few places
+																				// to disable updates for speed reasons
+																				// both of the above should be made members of CMainFrame
 
-//bool g_bSnapToGrid = true;              // early use, no longer in use, clamping pref will be used
-CString g_strProject;                   // holds the active project filename
-
-
-/////////////////////////////////////////////////////////////////////////////
-// CMainFrame
+//bool g_bSnapToGrid = true;							// early use, no longer in use, clamping pref will be used
+CString g_strProject;									 // holds the active project filename
 
 // command mapping stuff
 //
 // m_strCommand is the command string
 // m_nKey is the windows VK_??? equivelant
 // m_nModifiers are key states as follows
-//  bit
-//    0 - shift
-//    1 - alt
-//    2 - control
-//    4 - press only
+//	bit
+//		0 - shift
+//		1 - alt
+//		2 - control
+//		4 - press only
 //
 #define	SPEED_MOVE	32
 #define	SPEED_TURN	22.5
 
-
 SCommandInfo g_Commands[] = 
 {
-  {"ToggleOutlineDraw", 'J', 0x00, ID_SELECTION_NOOUTLINE},
-  {"CSGMerge", 'U', 0x04, ID_SELECTION_CSGMERGE},
-  {"CSGSubtract", 'U', 0x01, ID_SELECTION_CSGSUBTRACT},
-  {"ViewGroups", 'G', 0x00, ID_VIEW_GROUPS},
-  {"HideSelected", 'H', 0x00, ID_VIEW_HIDESHOW_HIDESELECTED},
-  {"ShowHidden", 'H', 0x01, ID_VIEW_HIDESHOW_SHOWHIDDEN},
-  {"BendMode", 'B', 0x00, ID_PATCH_BEND},
-  {"FitFace", 'B', 0x04, ID_FITFACE},
-  {"FitBrush", 'B', 0x01, ID_FITBRUSH},
-  {"FreezePatchVertices", 'F', 0x00, ID_CURVE_FREEZE},
-  {"UnFreezePatchVertices", 'F', 0x04, ID_CURVE_UNFREEZE},
-  {"UnFreezeAllPatchVertices", 'F', 0x05, ID_CURVE_UNFREEZEALL},
-  {"ViewTextures", 'T', 0, ID_VIEW_TEXTURE},
-  {"ThickenPatch", 'T', 0x04, ID_CURVE_THICKEN},
-  {"MakeOverlayPatch", 'Y', 0, ID_CURVE_OVERLAY_SET},
-  {"ClearPatchOverlays", 'Y', 0x02, ID_CURVE_OVERLAY_CLEAR},
-  {"SurfaceInspector", 'S', 0, ID_TEXTURES_INSPECTOR},
-  {"PatchInspector", 'S', 0x01, ID_PATCH_INSPECTOR},
-  {"ToggleShowPatches", 'P', 0x05, ID_CURVE_CYCLECAP},
-  {"ToggleShowPatches", 'P', 0x04, ID_VIEW_SHOWCURVES},
-  {"RedisperseRows", 'E', 0x04, ID_CURVE_REDISPERSE_ROWS},
-  {"RedisperseCols", 'E', 0x05, ID_CURVE_REDISPERSE_COLS},
-  {"InvertCurveTextureX", 'I', 0x05, ID_CURVE_NEGATIVETEXTUREY},
-  {"InvertCurveTextureY", 'I', 0x01, ID_CURVE_NEGATIVETEXTUREX},
-  {"InvertCurve", 'I', 0x04, ID_CURVE_NEGATIVE},
-  {"IncPatchColumn", VK_ADD, 0x05, ID_CURVE_INSERTCOLUMN},
-  {"IncPatchRow", VK_ADD, 0x04, ID_CURVE_INSERTROW},
-  {"DecPatchColumn", VK_SUBTRACT, 0x05, ID_CURVE_DELETECOLUMN},
-  {"DecPatchRow", VK_SUBTRACT, 0x04, ID_CURVE_DELETEROW},
-  {"Patch TAB", VK_TAB, 0x00, ID_PATCH_TAB},
-  {"Patch TAB", VK_TAB, 0x01, ID_PATCH_TAB},
-  {"SelectNudgeDown", VK_DOWN, 0x02, ID_SELECTION_SELECT_NUDGEDOWN},
-  {"EntityColor",'K', 0, ID_MISC_SELECTENTITYCOLOR},
-  {"CameraForward", VK_UP, 0, ID_CAMERA_FORWARD},
-  {"CameraBack", VK_DOWN, 0, ID_CAMERA_BACK},
-  {"CameraLeft", VK_LEFT, 0, ID_CAMERA_LEFT},
-  {"CameraRight", VK_RIGHT, 0, ID_CAMERA_RIGHT},
-  {"CameraUp", 'D', 0, ID_CAMERA_UP},
-  {"CameraDown", 'C', 0, ID_CAMERA_DOWN},
-  {"CameraAngleUp", 'A', 0, ID_CAMERA_ANGLEUP},
-  {"CameraAngleDown", 'Z', 0, ID_CAMERA_ANGLEDOWN},
-  {"CameraStrafeRight", VK_PERIOD, 0, ID_CAMERA_STRAFERIGHT},
-  {"CameraStrafeLeft", VK_COMMA, 0, ID_CAMERA_STRAFELEFT},
-  {"ToggleGrid", '0', 0, ID_GRID_TOGGLE},
-  {"SetGrid1", '1', 0, ID_GRID_1},
-  {"SetGrid2", '2', 0, ID_GRID_2},
-  {"SetGrid4", '3', 0, ID_GRID_4},
-  {"SetGrid8", '4', 0, ID_GRID_8},
-  {"SetGrid16", '5', 0, ID_GRID_16},
-  {"SetGrid32", '6', 0, ID_GRID_32},
-  {"SetGrid64", '7', 0, ID_GRID_64},
-  {"DragEdges", 'E', 0, ID_SELECTION_DRAGEDGES},
-  {"DragVertices", 'V', 0, ID_SELECTION_DRAGVERTECIES},
-  {"ViewEntityInfo", 'N', 0, ID_VIEW_ENTITY},
-  {"ViewConsole", 'O', 0, ID_VIEW_CONSOLE},
-  {"CloneSelection", VK_SPACE, 0, ID_SELECTION_CLONE},
-  {"DeleteSelection", VK_BACK, 0, ID_SELECTION_DELETE},
-  {"UnSelectSelection", VK_ESCAPE, 0, ID_SELECTION_DESELECT},
-  {"CenterView", VK_END, 0, ID_VIEW_CENTER},
-  {"ZoomOut", VK_INSERT, 0, ID_VIEW_ZOOMOUT},
-  {"ZoomIn", VK_DELETE, 0, ID_VIEW_ZOOMIN},
-  {"UpFloor", VK_PRIOR, 0, ID_VIEW_UPFLOOR},
-  {"DownFloor", VK_NEXT, 0, ID_VIEW_DOWNFLOOR},
-  {"ToggleClipper", 'X', 0, ID_VIEW_CLIPPER},
-  {"ToggleCrosshairs", 'X', 0x01, ID_VIEW_CROSSHAIR},
-  {"TogTexLock", 'T', 0x01, ID_TOGGLE_LOCK},
-  {"TogTexRotLock", 'R', 0x01, ID_TOGGLE_ROTATELOCK},
-  {"ToggleRealtime", 'R', 0x04, ID_VIEW_CAMERAUPDATE},
-  {"RaiseLowerTerrain", 'T', 0x06, ID_TERRAIN_RAISELOWERTERRAIN},
-  {"EntityList", 'L', 0, ID_EDIT_ENTITYINFO},
-  {"Preferences", 'P', 0, ID_PREFS},
-  {"ToggleCamera", 'C', 0x05, ID_TOGGLECAMERA},
-  {"ToggleConsole", 'O', 0, ID_TOGGLECONSOLE},
-  {"ToggleView", 'V', 0x05, ID_TOGGLEVIEW},
-  {"ToggleZ", 'Z', 0x05, ID_TOGGLEZ},
-  {"ConnectSelection", 'K', 0x04, ID_SELECTION_CONNECT},
-  {"Brush3Sided", '3', 0x04, ID_BRUSH_3SIDED},
-  {"Brush4Sided", '4', 0x04, ID_BRUSH_4SIDED},
-  {"Brush5Sided", '5', 0x04, ID_BRUSH_5SIDED},
-  {"Brush6Sided", '6', 0x04, ID_BRUSH_6SIDED},
-  {"Brush7Sided", '7', 0x04, ID_BRUSH_7SIDED},
-  {"Brush8Sided", '8', 0x04, ID_BRUSH_8SIDED},
-  {"Brush9Sided", '9', 0x04, ID_BRUSH_9SIDED},
-  {"ShowDetail", 'D', 0x04, ID_VIEW_SHOWDETAIL},
-  {"MakeDetail", 'M', 0x05, ID_CURVE_MATRIX_TRANSPOSE},
-  {"MakeDetail", 'M', 0x04, ID_SELECTION_MAKE_DETAIL},
-  {"MapInfo", 'M', 0, ID_EDIT_MAPINFO},
-  {"NextLeakSpot", 'K', 0x05, ID_MISC_NEXTLEAKSPOT},
-  {"PrevLeakSpot", 'L', 0x05, ID_MISC_PREVIOUSLEAKSPOT},
-  {"FileOpen", 'O', 0x04, ID_FILE_OPEN},
-  {"FileSave", 'S', 0x04, ID_FILE_SAVE},
-  {"Exit", 'X', 0x04, ID_FILE_EXIT},
-  {"NextView", VK_TAB, 0x04, ID_VIEW_NEXTVIEW},
-  {"ClipSelected", VK_RETURN, 0x00, ID_CLIP_SELECTED},
-  {"SplitSelected", VK_RETURN, 0x01, ID_SPLIT_SELECTED},
-  {"FlipClip", VK_RETURN, 0x04, ID_FLIP_CLIP},
-  {"MouseRotate", 'R', 0x00, ID_SELECT_MOUSEROTATE},
-  {"Copy", 'C', 0x04, ID_EDIT_COPYBRUSH},
-  {"Paste", 'V', 0x04, ID_EDIT_PASTEBRUSH},
-  {"Undo", 'Z', 0x04, ID_EDIT_UNDO},
-  {"Redo", 'Y', 0x04, ID_EDIT_REDO}, 
-  {"ZZoomOut", VK_INSERT, 0x04, ID_VIEW_ZZOOMOUT},
-  {"ZZoomIn", VK_DELETE, 0x04, ID_VIEW_ZZOOMIN},
-  {"TexDecrement", VK_SUBTRACT, 0x01, ID_SELECTION_TEXTURE_DEC},
-  {"TexIncrement", VK_ADD, 0x01, ID_SELECTION_TEXTURE_INC},
-  {"TextureFit", '5', 0x01, ID_SELECTION_TEXTURE_FIT},
-  {"TexRotateClock", VK_NEXT, 0x01, ID_SELECTION_TEXTURE_ROTATECLOCK},
-  {"TexRotateCounter", VK_PRIOR, 0x01, ID_SELECTION_TEXTURE_ROTATECOUNTER},
-  {"TexScaleUp", VK_UP, 0x04, ID_SELECTION_TEXTURE_SCALEUP},
-  {"TexScaleDown", VK_DOWN, 0x04, ID_SELECTION_TEXTURE_SCALEDOWN},
-  {"TexShiftLeft", VK_LEFT, 0x01, ID_SELECTION_TEXTURE_SHIFTLEFT},
-  {"TexShiftRight", VK_RIGHT, 0x01, ID_SELECTION_TEXTURE_SHIFTRIGHT},
-  {"TexShiftUp", VK_UP, 0x01, ID_SELECTION_TEXTURE_SHIFTUP},
-  {"TexShiftDown", VK_DOWN, 0x01, ID_SELECTION_TEXTURE_SHIFTDOWN},
-  {"GridDown", 219, 0x00, ID_GRID_PREV},
-  {"GridUp", 221, 0x00, ID_GRID_NEXT},
-  {"TexScaleLeft", VK_LEFT, 0x04, ID_SELECTION_TEXTURE_SCALELEFT},
-  {"TexScaleRight", VK_RIGHT, 0x04, ID_SELECTION_TEXTURE_SCALERIGHT},
-  {"CubicClipZoomOut", 219, 0x04, ID_VIEW_CUBEOUT},
-  {"CubicClipZoomIn", 221, 0x04, ID_VIEW_CUBEIN},
-  {"ToggleCubicClip", 220, 0x04, ID_VIEW_CUBICCLIPPING},
-//  {"ToggleCubicClip", '\\', 0x04, ID_VIEW_CUBICCLIPPING},
-  {"MoveSelectionDOWN", VK_SUBTRACT, 0x00, ID_SELECTION_MOVEDOWN},
-  {"MoveSelectionUP", VK_ADD, 0x00, ID_SELECTION_MOVEUP},
-  {"DumpSelectedBrush", 'D', 0x01, ID_SELECTION_PRINT},
-  {"ToggleSizePaint", 'Q', 0x08, ID_SELECTION_TOGGLESIZEPAINT},
-  {"SelectNudgeLeft", VK_LEFT, 0x02, ID_SELECTION_SELECT_NUDGELEFT},
-  {"SelectNudgeRight", VK_RIGHT, 0x02, ID_SELECTION_SELECT_NUDGERIGHT},
-  {"SelectNudgeUp", VK_UP, 0x02, ID_SELECTION_SELECT_NUDGEUP},
-  {"CycleCapTexturePatch", 'N', 0x05, ID_CURVE_CYCLECAP},
-  {"NaturalizePatch", 'N', 0x04, ID_PATCH_NATURALIZE},
-  {"SnapPatchToGrid", 'G', 0x04, ID_SELECT_SNAPTOGRID},
-  {"ShowAllTextures", 'A', 0x04, ID_TEXTURES_SHOWALL},
-  {"SelectAllOfType", 'A', 0x01, ID_SELECT_ALL},
-  {"CapCurrentCurve", 'C', 0x01, ID_CURVE_CAP},
-  {"MakeStructural", 'S', 0x05, ID_SELECTION_MAKE_STRUCTURAL}
-  //{"ForceCameraWalk", 'Q', 0x08, ID_CAMERA_ACTIVE}
+	{"ToggleOutlineDraw", 'J', 0x00, ID_SELECTION_NOOUTLINE},
+	{"CSGMerge", 'U', 0x04, ID_SELECTION_CSGMERGE},
+	{"CSGSubtract", 'U', 0x01, ID_SELECTION_CSGSUBTRACT},
+	{"ViewGroups", 'G', 0x00, ID_VIEW_GROUPS},
+	{"HideSelected", 'H', 0x00, ID_VIEW_HIDESHOW_HIDESELECTED},
+	{"ShowHidden", 'H', 0x01, ID_VIEW_HIDESHOW_SHOWHIDDEN},
+	{"BendMode", 'B', 0x00, ID_PATCH_BEND},
+	{"FitFace", 'B', 0x04, ID_FITFACE},
+	{"FitBrush", 'B', 0x01, ID_FITBRUSH},
+	{"FreezePatchVertices", 'F', 0x00, ID_CURVE_FREEZE},
+	{"UnFreezePatchVertices", 'F', 0x04, ID_CURVE_UNFREEZE},
+	{"UnFreezeAllPatchVertices", 'F', 0x05, ID_CURVE_UNFREEZEALL},
+	{"ViewTextures", 'T', 0, ID_VIEW_TEXTURE},
+	{"ThickenPatch", 'T', 0x04, ID_CURVE_THICKEN},
+	{"MakeOverlayPatch", 'Y', 0, ID_CURVE_OVERLAY_SET},
+	{"ClearPatchOverlays", 'Y', 0x02, ID_CURVE_OVERLAY_CLEAR},
+	{"SurfaceInspector", 'S', 0, ID_TEXTURES_INSPECTOR},
+	{"PatchInspector", 'S', 0x01, ID_PATCH_INSPECTOR},
+	{"ToggleShowPatches", 'P', 0x05, ID_CURVE_CYCLECAP},
+	{"ToggleShowPatches", 'P', 0x04, ID_VIEW_SHOWCURVES},
+	{"RedisperseRows", 'E', 0x04, ID_CURVE_REDISPERSE_ROWS},
+	{"RedisperseCols", 'E', 0x05, ID_CURVE_REDISPERSE_COLS},
+	{"InvertCurveTextureX", 'I', 0x05, ID_CURVE_NEGATIVETEXTUREY},
+	{"InvertCurveTextureY", 'I', 0x01, ID_CURVE_NEGATIVETEXTUREX},
+	{"InvertCurve", 'I', 0x04, ID_CURVE_NEGATIVE},
+	{"IncPatchColumn", VK_ADD, 0x05, ID_CURVE_INSERTCOLUMN},
+	{"IncPatchRow", VK_ADD, 0x04, ID_CURVE_INSERTROW},
+	{"DecPatchColumn", VK_SUBTRACT, 0x05, ID_CURVE_DELETECOLUMN},
+	{"DecPatchRow", VK_SUBTRACT, 0x04, ID_CURVE_DELETEROW},
+	{"Patch TAB", VK_TAB, 0x00, ID_PATCH_TAB},
+	{"Patch TAB", VK_TAB, 0x01, ID_PATCH_TAB},
+	{"SelectNudgeDown", VK_DOWN, 0x02, ID_SELECTION_SELECT_NUDGEDOWN},
+	{"EntityColor",'K', 0, ID_MISC_SELECTENTITYCOLOR},
+	{"CameraForward", VK_UP, 0, ID_CAMERA_FORWARD},
+	{"CameraBack", VK_DOWN, 0, ID_CAMERA_BACK},
+	{"CameraLeft", VK_LEFT, 0, ID_CAMERA_LEFT},
+	{"CameraRight", VK_RIGHT, 0, ID_CAMERA_RIGHT},
+	{"CameraUp", 'D', 0, ID_CAMERA_UP},
+	{"CameraDown", 'C', 0, ID_CAMERA_DOWN},
+	{"CameraAngleUp", 'A', 0, ID_CAMERA_ANGLEUP},
+	{"CameraAngleDown", 'Z', 0, ID_CAMERA_ANGLEDOWN},
+	{"CameraStrafeRight", VK_PERIOD, 0, ID_CAMERA_STRAFERIGHT},
+	{"CameraStrafeLeft", VK_COMMA, 0, ID_CAMERA_STRAFELEFT},
+	{"ToggleGrid", '0', 0, ID_GRID_TOGGLE},
+	{"SetGrid1", '1', 0, ID_GRID_1},
+	{"SetGrid2", '2', 0, ID_GRID_2},
+	{"SetGrid4", '3', 0, ID_GRID_4},
+	{"SetGrid8", '4', 0, ID_GRID_8},
+	{"SetGrid16", '5', 0, ID_GRID_16},
+	{"SetGrid32", '6', 0, ID_GRID_32},
+	{"SetGrid64", '7', 0, ID_GRID_64},
+	{"DragEdges", 'E', 0, ID_SELECTION_DRAGEDGES},
+	{"DragVertices", 'V', 0, ID_SELECTION_DRAGVERTECIES},
+	{"ViewEntityInfo", 'N', 0, ID_VIEW_ENTITY},
+	{"ViewConsole", 'O', 0, ID_VIEW_CONSOLE},
+	{"CloneSelection", VK_SPACE, 0, ID_SELECTION_CLONE},
+	{"DeleteSelection", VK_BACK, 0, ID_SELECTION_DELETE},
+	{"UnSelectSelection", VK_ESCAPE, 0, ID_SELECTION_DESELECT},
+	{"CenterView", VK_END, 0, ID_VIEW_CENTER},
+	{"ZoomOut", VK_INSERT, 0, ID_VIEW_ZOOMOUT},
+	{"ZoomIn", VK_DELETE, 0, ID_VIEW_ZOOMIN},
+	{"UpFloor", VK_PRIOR, 0, ID_VIEW_UPFLOOR},
+	{"DownFloor", VK_NEXT, 0, ID_VIEW_DOWNFLOOR},
+	{"ToggleClipper", 'X', 0, ID_VIEW_CLIPPER},
+	{"ToggleCrosshairs", 'X', 0x01, ID_VIEW_CROSSHAIR},
+	{"TogTexLock", 'T', 0x01, ID_TOGGLE_LOCK},
+	{"TogTexRotLock", 'R', 0x01, ID_TOGGLE_ROTATELOCK},
+	{"ToggleRealtime", 'R', 0x04, ID_VIEW_CAMERAUPDATE},
+	{"RaiseLowerTerrain", 'T', 0x06, ID_TERRAIN_RAISELOWERTERRAIN},
+	{"EntityList", 'L', 0, ID_EDIT_ENTITYINFO},
+	{"Preferences", 'P', 0, ID_PREFS},
+	{"ToggleCamera", 'C', 0x05, ID_TOGGLECAMERA},
+	{"ToggleConsole", 'O', 0, ID_TOGGLECONSOLE},
+	{"ToggleView", 'V', 0x05, ID_TOGGLEVIEW},
+	{"ToggleZ", 'Z', 0x05, ID_TOGGLEZ},
+	{"ConnectSelection", 'K', 0x04, ID_SELECTION_CONNECT},
+	{"Brush3Sided", '3', 0x04, ID_BRUSH_3SIDED},
+	{"Brush4Sided", '4', 0x04, ID_BRUSH_4SIDED},
+	{"Brush5Sided", '5', 0x04, ID_BRUSH_5SIDED},
+	{"Brush6Sided", '6', 0x04, ID_BRUSH_6SIDED},
+	{"Brush7Sided", '7', 0x04, ID_BRUSH_7SIDED},
+	{"Brush8Sided", '8', 0x04, ID_BRUSH_8SIDED},
+	{"Brush9Sided", '9', 0x04, ID_BRUSH_9SIDED},
+	{"ShowDetail", 'D', 0x04, ID_VIEW_SHOWDETAIL},
+	{"MakeDetail", 'M', 0x05, ID_CURVE_MATRIX_TRANSPOSE},
+	{"MakeDetail", 'M', 0x04, ID_SELECTION_MAKE_DETAIL},
+	{"MapInfo", 'M', 0, ID_EDIT_MAPINFO},
+	{"NextLeakSpot", 'K', 0x05, ID_MISC_NEXTLEAKSPOT},
+	{"PrevLeakSpot", 'L', 0x05, ID_MISC_PREVIOUSLEAKSPOT},
+	{"FileOpen", 'O', 0x04, ID_FILE_OPEN},
+	{"FileSave", 'S', 0x04, ID_FILE_SAVE},
+	{"Exit", 'X', 0x04, ID_FILE_EXIT},
+	{"NextView", VK_TAB, 0x04, ID_VIEW_NEXTVIEW},
+	{"ClipSelected", VK_RETURN, 0x00, ID_CLIP_SELECTED},
+	{"SplitSelected", VK_RETURN, 0x01, ID_SPLIT_SELECTED},
+	{"FlipClip", VK_RETURN, 0x04, ID_FLIP_CLIP},
+	{"MouseRotate", 'R', 0x00, ID_SELECT_MOUSEROTATE},
+	{"Copy", 'C', 0x04, ID_EDIT_COPYBRUSH},
+	{"Paste", 'V', 0x04, ID_EDIT_PASTEBRUSH},
+	{"Undo", 'Z', 0x04, ID_EDIT_UNDO},
+	{"Redo", 'Y', 0x04, ID_EDIT_REDO}, 
+	{"ZZoomOut", VK_INSERT, 0x04, ID_VIEW_ZZOOMOUT},
+	{"ZZoomIn", VK_DELETE, 0x04, ID_VIEW_ZZOOMIN},
+	{"TexDecrement", VK_SUBTRACT, 0x01, ID_SELECTION_TEXTURE_DEC},
+	{"TexIncrement", VK_ADD, 0x01, ID_SELECTION_TEXTURE_INC},
+	{"TextureFit", '5', 0x01, ID_SELECTION_TEXTURE_FIT},
+	{"TexRotateClock", VK_NEXT, 0x01, ID_SELECTION_TEXTURE_ROTATECLOCK},
+	{"TexRotateCounter", VK_PRIOR, 0x01, ID_SELECTION_TEXTURE_ROTATECOUNTER},
+	{"TexScaleUp", VK_UP, 0x04, ID_SELECTION_TEXTURE_SCALEUP},
+	{"TexScaleDown", VK_DOWN, 0x04, ID_SELECTION_TEXTURE_SCALEDOWN},
+	{"TexShiftLeft", VK_LEFT, 0x01, ID_SELECTION_TEXTURE_SHIFTLEFT},
+	{"TexShiftRight", VK_RIGHT, 0x01, ID_SELECTION_TEXTURE_SHIFTRIGHT},
+	{"TexShiftUp", VK_UP, 0x01, ID_SELECTION_TEXTURE_SHIFTUP},
+	{"TexShiftDown", VK_DOWN, 0x01, ID_SELECTION_TEXTURE_SHIFTDOWN},
+	{"GridDown", 219, 0x00, ID_GRID_PREV},
+	{"GridUp", 221, 0x00, ID_GRID_NEXT},
+	{"TexScaleLeft", VK_LEFT, 0x04, ID_SELECTION_TEXTURE_SCALELEFT},
+	{"TexScaleRight", VK_RIGHT, 0x04, ID_SELECTION_TEXTURE_SCALERIGHT},
+	{"CubicClipZoomOut", 219, 0x04, ID_VIEW_CUBEOUT},
+	{"CubicClipZoomIn", 221, 0x04, ID_VIEW_CUBEIN},
+	{"ToggleCubicClip", 220, 0x04, ID_VIEW_CUBICCLIPPING},
+//	{"ToggleCubicClip", '\\', 0x04, ID_VIEW_CUBICCLIPPING},
+	{"MoveSelectionDOWN", VK_SUBTRACT, 0x00, ID_SELECTION_MOVEDOWN},
+	{"MoveSelectionUP", VK_ADD, 0x00, ID_SELECTION_MOVEUP},
+	{"DumpSelectedBrush", 'D', 0x01, ID_SELECTION_PRINT},
+	{"ToggleSizePaint", 'Q', 0x08, ID_SELECTION_TOGGLESIZEPAINT},
+	{"SelectNudgeLeft", VK_LEFT, 0x02, ID_SELECTION_SELECT_NUDGELEFT},
+	{"SelectNudgeRight", VK_RIGHT, 0x02, ID_SELECTION_SELECT_NUDGERIGHT},
+	{"SelectNudgeUp", VK_UP, 0x02, ID_SELECTION_SELECT_NUDGEUP},
+	{"CycleCapTexturePatch", 'N', 0x05, ID_CURVE_CYCLECAP},
+	{"NaturalizePatch", 'N', 0x04, ID_PATCH_NATURALIZE},
+	{"SnapPatchToGrid", 'G', 0x04, ID_SELECT_SNAPTOGRID},
+	{"ShowAllTextures", 'A', 0x04, ID_TEXTURES_SHOWALL},
+	{"SelectAllOfType", 'A', 0x01, ID_SELECT_ALL},
+	{"CapCurrentCurve", 'C', 0x01, ID_CURVE_CAP},
+	{"MakeStructural", 'S', 0x05, ID_SELECTION_MAKE_STRUCTURAL}
+	//{"ForceCameraWalk", 'Q', 0x08, ID_CAMERA_ACTIVE}
 };
 
 int g_nCommandCount = sizeof(g_Commands) / sizeof(SCommandInfo);
 
 SKeyInfo g_Keys[] =
 {
-  {"Space", VK_SPACE},
-  {"Backspace", VK_BACK},
-  {"Escape", VK_ESCAPE},
-  {"End", VK_END},
-  {"Insert", VK_INSERT},
-  {"Delete", VK_DELETE},
-  {"PageUp", VK_PRIOR},
-  {"PageDown", VK_NEXT},
-  {"Up", VK_UP},
-  {"Down", VK_DOWN},
-  {"Left", VK_LEFT},
-  {"Right", VK_RIGHT},
-  {"F1", VK_F1},
-  {"F2", VK_F2},
-  {"F3", VK_F3},
-  {"F4", VK_F4},
-  {"F5", VK_F5},
-  {"F6", VK_F6},
-  {"F7", VK_F7},
-  {"F8", VK_F8},
-  {"F9", VK_F9},
-  {"F10", VK_F10},
-  {"F11", VK_F11},
-  {"F12", VK_F12},
-  {"Tab", VK_TAB},
-  {"Return", VK_RETURN},                           
-  {"Comma", VK_COMMA},
-  {"Period", VK_PERIOD},
-  {"Plus", VK_ADD},
-  {"Multiply", VK_MULTIPLY},
-  {"Subtract", VK_SUBTRACT},
-  {"NumPad0", VK_NUMPAD0},
-  {"NumPad1", VK_NUMPAD1},
-  {"NumPad2", VK_NUMPAD2},
-  {"NumPad3", VK_NUMPAD3},
-  {"NumPad4", VK_NUMPAD4},
-  {"NumPad5", VK_NUMPAD5},
-  {"NumPad6", VK_NUMPAD6},
-  {"NumPad7", VK_NUMPAD7},
-  {"NumPad8", VK_NUMPAD8},
-  {"NumPad9", VK_NUMPAD9},
-  {"[", 219},
-  {"]", 221},
-  {"\\", 220}
+	{"Space", VK_SPACE},
+	{"Backspace", VK_BACK},
+	{"Escape", VK_ESCAPE},
+	{"End", VK_END},
+	{"Insert", VK_INSERT},
+	{"Delete", VK_DELETE},
+	{"PageUp", VK_PRIOR},
+	{"PageDown", VK_NEXT},
+	{"Up", VK_UP},
+	{"Down", VK_DOWN},
+	{"Left", VK_LEFT},
+	{"Right", VK_RIGHT},
+	{"F1", VK_F1},
+	{"F2", VK_F2},
+	{"F3", VK_F3},
+	{"F4", VK_F4},
+	{"F5", VK_F5},
+	{"F6", VK_F6},
+	{"F7", VK_F7},
+	{"F8", VK_F8},
+	{"F9", VK_F9},
+	{"F10", VK_F10},
+	{"F11", VK_F11},
+	{"F12", VK_F12},
+	{"Tab", VK_TAB},
+	{"Return", VK_RETURN},													 
+	{"Comma", VK_COMMA},
+	{"Period", VK_PERIOD},
+	{"Plus", VK_ADD},
+	{"Multiply", VK_MULTIPLY},
+	{"Subtract", VK_SUBTRACT},
+	{"NumPad0", VK_NUMPAD0},
+	{"NumPad1", VK_NUMPAD1},
+	{"NumPad2", VK_NUMPAD2},
+	{"NumPad3", VK_NUMPAD3},
+	{"NumPad4", VK_NUMPAD4},
+	{"NumPad5", VK_NUMPAD5},
+	{"NumPad6", VK_NUMPAD6},
+	{"NumPad7", VK_NUMPAD7},
+	{"NumPad8", VK_NUMPAD8},
+	{"NumPad9", VK_NUMPAD9},
+	{"[", 219},
+	{"]", 221},
+	{"\\", 220}
 };
+
+bool g_bTABDown = false;
+bool g_bOriginalFlag;
 
 int g_nKeyCount = sizeof(g_Keys) / sizeof(SKeyInfo);
 
@@ -304,7 +308,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_CLOSE()
 	ON_WM_KEYDOWN()
 	ON_WM_SIZE()
-  ON_COMMAND(ID_VIEW_CAMERATOGGLE, ToggleCamera)
+	ON_COMMAND(ID_VIEW_CAMERATOGGLE, ToggleCamera)
 	ON_COMMAND(ID_FILE_CLOSE, OnFileClose)
 	ON_COMMAND(ID_FILE_EXIT, OnFileExit)
 	ON_COMMAND(ID_FILE_LOADPROJECT, OnFileLoadproject)
@@ -601,97 +605,80 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND(ID_POPUP_NEWCAMERA_SPLINE, OnPopupNewcameraSpline)
 	ON_COMMAND(ID_POPUP_NEWCAMERA_FIXED, OnPopupNewcameraFixed)
 	//}}AFX_MSG_MAP
-  ON_COMMAND_RANGE(CMD_TEXTUREWAD, CMD_TEXTUREWAD_END, OnTextureWad)
-  ON_COMMAND_RANGE(CMD_BSPCOMMAND, CMD_BSPCOMMAND_END, OnBspCommand)
-  ON_COMMAND_RANGE(IDMRU, IDMRU_END, OnMru)
-  ON_COMMAND_RANGE(ID_VIEW_NEAREST, ID_TEXTURES_FLATSHADE, OnViewNearest)
-  ON_COMMAND_RANGE(ID_GRID_1, ID_GRID_64, OnGrid1)
-  ON_COMMAND_RANGE(ID_PLUGIN_START, ID_PLUGIN_END, OnPlugIn)
-  ON_REGISTERED_MESSAGE(g_msgBSPDone, OnBSPDone)
-  ON_REGISTERED_MESSAGE(g_msgBSPStatus, OnBSPStatus)
-  ON_MESSAGE(WM_DISPLAYCHANGE, OnDisplayChange)
+	ON_COMMAND_RANGE(CMD_TEXTUREWAD, CMD_TEXTUREWAD_END, OnTextureWad)
+	ON_COMMAND_RANGE(CMD_BSPCOMMAND, CMD_BSPCOMMAND_END, OnBspCommand)
+	ON_COMMAND_RANGE(IDMRU, IDMRU_END, OnMru)
+	ON_COMMAND_RANGE(ID_VIEW_NEAREST, ID_TEXTURES_FLATSHADE, OnViewNearest)
+	ON_COMMAND_RANGE(ID_GRID_1, ID_GRID_64, OnGrid1)
+	ON_COMMAND_RANGE(ID_PLUGIN_START, ID_PLUGIN_END, OnPlugIn)
+	ON_REGISTERED_MESSAGE(g_msgBSPDone, OnBSPDone)
+	ON_REGISTERED_MESSAGE(g_msgBSPStatus, OnBSPStatus)
+	ON_MESSAGE(WM_DISPLAYCHANGE, OnDisplayChange)
 
 END_MESSAGE_MAP()
 
-static UINT indicators[] =
-{
-	ID_SEPARATOR,           // status line indicator
-	ID_SEPARATOR,           // status line indicator
-	ID_SEPARATOR,           // status line indicator
-	ID_SEPARATOR,           // status line indicator
-	ID_SEPARATOR,           // status line indicator
-	ID_SEPARATOR,           // status line indicator
+static UINT indicators[] = {
+	ID_SEPARATOR,					 // status line indicator
+	ID_SEPARATOR,					 // status line indicator
+	ID_SEPARATOR,					 // status line indicator
+	ID_SEPARATOR,					 // status line indicator
+	ID_SEPARATOR,					 // status line indicator
+	ID_SEPARATOR,					 // status line indicator
 };
 
-LRESULT CMainFrame::OnDisplayChange(UINT wParam, long lParam)
-{
-  int n = wParam;
-  return 0;
-}
-
-
-LRESULT CMainFrame::OnBSPStatus(UINT wParam, long lParam)
-{
+LRESULT CMainFrame::OnDisplayChange(UINT wParam, long lParam) {
+	int n = wParam;
 	return 0;
 }
 
-LRESULT CMainFrame::OnBSPDone(UINT wParam, long lParam)
-{
-  DLLBuildDone();
-  return 0;
+LRESULT CMainFrame::OnBSPStatus(UINT wParam, long lParam) {
+	return 0;
+}
+
+LRESULT CMainFrame::OnBSPDone(UINT wParam, long lParam) {
+	DLLBuildDone();
+	return 0;
+}
+
+CMainFrame::CMainFrame() {
+	m_bDoLoop = false;
+	m_bSplittersOK = false;
+	g_pParentWnd = this;
+	m_pXYWnd = NULL;
+	m_pCamWnd = NULL;
+	m_pTexWnd = NULL;
+	m_pZWnd = NULL;
+	m_pEditWnd = NULL;
+	m_pYZWnd = NULL;
+	m_pXZWnd = NULL;
+	m_pActiveXY = NULL;
+	m_bCamPreview = true;
+}
+
+CMainFrame::~CMainFrame() {
+}
+
+void HandlePopup(CWnd* pWindow, unsigned int uId) {
+	// Get the current position of the mouse
+	CPoint ptMouse;
+	GetCursorPos(&ptMouse);
+	// Load up a menu that has the options we are looking for in it
+	CMenu mnuPopup;
+	VERIFY(mnuPopup.LoadMenu(uId));
+	mnuPopup.GetSubMenu(0)->TrackPopupMenu(TPM_LEFTALIGN | TPM_LEFTBUTTON |
+			TPM_RIGHTBUTTON, ptMouse.x, ptMouse.y,pWindow);
+	mnuPopup.DestroyMenu();
+	// Set focus back to window
+	pWindow->SetFocus();
 }
 
 
-/////////////////////////////////////////////////////////////////////////////
-// CMainFrame construction/destruction
-
-CMainFrame::CMainFrame()
-{
-  m_bDoLoop = false;
-  m_bSplittersOK = false;
-  g_pParentWnd = this;
-  m_pXYWnd = NULL;
-  m_pCamWnd = NULL;
-  m_pTexWnd = NULL;
-  m_pZWnd = NULL;
-  m_pEditWnd = NULL;
-  m_pYZWnd = NULL;
-  m_pXZWnd = NULL;
-  m_pActiveXY = NULL;
-  m_bCamPreview = true;
+void CMainFrame::OnParentNotify(UINT message, LPARAM lParam) {
 }
 
-CMainFrame::~CMainFrame()
-{
-}
-
-void HandlePopup(CWnd* pWindow, unsigned int uId)
-{
-  // Get the current position of the mouse
-  CPoint ptMouse;
-  GetCursorPos(&ptMouse);
-
-  // Load up a menu that has the options we are looking for in it
-  CMenu mnuPopup;
-  VERIFY(mnuPopup.LoadMenu(uId));
-  mnuPopup.GetSubMenu(0)->TrackPopupMenu(TPM_LEFTALIGN | TPM_LEFTBUTTON |
-      TPM_RIGHTBUTTON, ptMouse.x, ptMouse.y,pWindow);
-  mnuPopup.DestroyMenu();
-
-  // Set focus back to window
-  pWindow->SetFocus();
-}
-
-
-void CMainFrame::OnParentNotify(UINT message, LPARAM lParam) 
-{
-}
-
-void CMainFrame::SetButtonMenuStates()
-{
-  CMenu* pMenu = GetMenu();
-  if (pMenu)
-  {
+void CMainFrame::SetButtonMenuStates() {
+	CMenu* pMenu = GetMenu();
+	if (pMenu) {
 		// by default all of these are checked because that's how they're defined in the menu editor
 		if ( !g_qeglobals.d_savedinfo.show_names )
 			pMenu->CheckMenuItem(ID_VIEW_SHOWNAMES, MF_BYCOMMAND | MF_UNCHECKED);
@@ -718,46 +705,42 @@ void CMainFrame::SetButtonMenuStates()
 			pMenu->CheckMenuItem(ID_VIEW_SHOWANGLES, MF_BYCOMMAND | MF_UNCHECKED );
 
 
-    pMenu->CheckMenuItem(ID_TOGGLE_LOCK, MF_BYCOMMAND | (g_PrefsDlg.m_bTextureLock) ? MF_CHECKED : MF_UNCHECKED);
-    pMenu->CheckMenuItem(ID_TOGGLE_ROTATELOCK, MF_BYCOMMAND | (g_PrefsDlg.m_bRotateLock) ? MF_CHECKED : MF_UNCHECKED);
-    pMenu->CheckMenuItem(ID_VIEW_CUBICCLIPPING, MF_BYCOMMAND | (g_PrefsDlg.m_bCubicClipping) ? MF_CHECKED : MF_UNCHECKED);
-    pMenu->CheckMenuItem (ID_VIEW_OPENGLLIGHTING, MF_BYCOMMAND | (g_PrefsDlg.m_bGLLighting) ? MF_CHECKED : MF_UNCHECKED );
-    pMenu->CheckMenuItem (ID_SNAPTOGRID, MF_BYCOMMAND | (!g_PrefsDlg.m_bNoClamp) ? MF_CHECKED : MF_UNCHECKED );
-    if (m_wndToolBar.GetSafeHwnd())
-      m_wndToolBar.GetToolBarCtrl().CheckButton(ID_VIEW_CUBICCLIPPING, (g_PrefsDlg.m_bCubicClipping) ? TRUE : FALSE);
+		pMenu->CheckMenuItem(ID_TOGGLE_LOCK, MF_BYCOMMAND | (g_PrefsDlg.m_bTextureLock) ? MF_CHECKED : MF_UNCHECKED);
+		pMenu->CheckMenuItem(ID_TOGGLE_ROTATELOCK, MF_BYCOMMAND | (g_PrefsDlg.m_bRotateLock) ? MF_CHECKED : MF_UNCHECKED);
+		pMenu->CheckMenuItem(ID_VIEW_CUBICCLIPPING, MF_BYCOMMAND | (g_PrefsDlg.m_bCubicClipping) ? MF_CHECKED : MF_UNCHECKED);
+		pMenu->CheckMenuItem (ID_VIEW_OPENGLLIGHTING, MF_BYCOMMAND | (g_PrefsDlg.m_bGLLighting) ? MF_CHECKED : MF_UNCHECKED );
+		pMenu->CheckMenuItem (ID_SNAPTOGRID, MF_BYCOMMAND | (!g_PrefsDlg.m_bNoClamp) ? MF_CHECKED : MF_UNCHECKED );
+		if (m_wndToolBar.GetSafeHwnd())
+			m_wndToolBar.GetToolBarCtrl().CheckButton(ID_VIEW_CUBICCLIPPING, (g_PrefsDlg.m_bCubicClipping) ? TRUE : FALSE);
 
-    int n = g_PrefsDlg.m_nTextureScale;
-    int id;
-    switch (n)
-    {
-      case 10 : id = ID_TEXTURES_TEXTUREWINDOWSCALE_10; break;
-      case 25 : id = ID_TEXTURES_TEXTUREWINDOWSCALE_25; break;
-      case 50 : id = ID_TEXTURES_TEXTUREWINDOWSCALE_50; break;
-      case 200 : id = ID_TEXTURES_TEXTUREWINDOWSCALE_200; break;
-      default : id = ID_TEXTURES_TEXTUREWINDOWSCALE_100; break;
-    }
-    CheckTextureScale(id);
+		int n = g_PrefsDlg.m_nTextureScale;
+		int id;
+		switch (n)
+		{
+			case 10 : id = ID_TEXTURES_TEXTUREWINDOWSCALE_10; break;
+			case 25 : id = ID_TEXTURES_TEXTUREWINDOWSCALE_25; break;
+			case 50 : id = ID_TEXTURES_TEXTUREWINDOWSCALE_50; break;
+			case 200 : id = ID_TEXTURES_TEXTUREWINDOWSCALE_200; break;
+			default : id = ID_TEXTURES_TEXTUREWINDOWSCALE_100; break;
+		}
+		CheckTextureScale(id);
 
 
 	}
-  if (g_qeglobals.d_project_entity)
-  {
-    FillTextureMenu();      // redundant but i'll clean it up later.. yeah right.. 
-	  FillBSPMenu();
-	  LoadMruInReg(g_qeglobals.d_lpMruMenu,"Software\\id\\QuakeEd4\\MRU");
-    PlaceMenuMRUItem(g_qeglobals.d_lpMruMenu,::GetSubMenu(::GetMenu(GetSafeHwnd()),0), ID_FILE_EXIT);
-  }
+	if (g_qeglobals.d_project_entity) {
+		FillTextureMenu();			// redundant but i'll clean it up later.. yeah right.. 
+		FillBSPMenu();
+		LoadMruInReg(g_qeglobals.d_lpMruMenu,"Software\\id\\QuakeEd4\\MRU");
+		PlaceMenuMRUItem(g_qeglobals.d_lpMruMenu,::GetSubMenu(::GetMenu(GetSafeHwnd()),0), ID_FILE_EXIT);
+	}
 }
 
-void CMainFrame::ShowMenuItemKeyBindings(CMenu *pMenu)
-{
+void CMainFrame::ShowMenuItemKeyBindings(CMenu *pMenu) {
 	int i, j;
 	char key[1024], *ptr;
 	MENUITEMINFO MenuItemInfo;
-
 	//return;
-	for (i = 0; i < g_nCommandCount; i++)
-	{
+	for (i = 0; i < g_nCommandCount; i++) {
 		memset(&MenuItemInfo, 0, sizeof(MENUITEMINFO));
 		MenuItemInfo.cbSize = sizeof(MENUITEMINFO);
 		MenuItemInfo.fMask = MIIM_TYPE;
@@ -770,7 +753,7 @@ void CMainFrame::ShowMenuItemKeyBindings(CMenu *pMenu)
 		ptr = strchr(key, '\t');
 		if (ptr) *ptr = '\0';
 		strcat(key, "\t");
-		if (g_Commands[i].m_nModifiers)     // are there modifiers present?
+		if (g_Commands[i].m_nModifiers)		 // are there modifiers present?
 		{
 			if (g_Commands[i].m_nModifiers & RAD_SHIFT)
 				strcat(key, "Shift-");
@@ -779,16 +762,13 @@ void CMainFrame::ShowMenuItemKeyBindings(CMenu *pMenu)
 			if (g_Commands[i].m_nModifiers & RAD_CONTROL)
 				strcat(key, "Ctrl-");
 		}
-		for (j = 0; j < g_nKeyCount; j++)
-		{
-			if (g_Commands[i].m_nKey == g_Keys[j].m_nVKKey)
-			{
+		for (j = 0; j < g_nKeyCount; j++) {
+			if (g_Commands[i].m_nKey == g_Keys[j].m_nVKKey) {
 				strcat(key, g_Keys[j].m_strName);
 				break;
 			}
 		}
-		if (j >= g_nKeyCount)
-		{
+		if (j >= g_nKeyCount) {
 			sprintf(&key[strlen(key)], "%c", g_Commands[i].m_nKey);
 		}
 		memset(&MenuItemInfo, 0, sizeof(MENUITEMINFO));
@@ -801,42 +781,39 @@ void CMainFrame::ShowMenuItemKeyBindings(CMenu *pMenu)
 	}
 }
 
-int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
-{
+int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct) {
+	//Init3Dfx();
+	char* pBuffer = g_strAppPath.GetBufferSetLength(_MAX_PATH + 1);
+	int nResult = ::GetModuleFileName(NULL, pBuffer, _MAX_PATH);
+	ASSERT(nResult != 0);
+	pBuffer[g_strAppPath.ReverseFind('\\') + 1] = '\0';
+	g_strAppPath.ReleaseBuffer();
 
-  //Init3Dfx();
-
-  char* pBuffer = g_strAppPath.GetBufferSetLength(_MAX_PATH + 1);
-  int nResult = ::GetModuleFileName(NULL, pBuffer, _MAX_PATH);
-  ASSERT(nResult != 0);
-  pBuffer[g_strAppPath.ReverseFind('\\') + 1] = '\0';
-  g_strAppPath.ReleaseBuffer();
-
-  InitCommonControls ();
+	InitCommonControls ();
 	g_qeglobals.d_hInstance = AfxGetInstanceHandle();
-  MFCCreate(AfxGetInstanceHandle());
+	MFCCreate(AfxGetInstanceHandle());
 
-  //g_PrefsDlg.LoadPrefs();
-  
-  if (CFrameWnd::OnCreate(lpCreateStruct) == -1)
+	//g_PrefsDlg.LoadPrefs();
+	
+	if (CFrameWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-  UINT nStyle;
-  UINT nID = (g_PrefsDlg.m_bWideToolbar) ? IDR_TOOLBAR_ADVANCED : IDR_TOOLBAR1;
+	UINT nStyle;
+	UINT nID = (g_PrefsDlg.m_bWideToolbar) ? IDR_TOOLBAR_ADVANCED : IDR_TOOLBAR1;
 
 	if (!m_wndToolBar.Create(this) ||
 		!m_wndToolBar.LoadToolBar(nID))
 	{
 		TRACE0("Failed to create toolbar\n");
-		return -1;      // fail to create
+		return -1;			// fail to create
 	}
 
 	if (!m_wndStatusBar.Create(this) ||
 		!m_wndStatusBar.SetIndicators(indicators,
-		  sizeof(indicators)/sizeof(UINT)))
+			sizeof(indicators)/sizeof(UINT)))
 	{
 		TRACE0("Failed to create status bar\n");
-		return -1;      // fail to create
+		return -1;			// fail to create
 	}
 
 #if 0
@@ -844,7 +821,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		!m_wndScaleBar.LoadToolBar(IDR_TOOLBAR_SCALELOCK))
 	{
 		TRACE0("Failed to create scaling toolbar\n");
-		return -1;      // fail to create
+		return -1;			// fail to create
 	}
 #endif
 
@@ -853,209 +830,209 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC);
 
 	// TODO: Delete these three lines if you don't want the toolbar to
-	//  be dockable
+	//	be dockable
 	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockControlBar(&m_wndToolBar);
 
 	//m_wndScaleBar.SetBarStyle(m_wndScaleBar.GetBarStyle() |	CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC);
 	//m_wndScaleBar.EnableDocking(CBRS_ALIGN_ANY);
-  //m_wndScaleBar.ShowWindow(SW_HIDE);
+	//m_wndScaleBar.ShowWindow(SW_HIDE);
 
-  int nImage;
-  int nIndex = m_wndToolBar.CommandToIndex(ID_VIEW_CAMERATOGGLE);
-  if (nIndex >= 0)
-  {
-    m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
-    m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
-    m_wndToolBar.GetToolBarCtrl().CheckButton(nID);
-  }
-  m_bCamPreview = true;
+	int nImage;
+	int nIndex = m_wndToolBar.CommandToIndex(ID_VIEW_CAMERATOGGLE);
+	if (nIndex >= 0)
+	{
+		m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
+		m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
+		m_wndToolBar.GetToolBarCtrl().CheckButton(nID);
+	}
+	m_bCamPreview = true;
 
-  nIndex = m_wndToolBar.CommandToIndex(ID_VIEW_CUBICCLIPPING);
-  if (nIndex >= 0)
-  {
-    m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
-    m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
-  }
-  nIndex = m_wndToolBar.CommandToIndex(ID_VIEW_ENTITY);
-  if (nIndex >= 0)
-  {
-    m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
-    m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
-  }
-  nIndex = m_wndToolBar.CommandToIndex(ID_VIEW_CLIPPER);
-  if (nIndex >= 0)
-  {
-    m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
-    m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
-  }
-  nIndex = m_wndToolBar.CommandToIndex(ID_SELECT_MOUSEROTATE);
-  if (nIndex >= 0)
-  {
-    m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
-    m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
-  }
+	nIndex = m_wndToolBar.CommandToIndex(ID_VIEW_CUBICCLIPPING);
+	if (nIndex >= 0)
+	{
+		m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
+		m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
+	}
+	nIndex = m_wndToolBar.CommandToIndex(ID_VIEW_ENTITY);
+	if (nIndex >= 0)
+	{
+		m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
+		m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
+	}
+	nIndex = m_wndToolBar.CommandToIndex(ID_VIEW_CLIPPER);
+	if (nIndex >= 0)
+	{
+		m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
+		m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
+	}
+	nIndex = m_wndToolBar.CommandToIndex(ID_SELECT_MOUSEROTATE);
+	if (nIndex >= 0)
+	{
+		m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
+		m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
+	}
 
-  nIndex = m_wndToolBar.CommandToIndex(ID_SELECT_MOUSESCALE);
-  if (nIndex >= 0)
-  {
-    m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
-    m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
-  }
+	nIndex = m_wndToolBar.CommandToIndex(ID_SELECT_MOUSESCALE);
+	if (nIndex >= 0)
+	{
+		m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
+		m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
+	}
 
-  nIndex = m_wndToolBar.CommandToIndex(ID_SCALELOCKX);
-  if (nIndex >= 0)
-  {
-    m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
-    m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
-    m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SCALELOCKX, FALSE);
-  }
+	nIndex = m_wndToolBar.CommandToIndex(ID_SCALELOCKX);
+	if (nIndex >= 0)
+	{
+		m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
+		m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
+		m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SCALELOCKX, FALSE);
+	}
 
-  nIndex = m_wndToolBar.CommandToIndex(ID_SCALELOCKY);
-  if (nIndex >= 0)
-  {
-    m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
-    m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
-    m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SCALELOCKY, FALSE);
-  }
+	nIndex = m_wndToolBar.CommandToIndex(ID_SCALELOCKY);
+	if (nIndex >= 0)
+	{
+		m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
+		m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
+		m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SCALELOCKY, FALSE);
+	}
 
-  nIndex = m_wndToolBar.CommandToIndex(ID_SCALELOCKZ);
-  if (nIndex >= 0)
-  {
-    m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
-    m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
-    m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SCALELOCKZ, FALSE);
-  }
-
-#ifdef QUAKE3
-  nIndex = m_wndToolBar.CommandToIndex(ID_DONTSELECTCURVE);
-  if (nIndex >= 0)
-  {
-    m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
-    m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
-  }
-  nIndex = m_wndToolBar.CommandToIndex(ID_PATCH_SHOWBOUNDINGBOX);
-  if (nIndex >= 0)
-  {
-    m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
-    m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
-    m_wndToolBar.GetToolBarCtrl().CheckButton(ID_PATCH_SHOWBOUNDINGBOX, TRUE);
-  }
-  nIndex = m_wndToolBar.CommandToIndex(ID_PATCH_WELD);
-  if (nIndex >= 0)
-  {
-    m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
-    m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
-    m_wndToolBar.GetToolBarCtrl().CheckButton(ID_PATCH_WELD, TRUE);
-  }
-  nIndex = m_wndToolBar.CommandToIndex(ID_PATCH_DRILLDOWN);
-  if (nIndex >= 0)
-  {
-    m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
-    m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
-    m_wndToolBar.GetToolBarCtrl().CheckButton(ID_PATCH_DRILLDOWN, TRUE);
-  }
-  nIndex = m_wndToolBar.CommandToIndex(ID_PATCH_BEND);
-  if (nIndex >= 0)
-  {
-    m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
-    m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
-  }
-  nIndex = m_wndToolBar.CommandToIndex(ID_PATCH_INSDEL);
-  if (nIndex >= 0)
-  {
-    m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
-    m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
-  }
-#else
-  m_wndToolBar.GetToolBarCtrl().HideButton(ID_DONTSELECTCURVE);
-  m_wndToolBar.GetToolBarCtrl().HideButton(ID_PATCH_SHOWBOUNDINGBOX);
-  m_wndToolBar.GetToolBarCtrl().HideButton(ID_PATCH_WELD);
-  m_wndToolBar.GetToolBarCtrl().HideButton(ID_PATCH_WIREFRAME);
-#endif
-  g_nScaleHow = 0;
-
+	nIndex = m_wndToolBar.CommandToIndex(ID_SCALELOCKZ);
+	if (nIndex >= 0)
+	{
+		m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
+		m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
+		m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SCALELOCKZ, FALSE);
+	}
 
 #ifdef QUAKE3
-  g_pParentWnd->GetMenu()->DestroyMenu();
-  CMenu* pMenu = new CMenu();
-  pMenu->LoadMenu(IDR_MENU_QUAKE3);
-  g_pParentWnd->SetMenu(pMenu);
+	nIndex = m_wndToolBar.CommandToIndex(ID_DONTSELECTCURVE);
+	if (nIndex >= 0)
+	{
+		m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
+		m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
+	}
+	nIndex = m_wndToolBar.CommandToIndex(ID_PATCH_SHOWBOUNDINGBOX);
+	if (nIndex >= 0)
+	{
+		m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
+		m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
+		m_wndToolBar.GetToolBarCtrl().CheckButton(ID_PATCH_SHOWBOUNDINGBOX, TRUE);
+	}
+	nIndex = m_wndToolBar.CommandToIndex(ID_PATCH_WELD);
+	if (nIndex >= 0)
+	{
+		m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
+		m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
+		m_wndToolBar.GetToolBarCtrl().CheckButton(ID_PATCH_WELD, TRUE);
+	}
+	nIndex = m_wndToolBar.CommandToIndex(ID_PATCH_DRILLDOWN);
+	if (nIndex >= 0)
+	{
+		m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
+		m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
+		m_wndToolBar.GetToolBarCtrl().CheckButton(ID_PATCH_DRILLDOWN, TRUE);
+	}
+	nIndex = m_wndToolBar.CommandToIndex(ID_PATCH_BEND);
+	if (nIndex >= 0)
+	{
+		m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
+		m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
+	}
+	nIndex = m_wndToolBar.CommandToIndex(ID_PATCH_INSDEL);
+	if (nIndex >= 0)
+	{
+		m_wndToolBar.GetButtonInfo(nIndex, nID, nStyle, nImage);
+		m_wndToolBar.SetButtonInfo(nIndex, nID, TBBS_CHECKBOX, nImage);
+	}
 #else
-  CMenu* pMenu = GetMenu();
+	m_wndToolBar.GetToolBarCtrl().HideButton(ID_DONTSELECTCURVE);
+	m_wndToolBar.GetToolBarCtrl().HideButton(ID_PATCH_SHOWBOUNDINGBOX);
+	m_wndToolBar.GetToolBarCtrl().HideButton(ID_PATCH_WELD);
+	m_wndToolBar.GetToolBarCtrl().HideButton(ID_PATCH_WIREFRAME);
+#endif
+	g_nScaleHow = 0;
+
+
+#ifdef QUAKE3
+	g_pParentWnd->GetMenu()->DestroyMenu();
+	CMenu* pMenu = new CMenu();
+	pMenu->LoadMenu(IDR_MENU_QUAKE3);
+	g_pParentWnd->SetMenu(pMenu);
+#else
+	CMenu* pMenu = GetMenu();
 #endif
 
-  m_wndTextureBar.Create(this, IDD_TEXTUREBAR, CBRS_BOTTOM, 7433);
-  m_wndTextureBar.EnableDocking(CBRS_ALIGN_ANY);
-  DockControlBar(&m_wndTextureBar);
+	m_wndTextureBar.Create(this, IDD_TEXTUREBAR, CBRS_BOTTOM, 7433);
+	m_wndTextureBar.EnableDocking(CBRS_ALIGN_ANY);
+	DockControlBar(&m_wndTextureBar);
  
-  g_qeglobals.d_lpMruMenu = CreateMruMenuDefault();
+	g_qeglobals.d_lpMruMenu = CreateMruMenuDefault();
 
-  m_bAutoMenuEnable = FALSE;
+	m_bAutoMenuEnable = FALSE;
 
-  LoadCommandMap();
+	LoadCommandMap();
 
-  ShowMenuItemKeyBindings(pMenu);
+	ShowMenuItemKeyBindings(pMenu);
 
-  CFont* pFont = new CFont();
-  pFont->CreatePointFont(g_PrefsDlg.m_nStatusSize * 10, "Arial");
-  m_wndStatusBar.SetFont(pFont);
+	CFont* pFont = new CFont();
+	pFont->CreatePointFont(g_PrefsDlg.m_nStatusSize * 10, "Arial");
+	m_wndStatusBar.SetFont(pFont);
 
 	OnPluginsRefresh();
 
-  if (g_PrefsDlg.m_bRunBefore == FALSE)
-  {
-    g_PrefsDlg.m_bRunBefore = TRUE;
-    g_PrefsDlg.SavePrefs();
+	if (g_PrefsDlg.m_bRunBefore == FALSE)
+	{
+		g_PrefsDlg.m_bRunBefore = TRUE;
+		g_PrefsDlg.SavePrefs();
 /*
-    if (MessageBox("Would you like QERadiant to build and load a default project? If this is the first time you have run QERadiant or you are not familiar with editing QE4 project files directly, this is HIGHLY recommended", "Create a default project?", MB_YESNO) == IDYES)
-    {
-      OnFileNewproject();
-    }
+		if (MessageBox("Would you like QERadiant to build and load a default project? If this is the first time you have run QERadiant or you are not familiar with editing QE4 project files directly, this is HIGHLY recommended", "Create a default project?", MB_YESNO) == IDYES)
+		{
+			OnFileNewproject();
+		}
 */
-  }
-  else
-  {
-    // hack that keeps SGI OpenGL from crashing on texture load with no map
+	}
+	else
+	{
+		// hack that keeps SGI OpenGL from crashing on texture load with no map
 #if 0
-    if (g_PrefsDlg.m_bSGIOpenGL)
-    {
-      vec3_t vMin, vMax;
-      vMin[0] = vMin[1] = vMin[2] = 0;
-      vMax[0] = vMax[1] = vMax[2] = 8;
-      brush_t* pBrush = Brush_Create(vMin, vMax, &g_qeglobals.d_texturewin.texdef);
-	    Entity_LinkBrush (world_entity, pBrush);
-      Brush_Build(pBrush);
-	    Brush_AddToList (pBrush, &active_brushes);
-      Select_Brush(pBrush);
-      Sys_UpdateWindows(W_ALL);
-      PostMessage(WM_COMMAND, ID_SELECTION_DELETE, 0); 
-    }
+		if (g_PrefsDlg.m_bSGIOpenGL)
+		{
+			vec3_t vMin, vMax;
+			vMin[0] = vMin[1] = vMin[2] = 0;
+			vMax[0] = vMax[1] = vMax[2] = 8;
+			brush_t* pBrush = Brush_Create(vMin, vMax, &g_qeglobals.d_texturewin.texdef);
+			Entity_LinkBrush (world_entity, pBrush);
+			Brush_Build(pBrush);
+			Brush_AddToList (pBrush, &active_brushes);
+			Select_Brush(pBrush);
+			Sys_UpdateWindows(W_ALL);
+			PostMessage(WM_COMMAND, ID_SELECTION_DELETE, 0); 
+		}
 #endif
-	  // load plugins before the first Map_LoadFile
-	  // required for model plugins
-    if (g_PrefsDlg.m_bLoadLastMap && g_PrefsDlg.m_strLastMap.GetLength() > 0)
-      Map_LoadFile(g_PrefsDlg.m_strLastMap.GetBuffer(0));
-  }
+		// load plugins before the first Map_LoadFile
+		// required for model plugins
+		if (g_PrefsDlg.m_bLoadLastMap && g_PrefsDlg.m_strLastMap.GetLength() > 0)
+			Map_LoadFile(g_PrefsDlg.m_strLastMap.GetBuffer(0));
+	}
 
-  SetGridStatus();
-  SetTexValStatus();
-  SetButtonMenuStates();
-  LoadBarState("RadiantToolBars2");
-  if (!g_PrefsDlg.m_bTextureBar)
-    ShowControlBar(&m_wndTextureBar, FALSE, TRUE);
-  else
-    ShowControlBar(&m_wndTextureBar, TRUE, TRUE);
+	SetGridStatus();
+	SetTexValStatus();
+	SetButtonMenuStates();
+	LoadBarState("RadiantToolBars2");
+	if (!g_PrefsDlg.m_bTextureBar)
+		ShowControlBar(&m_wndTextureBar, FALSE, TRUE);
+	else
+		ShowControlBar(&m_wndTextureBar, TRUE, TRUE);
 
-  ShowControlBar(&m_wndToolBar, (m_wndToolBar.GetStyle() & WS_VISIBLE), TRUE);
+	ShowControlBar(&m_wndToolBar, (m_wndToolBar.GetStyle() & WS_VISIBLE), TRUE);
 
-  SetActiveXY(m_pXYWnd);
-  m_pXYWnd->SetFocus();
+	SetActiveXY(m_pXYWnd);
+	m_pXYWnd->SetFocus();
 
-  PostMessage(WM_KEYDOWN, 'O', NULL);
+	PostMessage(WM_KEYDOWN, 'O', NULL);
 
-  return 0;
+	return 0;
 }
 
 void CMainFrame::HandleKey(UINT nChar, UINT nRepCnt, UINT nFlags, bool bDown) {
@@ -1074,75 +1051,72 @@ void CMainFrame::SetActiveXY(CXYWnd* p) {
 }
 
 void CMainFrame::LoadCommandMap() {
-  CString strINI;
-  char* pBuff = new char[1024];
-  if (g_PrefsDlg.m_strUserPath.GetLength() > 0)
-    strINI = g_PrefsDlg.m_strUserPath;
-  else
-  {
-    strINI = g_strAppPath;
-    strINI += "\\radiant.ini";
-  }
+	CString strINI;
+	char* pBuff = new char[1024];
+	if (g_PrefsDlg.m_strUserPath.GetLength() > 0)
+		strINI = g_PrefsDlg.m_strUserPath;
+	else
+	{
+		strINI = g_strAppPath;
+		strINI += "\\radiant.ini";
+	}
 
-  for (int i = 0; i < g_nCommandCount; i++)
-  {
-    int nLen = GetPrivateProfileString("Commands", g_Commands[i].m_strCommand, "", pBuff, 1024, strINI);
-    if (nLen > 0)
-    {
-      CString strBuff = pBuff;
-      strBuff.TrimLeft();
-      strBuff.TrimRight();
-      int nSpecial = strBuff.Find("+alt");
-      g_Commands[i].m_nModifiers = 0;
-      if (nSpecial >= 0)
-      {
-        g_Commands[i].m_nModifiers |= RAD_ALT;
-        FindReplace(strBuff, "+alt", "");
-      }
-      nSpecial = strBuff.Find("+ctrl");
-      if (nSpecial >= 0)
-      {
-        g_Commands[i].m_nModifiers |= RAD_CONTROL;
-        FindReplace(strBuff, "+ctrl", "");
-      }
-      nSpecial = strBuff.Find("+shift");
-      if (nSpecial >= 0)
-      {
-        g_Commands[i].m_nModifiers |= RAD_SHIFT;
-        FindReplace(strBuff, "+shift", "");
-      }
-      strBuff.TrimLeft();
-      strBuff.TrimRight();
-      strBuff.MakeUpper();
-      if (nLen == 1) // most often case.. deal with first
-      {
-        g_Commands[i].m_nKey = __toascii(strBuff.GetAt(0));
-      }
-      else // special key
-      {
-        for (int j = 0; j < g_nKeyCount; j++)
-        {
-          if (strBuff.CompareNoCase(g_Keys[j].m_strName) == 0)
-          {
-            g_Commands[i].m_nKey = g_Keys[j].m_nVKKey;
-            break;
-          }
-        }
-      }
-    }
-  }
-  delete []pBuff;
+	for (int i = 0; i < g_nCommandCount; i++)
+	{
+		int nLen = GetPrivateProfileString("Commands", g_Commands[i].m_strCommand, "", pBuff, 1024, strINI);
+		if (nLen > 0)
+		{
+			CString strBuff = pBuff;
+			strBuff.TrimLeft();
+			strBuff.TrimRight();
+			int nSpecial = strBuff.Find("+alt");
+			g_Commands[i].m_nModifiers = 0;
+			if (nSpecial >= 0)
+			{
+				g_Commands[i].m_nModifiers |= RAD_ALT;
+				FindReplace(strBuff, "+alt", "");
+			}
+			nSpecial = strBuff.Find("+ctrl");
+			if (nSpecial >= 0)
+			{
+				g_Commands[i].m_nModifiers |= RAD_CONTROL;
+				FindReplace(strBuff, "+ctrl", "");
+			}
+			nSpecial = strBuff.Find("+shift");
+			if (nSpecial >= 0)
+			{
+				g_Commands[i].m_nModifiers |= RAD_SHIFT;
+				FindReplace(strBuff, "+shift", "");
+			}
+			strBuff.TrimLeft();
+			strBuff.TrimRight();
+			strBuff.MakeUpper();
+			if (nLen == 1) // most often case.. deal with first
+			{
+				g_Commands[i].m_nKey = __toascii(strBuff.GetAt(0));
+			}
+			else // special key
+			{
+				for (int j = 0; j < g_nKeyCount; j++)
+				{
+					if (strBuff.CompareNoCase(g_Keys[j].m_strName) == 0)
+					{
+						g_Commands[i].m_nKey = g_Keys[j].m_nVKKey;
+						break;
+					}
+				}
+			}
+		}
+	}
+	delete []pBuff;
 }
 
 BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 {
 	// TODO: Modify the Window class or styles here by modifying
-	//  the CREATESTRUCT cs
+	//	the CREATESTRUCT cs
 	return CFrameWnd::PreCreateWindow(cs);
 }
-
-/////////////////////////////////////////////////////////////////////////////
-// CMainFrame diagnostics
 
 #ifdef _DEBUG
 void CMainFrame::AssertValid() const
@@ -1157,292 +1131,252 @@ void CMainFrame::Dump(CDumpContext& dc) const
 
 #endif //_DEBUG
 
-/////////////////////////////////////////////////////////////////////////////
-// CMainFrame message handlers
-void CMainFrame::CreateQEChildren()
-{
+void CMainFrame::CreateQEChildren() {
 	// the project file can be specified on the command line,
 	// or implicitly found in the scripts directory
-  bool bProjectLoaded = false;
-	if (AfxGetApp()->m_lpCmdLine && strlen(AfxGetApp()->m_lpCmdLine))
-	{
+	bool bProjectLoaded = false;
+	if (AfxGetApp()->m_lpCmdLine && strlen(AfxGetApp()->m_lpCmdLine)) {
 		ParseCommandLine (AfxGetApp()->m_lpCmdLine);
 		bProjectLoaded = QE_LoadProject(argv[1]);
+	} else {
+		if (g_PrefsDlg.m_bLoadLast && g_PrefsDlg.m_strLastProject.GetLength() > 0)
+		{
+			bProjectLoaded = QE_LoadProject(g_PrefsDlg.m_strLastProject.GetBuffer(0));
+		}
+		if (!bProjectLoaded)
+		{
+			CString str = g_strAppPath;
+			AddSlash(str);
+			str += "../baseq3/scripts/quake.qe4";
+			char cWork[1024];
+			char *pFile = NULL;
+			GetFullPathName(str, 1024, cWork, &pFile);
+			bProjectLoaded = QE_LoadProject(cWork);
+		}
+		if (!bProjectLoaded)
+		{
+			bProjectLoaded = QE_LoadProject("scripts/quake.qe4");
+		}
 	}
-	else 
-  {
-    if (g_PrefsDlg.m_bLoadLast && g_PrefsDlg.m_strLastProject.GetLength() > 0)
-    {
-	    bProjectLoaded = QE_LoadProject(g_PrefsDlg.m_strLastProject.GetBuffer(0));
-    }
-    if (!bProjectLoaded)
-    {
-      CString str = g_strAppPath;
-      AddSlash(str);
-      str += "../baseq3/scripts/quake.qe4";
-      char cWork[1024];
-      char *pFile = NULL;
-      GetFullPathName(str, 1024, cWork, &pFile);
-      bProjectLoaded = QE_LoadProject(cWork);
-    }
-    if (!bProjectLoaded)
-    {
-      bProjectLoaded = QE_LoadProject("scripts/quake.qe4");
-    }
-  }
 
-  if (!bProjectLoaded)
-  {
+	if (!bProjectLoaded) {
 #if 0
-    // let's try the default project directory..
-    char* pBuff = new char[1024];
-    ::GetCurrentDirectory(1024, pBuff);
-    CString strDefProj = g_strAppPath;
-    AddSlash(strDefProj);
-    strDefProj += "defproj";
-    if (::SetCurrentDirectory(strDefProj))
-    {
-	    bProjectLoaded = QE_LoadProject("scripts/quake.qe4");
-      if (bProjectLoaded)
-      {
-        // setup auto load stuff for the default map
-        g_PrefsDlg.m_bLoadLast = TRUE;
-        AddSlash(strDefProj);
-        strDefProj += "maps\\defproj.map";
-        g_PrefsDlg.m_strLastMap = strDefProj;
-        g_PrefsDlg.SavePrefs();
-      }
-    }
-    else
-    {
-      ::SetCurrentDirectory(pBuff);
-    }
-    delete []pBuff;
+		// let's try the default project directory..
+		char* pBuff = new char[1024];
+		::GetCurrentDirectory(1024, pBuff);
+		CString strDefProj = g_strAppPath;
+		AddSlash(strDefProj);
+		strDefProj += "defproj";
+		if (::SetCurrentDirectory(strDefProj))
+		{
+			bProjectLoaded = QE_LoadProject("scripts/quake.qe4");
+			if (bProjectLoaded)
+			{
+				// setup auto load stuff for the default map
+				g_PrefsDlg.m_bLoadLast = TRUE;
+				AddSlash(strDefProj);
+				strDefProj += "maps\\defproj.map";
+				g_PrefsDlg.m_strLastMap = strDefProj;
+				g_PrefsDlg.SavePrefs();
+			}
+		}
+		else
+		{
+			::SetCurrentDirectory(pBuff);
+		}
+		delete []pBuff;
 #endif
 
-    if (!bProjectLoaded)
-    {
-      Sys_Printf ("Using default.qe4. You may experience problems. See the readme.txt\n");
-      CString strProj = g_strAppPath;
-      strProj += "\\default.qe4";
-      bProjectLoaded = QE_LoadProject(strProj.GetBuffer(0));
+		if (!bProjectLoaded)
+		{
+			Sys_Printf ("Using default.qe4. You may experience problems. See the readme.txt\n");
+			CString strProj = g_strAppPath;
+			strProj += "\\default.qe4";
+			bProjectLoaded = QE_LoadProject(strProj.GetBuffer(0));
 
-      if (!bProjectLoaded)
-      {
-        CFileDialog dlgFile(true, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, "Q3Radiant Project files (*.qe4, *.prj)|*.qe4|*.prj||", this);
-        if (dlgFile.DoModal() == IDOK)
-          bProjectLoaded = QE_LoadProject(dlgFile.GetPathName().GetBuffer(0));
-      }
-    }
-  }
+			if (!bProjectLoaded)
+			{
+				CFileDialog dlgFile(true, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, "Q3Radiant Project files (*.qe4, *.prj)|*.qe4|*.prj||", this);
+				if (dlgFile.DoModal() == IDOK)
+					bProjectLoaded = QE_LoadProject(dlgFile.GetPathName().GetBuffer(0));
+			}
+		}
+	}
 
-  if (!bProjectLoaded)
-    Error("Unable to load project file. It was unavailable in the scripts path and the default could not be found");
+	if (!bProjectLoaded)
+		Error("Unable to load project file. It was unavailable in the scripts path and the default could not be found");
 
 
-  if (g_PrefsDlg.m_bPAK == TRUE)
-  {
-    // FIXME: pay attention to Q3 pref
-    //InitPakFile(ValueForKey(g_qeglobals.d_project_entity, "basepath"), g_PrefsDlg.m_strPAKFile);
-    InitPakFile(ValueForKey(g_qeglobals.d_project_entity, "basepath"), NULL);
-  }
+	if (g_PrefsDlg.m_bPAK == TRUE) {
+		// FIXME: pay attention to Q3 pref
+		//InitPakFile(ValueForKey(g_qeglobals.d_project_entity, "basepath"), g_PrefsDlg.m_strPAKFile);
+		InitPakFile(ValueForKey(g_qeglobals.d_project_entity, "basepath"), NULL);
+	}
 
-	QE_Init ();
-  
+	QE_Init();
 	Sys_Printf ("Entering message loop\n");
-
-  m_bDoLoop = true;
+	m_bDoLoop = true;
 	SetTimer(QE_TIMER0, 1000, NULL);
-
 }
 
-BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam) 
-{
+BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam) {
 	return CFrameWnd::OnCommand(wParam, lParam);
 }
 
-LRESULT CMainFrame::DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam) 
-{
-  RoutineProcessing();
+LRESULT CMainFrame::DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam) {
+	RoutineProcessing();
 	return CFrameWnd::DefWindowProc(message, wParam, lParam);
 }
 
-
-void CMainFrame::RoutineProcessing()
-{
-  if (m_bDoLoop)
-  {
-	  double time = 0.0;
-    double oldtime = 0.0;
-    double delta= 0.0;
-
-    CheckBspProcess ();
-	  time = Sys_DoubleTime ();
-	  delta = time - oldtime;
-	  oldtime = time;
-	  if (delta > 0.2)
-		  delta = 0.2;
-	  
-    // run time dependant behavior
-    if (m_pCamWnd)
-	    m_pCamWnd->Cam_MouseControl(delta);
-
-    if (g_PrefsDlg.m_bQE4Painting && g_nUpdateBits)
-    {
-      int nBits = g_nUpdateBits;      // this is done to keep this routine from being
-      g_nUpdateBits = 0;              // re-entered due to the paint process.. only
-      UpdateWindows(nBits);           // happens in rare cases but causes a stack overflow
-    }
-
-  }
+void CMainFrame::RoutineProcessing() {
+	if (m_bDoLoop) {
+		double time = 0.0;
+		double oldtime = 0.0;
+		double delta= 0.0;
+		CheckBspProcess ();
+		time = Sys_DoubleTime ();
+		delta = time - oldtime;
+		oldtime = time;
+		if (delta > 0.2)
+			delta = 0.2;
+		// run time dependant behavior
+		if (m_pCamWnd)
+			m_pCamWnd->Cam_MouseControl(delta);
+		if (g_PrefsDlg.m_bQE4Painting && g_nUpdateBits)
+		{
+			int nBits = g_nUpdateBits;			// this is done to keep this routine from being
+			g_nUpdateBits = 0;							// re-entered due to the paint process.. only
+			UpdateWindows(nBits);					 // happens in rare cases but causes a stack overflow
+		}
+	}
 }
 
-LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam) 
-{
+LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam) {
 	return CFrameWnd::WindowProc(message, wParam, lParam);
 }
 
-bool MouseDown()
-{
-  if (::GetAsyncKeyState(VK_LBUTTON))
-    return true;
-  if (::GetAsyncKeyState(VK_RBUTTON))
-    return true;
-  if (::GetAsyncKeyState(VK_MBUTTON))
-    return true;
-  return false;
+bool MouseDown() {
+	if (::GetAsyncKeyState(VK_LBUTTON))
+		return true;
+	if (::GetAsyncKeyState(VK_RBUTTON))
+		return true;
+	if (::GetAsyncKeyState(VK_MBUTTON))
+		return true;
+	return false;
 }
 
 
-void CMainFrame::OnTimer(UINT nIDEvent) 
-{
-  if (!MouseDown())
-  {
-    QE_CountBrushesAndUpdateStatusBar();
-    QE_CheckAutoSave();
-  }
+void CMainFrame::OnTimer(UINT nIDEvent) {
+	if (!MouseDown()) {
+		QE_CountBrushesAndUpdateStatusBar();
+		QE_CheckAutoSave();
+	}
 }
-struct SplitInfo
-{
-  int m_nMin;
-  int m_nCur;
-};
 
-bool LoadWindowPlacement(HWND hwnd, const char* pName)
-{
-  WINDOWPLACEMENT wp;
-  wp.length = sizeof(WINDOWPLACEMENT);
+bool LoadWindowPlacement(HWND hwnd, const char* pName) {
+	WINDOWPLACEMENT wp;
+	wp.length = sizeof(WINDOWPLACEMENT);
 	LONG lSize = sizeof(wp);
-	if (LoadRegistryInfo(pName, &wp, &lSize))
-  {
-    ::SetWindowPlacement(hwnd, &wp);
-    return true;
-  }
-  return false;
+	if (LoadRegistryInfo(pName, &wp, &lSize)) {
+		::SetWindowPlacement(hwnd, &wp);
+		return true;
+	}
+	return false;
 }
 
-void SaveWindowPlacement(HWND hwnd, const char* pName)
-{
-  WINDOWPLACEMENT wp;
-  wp.length = sizeof(WINDOWPLACEMENT);
-  if (::GetWindowPlacement(hwnd, &wp))
-  {
-	  SaveRegistryInfo(pName, &wp, sizeof(wp));
-  }
+void SaveWindowPlacement(HWND hwnd, const char* pName) {
+	WINDOWPLACEMENT wp;
+	wp.length = sizeof(WINDOWPLACEMENT);
+	if (::GetWindowPlacement(hwnd, &wp))
+	{
+		SaveRegistryInfo(pName, &wp, sizeof(wp));
+	}
 }
 
-
-void CMainFrame::OnDestroy() 
-{
-  KillTimer(QE_TIMER0);
-
-  SaveBarState("RadiantToolBars2");
-
-  // FIXME
-  // original mru stuff needs replaced with mfc stuff
+void CMainFrame::OnDestroy() {
+	KillTimer(QE_TIMER0);
+	SaveBarState("RadiantToolBars2");
+	// FIXME
+	// original mru stuff needs replaced with mfc stuff
 	SaveMruInReg(g_qeglobals.d_lpMruMenu,"Software\\id\\QuakeEd4\\MRU");
-
 	DeleteMruMenu(g_qeglobals.d_lpMruMenu);
+	SaveWindowPlacement(GetSafeHwnd(), "Radiant::MainWindowPlace");
+	//SaveWindowState(GetSafeHwnd(), "Radiant::MainWindow");
+	//if (m_nCurrentStyle == QR_QE4)
+		//SaveWindowPlacement(g_qeglobals.d_hwndEntity, "EntityWindowPlace");
 
-  SaveWindowPlacement(GetSafeHwnd(), "Radiant::MainWindowPlace");
-  //SaveWindowState(GetSafeHwnd(), "Radiant::MainWindow");
-  //if (m_nCurrentStyle == QR_QE4)
-    //SaveWindowPlacement(g_qeglobals.d_hwndEntity, "EntityWindowPlace");
+	if (m_nCurrentStyle == 0 || m_nCurrentStyle == 3)
+	{
+		SaveWindowState(m_wndSplit.GetSafeHwnd(), "Radiant::Split");
+		SaveWindowState(m_wndSplit2.GetSafeHwnd(), "Radiant::Split2");
+		SaveWindowState(m_wndSplit3.GetSafeHwnd(), "Radiant::Split3");
 
-  if (m_nCurrentStyle == 0 || m_nCurrentStyle == 3)
-  {
-    SaveWindowState(m_wndSplit.GetSafeHwnd(), "Radiant::Split");
-    SaveWindowState(m_wndSplit2.GetSafeHwnd(), "Radiant::Split2");
-    SaveWindowState(m_wndSplit3.GetSafeHwnd(), "Radiant::Split3");
+		SplitInfo spinfo;
+		m_wndSplit.GetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
+		SaveRegistryInfo("Radiant::Split::Row_0", &spinfo, sizeof(spinfo));
+		m_wndSplit.GetRowInfo(1, spinfo.m_nCur, spinfo.m_nMin);
+		SaveRegistryInfo("Radiant::Split::Row_1", &spinfo, sizeof(spinfo));
 
-    SplitInfo spinfo;
-    m_wndSplit.GetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
-	  SaveRegistryInfo("Radiant::Split::Row_0", &spinfo, sizeof(spinfo));
-    m_wndSplit.GetRowInfo(1, spinfo.m_nCur, spinfo.m_nMin);
-	  SaveRegistryInfo("Radiant::Split::Row_1", &spinfo, sizeof(spinfo));
+		m_wndSplit2.GetColumnInfo(0, spinfo.m_nCur, spinfo.m_nMin);
+		SaveRegistryInfo("Radiant::Split2::Col_0", &spinfo, sizeof(spinfo));
+		m_wndSplit2.GetColumnInfo(1, spinfo.m_nCur, spinfo.m_nMin);
+		SaveRegistryInfo("Radiant::Split2::Col_1", &spinfo, sizeof(spinfo));
+		m_wndSplit2.GetColumnInfo(2, spinfo.m_nCur, spinfo.m_nMin);
+		SaveRegistryInfo("Radiant::Split2::Col_2", &spinfo, sizeof(spinfo));
 
-    m_wndSplit2.GetColumnInfo(0, spinfo.m_nCur, spinfo.m_nMin);
-	  SaveRegistryInfo("Radiant::Split2::Col_0", &spinfo, sizeof(spinfo));
-    m_wndSplit2.GetColumnInfo(1, spinfo.m_nCur, spinfo.m_nMin);
-	  SaveRegistryInfo("Radiant::Split2::Col_1", &spinfo, sizeof(spinfo));
-    m_wndSplit2.GetColumnInfo(2, spinfo.m_nCur, spinfo.m_nMin);
-	  SaveRegistryInfo("Radiant::Split2::Col_2", &spinfo, sizeof(spinfo));
+		m_wndSplit3.GetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
+		SaveRegistryInfo("Radiant::Split3::Row_0", &spinfo, sizeof(spinfo));
+		m_wndSplit3.GetRowInfo(1, spinfo.m_nCur, spinfo.m_nMin);
+		SaveRegistryInfo("Radiant::Split3::Row_1", &spinfo, sizeof(spinfo));
+	} else {
+		SaveWindowPlacement(m_pXYWnd->GetSafeHwnd(), "xywindow");
+		SaveWindowPlacement(m_pXZWnd->GetSafeHwnd(), "xzwindow");
+		SaveWindowPlacement(m_pYZWnd->GetSafeHwnd(), "yzwindow");
+		SaveWindowPlacement(m_pCamWnd->GetSafeHwnd(), "camerawindow");
+		SaveWindowPlacement(m_pZWnd->GetSafeHwnd(), "zwindow");
+		SaveWindowState(m_pTexWnd->GetSafeHwnd(), "texwindow");
+		SaveWindowState(m_pEditWnd->GetSafeHwnd(), "editwindow");
+	}
 
-    m_wndSplit3.GetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
-	  SaveRegistryInfo("Radiant::Split3::Row_0", &spinfo, sizeof(spinfo));
-    m_wndSplit3.GetRowInfo(1, spinfo.m_nCur, spinfo.m_nMin);
-	  SaveRegistryInfo("Radiant::Split3::Row_1", &spinfo, sizeof(spinfo));
-  }
-  else 
-  {
-    SaveWindowPlacement(m_pXYWnd->GetSafeHwnd(), "xywindow");
-    SaveWindowPlacement(m_pXZWnd->GetSafeHwnd(), "xzwindow");
-    SaveWindowPlacement(m_pYZWnd->GetSafeHwnd(), "yzwindow");
-	  SaveWindowPlacement(m_pCamWnd->GetSafeHwnd(), "camerawindow");
-	  SaveWindowPlacement(m_pZWnd->GetSafeHwnd(), "zwindow");
-	  SaveWindowState(m_pTexWnd->GetSafeHwnd(), "texwindow");
-	  SaveWindowState(m_pEditWnd->GetSafeHwnd(), "editwindow");
-  }
+	if (m_pXYWnd->GetSafeHwnd())
+		m_pXYWnd->SendMessage(WM_DESTROY, 0, 0);
+	delete m_pXYWnd; m_pXYWnd = NULL;
+	
+	if (m_pYZWnd->GetSafeHwnd())
+		m_pYZWnd->SendMessage(WM_DESTROY, 0, 0);
+	delete m_pYZWnd; m_pYZWnd = NULL;
+	
+	if (m_pXZWnd->GetSafeHwnd())
+		m_pXZWnd->SendMessage(WM_DESTROY, 0, 0);
+	delete m_pXZWnd; m_pXZWnd = NULL;
+	
+	if (m_pZWnd->GetSafeHwnd())
+		m_pZWnd->SendMessage(WM_DESTROY, 0, 0);
+	delete m_pZWnd; m_pZWnd = NULL;
+	
+	if (m_pTexWnd->GetSafeHwnd())
+		m_pTexWnd->SendMessage(WM_DESTROY, 0, 0);
+	delete m_pTexWnd; m_pTexWnd = NULL;
+	
+	if (m_pEditWnd->GetSafeHwnd())
+		m_pEditWnd->SendMessage(WM_DESTROY, 0, 0);
+	delete m_pEditWnd; m_pEditWnd = NULL;
 
-  if (m_pXYWnd->GetSafeHwnd())
-    m_pXYWnd->SendMessage(WM_DESTROY, 0, 0);
-  delete m_pXYWnd; m_pXYWnd = NULL;
-  
-  if (m_pYZWnd->GetSafeHwnd())
-    m_pYZWnd->SendMessage(WM_DESTROY, 0, 0);
-  delete m_pYZWnd; m_pYZWnd = NULL;
-  
-  if (m_pXZWnd->GetSafeHwnd())
-    m_pXZWnd->SendMessage(WM_DESTROY, 0, 0);
-  delete m_pXZWnd; m_pXZWnd = NULL;
-  
-  if (m_pZWnd->GetSafeHwnd())
-    m_pZWnd->SendMessage(WM_DESTROY, 0, 0);
-  delete m_pZWnd; m_pZWnd = NULL;
-  
-  if (m_pTexWnd->GetSafeHwnd())
-    m_pTexWnd->SendMessage(WM_DESTROY, 0, 0);
-  delete m_pTexWnd; m_pTexWnd = NULL;
-  
-  if (m_pEditWnd->GetSafeHwnd())
-    m_pEditWnd->SendMessage(WM_DESTROY, 0, 0);
-  delete m_pEditWnd; m_pEditWnd = NULL;
-
-  if (m_pCamWnd->GetSafeHwnd())
-    m_pCamWnd->SendMessage(WM_DESTROY, 0, 0);
-  delete m_pCamWnd;m_pCamWnd = NULL;
+	if (m_pCamWnd->GetSafeHwnd())
+		m_pCamWnd->SendMessage(WM_DESTROY, 0, 0);
+	delete m_pCamWnd;m_pCamWnd = NULL;
 
 	SaveRegistryInfo("SavedInfo", &g_qeglobals.d_savedinfo, sizeof(g_qeglobals.d_savedinfo));
 
-  if (strcmpi(currentmap, "unnamed.map") != 0)
-  {
-    g_PrefsDlg.m_strLastMap = currentmap;
-    g_PrefsDlg.SavePrefs();
-  }
-  CleanUpEntities();
+	if (strcmpi(currentmap, "unnamed.map") != 0)
+	{
+		g_PrefsDlg.m_strLastMap = currentmap;
+		g_PrefsDlg.SavePrefs();
+	}
+	CleanUpEntities();
 
-  while (active_brushes.next != &active_brushes)
-	  Brush_Free (active_brushes.next, false);
+	while (active_brushes.next != &active_brushes)
+		Brush_Free (active_brushes.next, false);
 	while (selected_brushes.next != &selected_brushes)
 		Brush_Free (selected_brushes.next, false);
 	while (filtered_brushes.next != &filtered_brushes)
@@ -1452,130 +1386,120 @@ void CMainFrame::OnDestroy()
 		Entity_Free (entities.next);
 
 	epair_t* pEPair = g_qeglobals.d_project_entity->epairs;
-  while (pEPair)
-  {
-    epair_t* pNextEPair = pEPair->next;
-    free (pEPair->key);
-    free (pEPair->value);
-    free (pEPair);
-    pEPair = pNextEPair;
-  }
+	while (pEPair)
+	{
+		epair_t* pNextEPair = pEPair->next;
+		free (pEPair->key);
+		free (pEPair->value);
+		free (pEPair);
+		pEPair = pNextEPair;
+	}
 
 	entity_t* pEntity = g_qeglobals.d_project_entity->next;
-  while (pEntity != NULL && pEntity != g_qeglobals.d_project_entity)
-  {
-    entity_t* pNextEntity = pEntity->next;
-    Entity_Free(pEntity);
-    pEntity = pNextEntity;
-  }
+	while (pEntity != NULL && pEntity != g_qeglobals.d_project_entity)
+	{
+		entity_t* pNextEntity = pEntity->next;
+		Entity_Free(pEntity);
+		pEntity = pNextEntity;
+	}
 
-  Texture_Cleanup();
+	Texture_Cleanup();
 
-  if (world_entity)
-    Entity_Free(world_entity);
+	if (world_entity)
+		Entity_Free(world_entity);
 
-  if (notexture)
-  {
-  // Timo
-  // Surface properties plugin
+	if (notexture)
+	{
+	// Timo
+	// Surface properties plugin
 #ifdef _DEBUG
-  if ( !notexture->pData )
-	  Sys_Printf("WARNING: found a qtexture_t* with no IPluginQTexture\n");
+	if ( !notexture->pData )
+		Sys_Printf("WARNING: found a qtexture_t* with no IPluginQTexture\n");
 #endif
-  if ( notexture->pData )
+	if ( notexture->pData )
 	GETPLUGINTEXDEF(notexture)->DecRef();
 
-    free(notexture);
-  }
+		free(notexture);
+	}
 
-  //if (current_texture)
-  //  free(current_texture);
-  ClosePakFile();
-
-  FreeShaders();
-
+	//if (current_texture)
+	//	free(current_texture);
+	ClosePakFile();
+	FreeShaders();
 	CFrameWnd::OnDestroy();
 }
 
-void CMainFrame::OnClose() 
-{
-	if (ConfirmModified())
-	{
+void CMainFrame::OnClose() {
+	if (ConfirmModified()) {
 		CFrameWnd::OnClose();
 	}
 }
-                        
-void CMainFrame::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) 
-{
-  // run through our list to see if we have a handler for nChar
-  //
-  for (int i = 0; i < g_nCommandCount; i++)
-  {
-    if (g_Commands[i].m_nKey == nChar)    // find a match?
-    {
-      bool bGo = true;
-      if (g_Commands[i].m_nModifiers & RAD_PRESS)
-      {
-        int nModifiers = g_Commands[i].m_nModifiers & ~RAD_PRESS;
-        if (nModifiers)     // are there modifiers present?
-        {
-          if (nModifiers & RAD_ALT)
-            if (!(GetKeyState(VK_MENU) & 0x8000))
-              bGo = false;
-          if (nModifiers & RAD_CONTROL)
-            if (!(GetKeyState(VK_CONTROL) & 0x8000))
-              bGo = false;
-          if (nModifiers & RAD_SHIFT)
-            if (!(GetKeyState(VK_SHIFT) & 0x8000))
-              bGo = false;
-        }
-        else  // no modifiers make sure none of those keys are pressed
-        {
-          if (GetKeyState(VK_MENU) & 0x8000)
-            bGo = false;
-          if (GetKeyState(VK_CONTROL) & 0x8000)
-            bGo = false;
-          if (GetKeyState(VK_SHIFT) & 0x8000)
-            bGo = false;
-        }
-        if (bGo)
-        {
-          SendMessage(WM_COMMAND, g_Commands[i].m_nCommand, 0);
-          break;
-        }
-      }
-    }
-  }
+												
+void CMainFrame::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	// run through our list to see if we have a handler for nChar
+	//
+	for (int i = 0; i < g_nCommandCount; i++) {
+		if (g_Commands[i].m_nKey == nChar)		// find a match?
+		{
+			bool bGo = true;
+			if (g_Commands[i].m_nModifiers & RAD_PRESS)
+			{
+				int nModifiers = g_Commands[i].m_nModifiers & ~RAD_PRESS;
+				if (nModifiers)		 // are there modifiers present?
+				{
+					if (nModifiers & RAD_ALT)
+						if (!(GetKeyState(VK_MENU) & 0x8000))
+							bGo = false;
+					if (nModifiers & RAD_CONTROL)
+						if (!(GetKeyState(VK_CONTROL) & 0x8000))
+							bGo = false;
+					if (nModifiers & RAD_SHIFT)
+						if (!(GetKeyState(VK_SHIFT) & 0x8000))
+							bGo = false;
+				}
+				else	// no modifiers make sure none of those keys are pressed
+				{
+					if (GetKeyState(VK_MENU) & 0x8000)
+						bGo = false;
+					if (GetKeyState(VK_CONTROL) & 0x8000)
+						bGo = false;
+					if (GetKeyState(VK_SHIFT) & 0x8000)
+						bGo = false;
+				}
+				if (bGo)
+				{
+					SendMessage(WM_COMMAND, g_Commands[i].m_nCommand, 0);
+					break;
+				}
+			}
+		}
+	}
 }
 
-bool CamOK(unsigned int nKey)
-{
-  if (nKey == VK_UP || nKey == VK_LEFT || nKey == VK_RIGHT || nKey == VK_DOWN)
-  {
-    if (::GetAsyncKeyState(nKey))
-      return true;
-    else
-      return false;
-  }
-  return true;
+bool CamOK(unsigned int nKey) {
+	if (nKey == VK_UP || nKey == VK_LEFT || nKey == VK_RIGHT || nKey == VK_DOWN) {
+		if (::GetAsyncKeyState(nKey))
+			return true;
+		else
+			return false;
+	}
+	return true;
 }
 
 
 void CMainFrame::OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) 
 {
 	//OnKeyDown(nChar, nRepCnt, nFlags);
-  if (nChar == VK_DOWN)
-  {
-    OnKeyDown(nChar, nRepCnt, nFlags);
-  }
+	if (nChar == VK_DOWN)
+	{
+		OnKeyDown(nChar, nRepCnt, nFlags);
+	}
 	CFrameWnd::OnSysKeyDown(nChar, nRepCnt, nFlags);
 }
 
-void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) 
-{
-    for (int i = 0; i < g_nCommandCount; i++)
-    {
-		if (g_Commands[i].m_nKey == nChar)    // find a match?
+void CMainFrame::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	for (int i = 0; i < g_nCommandCount; i++) {
+		if (g_Commands[i].m_nKey == nChar)		// find a match?
 		{
 			// check modifiers
 			unsigned int nState = 0;
@@ -1601,322 +1525,315 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 	g_qeglobals.d_hwndStatus = GetMessageBar()->GetSafeHwnd();
 
 /*
-  if (g_PrefsDlg.m_bRunBefore == FALSE)
-  {
-    MessageBox("In the following dialog, please make sure the Quake2 .exe information is correct.\nQERadiant will NOT run correctly without this information");
-    g_PrefsDlg.DoModal();
-  }
+	if (g_PrefsDlg.m_bRunBefore == FALSE)
+	{
+		MessageBox("In the following dialog, please make sure the Quake2 .exe information is correct.\nQERadiant will NOT run correctly without this information");
+		g_PrefsDlg.DoModal();
+	}
 */
 
-  m_nCurrentStyle = g_PrefsDlg.m_nView;
-  
-  CreateEntityWindow(AfxGetInstanceHandle());
+	m_nCurrentStyle = g_PrefsDlg.m_nView;
+	
+	CreateEntityWindow(AfxGetInstanceHandle());
 
-  g_pGroupDlg->Create( IDD_DLG_GROUP, this);
-  g_qeglobals.d_hwndGroup = g_pGroupDlg->GetSafeHwnd();
-  ::SetParent(g_qeglobals.d_hwndGroup, g_qeglobals.d_hwndEntity);
-  g_pGroupDlg->ShowWindow(SW_SHOW);
-  
-  if (!LoadWindowPlacement(GetSafeHwnd(), "Radiant::MainWindowPlace"))
-  {
-    LoadWindowState(GetSafeHwnd(), "Radiant::MainWindow");
-  }
-  
-  //if (m_nCurrentStyle == QR_QE4)
-  //  LoadWindowPlacement(g_qeglobals.d_hwndEntity, "EntityWindowPlace");
+	g_pGroupDlg->Create( IDD_DLG_GROUP, this);
+	g_qeglobals.d_hwndGroup = g_pGroupDlg->GetSafeHwnd();
+	::SetParent(g_qeglobals.d_hwndGroup, g_qeglobals.d_hwndEntity);
+	g_pGroupDlg->ShowWindow(SW_SHOW);
+	
+	if (!LoadWindowPlacement(GetSafeHwnd(), "Radiant::MainWindowPlace"))
+	{
+		LoadWindowState(GetSafeHwnd(), "Radiant::MainWindow");
+	}
+	
+	//if (m_nCurrentStyle == QR_QE4)
+	//	LoadWindowPlacement(g_qeglobals.d_hwndEntity, "EntityWindowPlace");
 
-  CRect rect(5,25, 100, 100);
-  CRect rctParent;
-  GetClientRect(rctParent);
+	CRect rect(5,25, 100, 100);
+	CRect rctParent;
+	GetClientRect(rctParent);
 
-  if (g_PrefsDlg.m_nView == 0 || g_PrefsDlg.m_nView == 3)
-  {
-    m_wndSplit.CreateStatic(this, 2, 1);
-    m_wndSplit2.CreateStatic(&m_wndSplit, 1, 3);
-    m_wndSplit3.CreateStatic(&m_wndSplit2, 2,1);
+	if (g_PrefsDlg.m_nView == 0 || g_PrefsDlg.m_nView == 3)
+	{
+		m_wndSplit.CreateStatic(this, 2, 1);
+		m_wndSplit2.CreateStatic(&m_wndSplit, 1, 3);
+		m_wndSplit3.CreateStatic(&m_wndSplit2, 2,1);
 
-    m_wndSplit.CreateView(1,0,RUNTIME_CLASS(CEditWnd), CSize(25, 100), pContext);
-    g_pEdit = dynamic_cast<CEdit*>(m_wndSplit.GetPane(1,0));
-    if (g_pEdit)
-	    g_qeglobals.d_hwndEdit = g_pEdit->GetSafeHwnd();
+		m_wndSplit.CreateView(1,0,RUNTIME_CLASS(CEditWnd), CSize(25, 100), pContext);
+		g_pEdit = dynamic_cast<CEdit*>(m_wndSplit.GetPane(1,0));
+		if (g_pEdit)
+			g_qeglobals.d_hwndEdit = g_pEdit->GetSafeHwnd();
 
-    m_wndSplit3.CreateView(0,0,RUNTIME_CLASS(CCamWnd), CSize(25, 100), pContext);
-    m_pCamWnd = dynamic_cast<CCamWnd*>(m_wndSplit3.GetPane(0,0));
-  
-    m_wndSplit2.CreateView(0,1,RUNTIME_CLASS(CXYWnd), CSize(25, 100), pContext);
-    m_pXYWnd = dynamic_cast<CXYWnd*>(m_wndSplit2.GetPane(0,1));
-    m_pXYWnd->SetViewType(XY);
+		m_wndSplit3.CreateView(0,0,RUNTIME_CLASS(CCamWnd), CSize(25, 100), pContext);
+		m_pCamWnd = dynamic_cast<CCamWnd*>(m_wndSplit3.GetPane(0,0));
+	
+		m_wndSplit2.CreateView(0,1,RUNTIME_CLASS(CXYWnd), CSize(25, 100), pContext);
+		m_pXYWnd = dynamic_cast<CXYWnd*>(m_wndSplit2.GetPane(0,1));
+		m_pXYWnd->SetViewType(XY);
 
-    m_pCamWnd->SetXYFriend(m_pXYWnd);
+		m_pCamWnd->SetXYFriend(m_pXYWnd);
 
-    m_wndSplit2.CreateView(0,2,RUNTIME_CLASS(CZWnd), CSize(25, 100), pContext);
-    m_pZWnd = dynamic_cast<CZWnd*>(m_wndSplit2.GetPane(0,2));
+		m_wndSplit2.CreateView(0,2,RUNTIME_CLASS(CZWnd), CSize(25, 100), pContext);
+		m_pZWnd = dynamic_cast<CZWnd*>(m_wndSplit2.GetPane(0,2));
 
-	  m_wndSplit3.CreateView(1,0,RUNTIME_CLASS(CTexWnd), CSize(25, 100), pContext);
-    m_pTexWnd = dynamic_cast<CTexWnd*>(m_wndSplit3.GetPane(1,0));
+		m_wndSplit3.CreateView(1,0,RUNTIME_CLASS(CTexWnd), CSize(25, 100), pContext);
+		m_pTexWnd = dynamic_cast<CTexWnd*>(m_wndSplit3.GetPane(1,0));
 
-    CreateQEChildren();
+		CreateQEChildren();
 
-    if (g_PrefsDlg.m_nView == 0)
-    {
-      // the following bit switches the left and right views
-      CWnd* pRight = m_wndSplit2.GetPane(0,2);
-      long lRightID = ::GetWindowLong(pRight->GetSafeHwnd(), GWL_ID);
-      long lLeftID = ::GetWindowLong(m_wndSplit3.GetSafeHwnd(), GWL_ID);
-      ::SetWindowLong(pRight->GetSafeHwnd(), GWL_ID, lLeftID);
-      ::SetWindowLong(m_wndSplit3.GetSafeHwnd(), GWL_ID, lRightID);
-    }
+		if (g_PrefsDlg.m_nView == 0)
+		{
+			// the following bit switches the left and right views
+			CWnd* pRight = m_wndSplit2.GetPane(0,2);
+			long lRightID = ::GetWindowLong(pRight->GetSafeHwnd(), GWL_ID);
+			long lLeftID = ::GetWindowLong(m_wndSplit3.GetSafeHwnd(), GWL_ID);
+			::SetWindowLong(pRight->GetSafeHwnd(), GWL_ID, lLeftID);
+			::SetWindowLong(m_wndSplit3.GetSafeHwnd(), GWL_ID, lRightID);
+		}
 
-    m_wndSplit.SetRowInfo(0, rctParent.Height() * .85, 50);
-    m_wndSplit.SetRowInfo(1, rctParent.Height() * .15, 5);
+		m_wndSplit.SetRowInfo(0, rctParent.Height() * .85, 50);
+		m_wndSplit.SetRowInfo(1, rctParent.Height() * .15, 5);
 
-    float fLeft = (g_PrefsDlg.m_nView == 0) ? .05 : .25;
-    float fRight = (g_PrefsDlg.m_nView == 0) ? .25 : .05;
-    int nMin1 = (g_PrefsDlg.m_nView == 0) ? 10 : 25;
-    int nMin2 = (nMin1 == 10) ? 25 : 10;
+		float fLeft = (g_PrefsDlg.m_nView == 0) ? .05 : .25;
+		float fRight = (g_PrefsDlg.m_nView == 0) ? .25 : .05;
+		int nMin1 = (g_PrefsDlg.m_nView == 0) ? 10 : 25;
+		int nMin2 = (nMin1 == 10) ? 25 : 10;
 
-    m_wndSplit2.SetColumnInfo(0, rctParent.Width() * fLeft, nMin1);
-    m_wndSplit2.SetColumnInfo(1, rctParent.Width() * .70, 100);
-    m_wndSplit2.SetColumnInfo(2, rctParent.Width() * fRight, nMin2);
+		m_wndSplit2.SetColumnInfo(0, rctParent.Width() * fLeft, nMin1);
+		m_wndSplit2.SetColumnInfo(1, rctParent.Width() * .70, 100);
+		m_wndSplit2.SetColumnInfo(2, rctParent.Width() * fRight, nMin2);
 
-    m_wndSplit3.SetRowInfo(1, (rctParent.Height() * .85) * .40, 15);
-    m_wndSplit3.SetRowInfo(0, (rctParent.Height() * .85) * .60, 15);
+		m_wndSplit3.SetRowInfo(1, (rctParent.Height() * .85) * .40, 15);
+		m_wndSplit3.SetRowInfo(0, (rctParent.Height() * .85) * .60, 15);
 
-    LoadWindowState(m_wndSplit.GetSafeHwnd(), "Radiant::Split");
-    LoadWindowState(m_wndSplit2.GetSafeHwnd(), "Radiant::Split2");
-    LoadWindowState(m_wndSplit3.GetSafeHwnd(), "Radiant::Split3");
-    ::ShowWindow(g_qeglobals.d_hwndEntity, SW_HIDE);
+		LoadWindowState(m_wndSplit.GetSafeHwnd(), "Radiant::Split");
+		LoadWindowState(m_wndSplit2.GetSafeHwnd(), "Radiant::Split2");
+		LoadWindowState(m_wndSplit3.GetSafeHwnd(), "Radiant::Split3");
+		::ShowWindow(g_qeglobals.d_hwndEntity, SW_HIDE);
 
-    SplitInfo spinfo;
-    long lSize = sizeof(spinfo);
-	  if (LoadRegistryInfo("Radiant::Split::Row_0", &spinfo, &lSize))
-      m_wndSplit.SetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
-	  if (LoadRegistryInfo("Radiant::Split::Row_1", &spinfo, &lSize))
-      m_wndSplit.SetRowInfo(1, spinfo.m_nCur, spinfo.m_nMin);
+		SplitInfo spinfo;
+		long lSize = sizeof(spinfo);
+		if (LoadRegistryInfo("Radiant::Split::Row_0", &spinfo, &lSize))
+			m_wndSplit.SetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
+		if (LoadRegistryInfo("Radiant::Split::Row_1", &spinfo, &lSize))
+			m_wndSplit.SetRowInfo(1, spinfo.m_nCur, spinfo.m_nMin);
 
-	  if (LoadRegistryInfo("Radiant::Split2::Col_0", &spinfo, &lSize))
-      m_wndSplit2.SetColumnInfo(0, spinfo.m_nCur, spinfo.m_nMin);
-	  if (LoadRegistryInfo("Radiant::Split2::Col_1", &spinfo, &lSize))
-      m_wndSplit2.SetColumnInfo(1, spinfo.m_nCur, spinfo.m_nMin);
-	  if (LoadRegistryInfo("Radiant::Split2::Col_2", &spinfo, &lSize))
-      m_wndSplit2.SetColumnInfo(2, spinfo.m_nCur, spinfo.m_nMin);
+		if (LoadRegistryInfo("Radiant::Split2::Col_0", &spinfo, &lSize))
+			m_wndSplit2.SetColumnInfo(0, spinfo.m_nCur, spinfo.m_nMin);
+		if (LoadRegistryInfo("Radiant::Split2::Col_1", &spinfo, &lSize))
+			m_wndSplit2.SetColumnInfo(1, spinfo.m_nCur, spinfo.m_nMin);
+		if (LoadRegistryInfo("Radiant::Split2::Col_2", &spinfo, &lSize))
+			m_wndSplit2.SetColumnInfo(2, spinfo.m_nCur, spinfo.m_nMin);
 
-	  if (LoadRegistryInfo("Radiant::Split3::Row_0", &spinfo, &lSize))
-      m_wndSplit3.SetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
-	  if (LoadRegistryInfo("Radiant::Split3::Row_1", &spinfo, &lSize))
-      m_wndSplit3.SetRowInfo(1, spinfo.m_nCur, spinfo.m_nMin);
+		if (LoadRegistryInfo("Radiant::Split3::Row_0", &spinfo, &lSize))
+			m_wndSplit3.SetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
+		if (LoadRegistryInfo("Radiant::Split3::Row_1", &spinfo, &lSize))
+			m_wndSplit3.SetRowInfo(1, spinfo.m_nCur, spinfo.m_nMin);
 
-    m_wndSplit.RecalcLayout();
-    m_wndSplit2.RecalcLayout();
-    m_wndSplit3.RecalcLayout();
-  }
-  else if (g_PrefsDlg.m_nView == 1)
-  {
-    m_pCamWnd = new CCamWnd();
-    m_pCamWnd->Create(CAMERA_WINDOW_CLASS, "", QE3_CHILDSTYLE, rect, this, 1234);
-  
-    m_pZWnd = new CZWnd();
-    m_pZWnd->Create(Z_WINDOW_CLASS, "", QE3_CHILDSTYLE, rect, this, 1238);
-    
-    m_pXYWnd = new CXYWnd();
-    m_pXYWnd->Create(XY_WINDOW_CLASS, "", QE3_CHILDSTYLE, rect, this, 1235);
-    m_pXYWnd->SetViewType(XY);
+		m_wndSplit.RecalcLayout();
+		m_wndSplit2.RecalcLayout();
+		m_wndSplit3.RecalcLayout();
+	}
+	else if (g_PrefsDlg.m_nView == 1)
+	{
+		m_pCamWnd = new CCamWnd();
+		m_pCamWnd->Create(CAMERA_WINDOW_CLASS, "", QE3_CHILDSTYLE, rect, this, 1234);
+	
+		m_pZWnd = new CZWnd();
+		m_pZWnd->Create(Z_WINDOW_CLASS, "", QE3_CHILDSTYLE, rect, this, 1238);
+		
+		m_pXYWnd = new CXYWnd();
+		m_pXYWnd->Create(XY_WINDOW_CLASS, "", QE3_CHILDSTYLE, rect, this, 1235);
+		m_pXYWnd->SetViewType(XY);
 
-    m_pXZWnd = new CXYWnd();
-    m_pXZWnd->Create(XY_WINDOW_CLASS, "", QE3_CHILDSTYLE, rect, this, 1236);
-    m_pXZWnd->SetViewType(XZ);
+		m_pXZWnd = new CXYWnd();
+		m_pXZWnd->Create(XY_WINDOW_CLASS, "", QE3_CHILDSTYLE, rect, this, 1236);
+		m_pXZWnd->SetViewType(XZ);
 
-    m_pYZWnd = new CXYWnd();
-    m_pYZWnd->Create(XY_WINDOW_CLASS, "", QE3_CHILDSTYLE, rect, this, 1237);
-    m_pYZWnd->SetViewType(YZ);
+		m_pYZWnd = new CXYWnd();
+		m_pYZWnd->Create(XY_WINDOW_CLASS, "", QE3_CHILDSTYLE, rect, this, 1237);
+		m_pYZWnd->SetViewType(YZ);
 
-    m_pCamWnd->SetXYFriend(m_pXYWnd);
+		m_pCamWnd->SetXYFriend(m_pXYWnd);
 
-    m_pTexWnd = new CTexWnd();
-    m_pTexWnd->Create(TEXTURE_WINDOW_CLASS, "", QE3_SPLITTER_STYLE, rect, this, 1239);
-    ::SetParent(m_pTexWnd->GetSafeHwnd(), g_qeglobals.d_hwndEntity);
+		m_pTexWnd = new CTexWnd();
+		m_pTexWnd->Create(TEXTURE_WINDOW_CLASS, "", QE3_SPLITTER_STYLE, rect, this, 1239);
+		::SetParent(m_pTexWnd->GetSafeHwnd(), g_qeglobals.d_hwndEntity);
 
-    CRect rctWork;
-    // XY and Z windows are 2 pixels off of the height and one down from top so one pixel spacing vertically
-    // Z window takes up 10% of right edge
-    // XY window takes up 60% of middle
-    // TEX and CAM windows take up 30% of left
+		CRect rctWork;
+		// XY and Z windows are 2 pixels off of the height and one down from top so one pixel spacing vertically
+		// Z window takes up 10% of right edge
+		// XY window takes up 60% of middle
+		// TEX and CAM windows take up 30% of left
 #if 0
-    int xTex = 1;
-    int xXY = 1 + xTex + ((float)rctParent.Width()) * .30;
-    int xZ = 1 + xXY + ((float)rctParent.Width()) * .60;
-    int yXY = 1;
-    int yTex = 1 + ((float)rctParent.Height()) * .45;
-    m_pXYWnd->SetWindowPos(NULL, xXY, yXY, ((float)rctParent.Width()) * .60, rctParent.Height() - 2, SWP_SHOWWINDOW);
-    m_pXZWnd->SetWindowPos(NULL, xXY, yXY, ((float)rctParent.Width()) * .60, rctParent.Height() - 2, SWP_SHOWWINDOW);
-    m_pYZWnd->SetWindowPos(NULL, xXY, yXY, ((float)rctParent.Width()) * .60, rctParent.Height() - 2, SWP_SHOWWINDOW);
-    m_pCamWnd->SetWindowPos(NULL, xTex, yXY, ((float)rctParent.Width()) *.30, ((float)rctParent.Height()) * .45, SWP_SHOWWINDOW);
-    m_pTexWnd->SetWindowPos(NULL, xTex, yTex, ((float)rctParent.Width()) *.30, ((float)rctParent.Height()) * .45, SWP_SHOWWINDOW);
+		int xTex = 1;
+		int xXY = 1 + xTex + ((float)rctParent.Width()) * .30;
+		int xZ = 1 + xXY + ((float)rctParent.Width()) * .60;
+		int yXY = 1;
+		int yTex = 1 + ((float)rctParent.Height()) * .45;
+		m_pXYWnd->SetWindowPos(NULL, xXY, yXY, ((float)rctParent.Width()) * .60, rctParent.Height() - 2, SWP_SHOWWINDOW);
+		m_pXZWnd->SetWindowPos(NULL, xXY, yXY, ((float)rctParent.Width()) * .60, rctParent.Height() - 2, SWP_SHOWWINDOW);
+		m_pYZWnd->SetWindowPos(NULL, xXY, yXY, ((float)rctParent.Width()) * .60, rctParent.Height() - 2, SWP_SHOWWINDOW);
+		m_pCamWnd->SetWindowPos(NULL, xTex, yXY, ((float)rctParent.Width()) *.30, ((float)rctParent.Height()) * .45, SWP_SHOWWINDOW);
+		m_pTexWnd->SetWindowPos(NULL, xTex, yTex, ((float)rctParent.Width()) *.30, ((float)rctParent.Height()) * .45, SWP_SHOWWINDOW);
 #endif
 
-    LoadWindowPlacement(m_pXYWnd->GetSafeHwnd(), "xywindow");
-    LoadWindowPlacement(m_pXZWnd->GetSafeHwnd(), "xzwindow");
-    LoadWindowPlacement(m_pYZWnd->GetSafeHwnd(), "yzwindow");
-	  LoadWindowPlacement(m_pCamWnd->GetSafeHwnd(), "camerawindow");
-	  LoadWindowPlacement(m_pZWnd->GetSafeHwnd(), "zwindow");
-    
-    if (!g_PrefsDlg.m_bXZVis)
-      m_pXZWnd->ShowWindow(SW_HIDE);
-    if (!g_PrefsDlg.m_bYZVis)
-      m_pYZWnd->ShowWindow(SW_HIDE);
-    if (!g_PrefsDlg.m_bZVis)
-      m_pZWnd->ShowWindow(SW_HIDE);
+		LoadWindowPlacement(m_pXYWnd->GetSafeHwnd(), "xywindow");
+		LoadWindowPlacement(m_pXZWnd->GetSafeHwnd(), "xzwindow");
+		LoadWindowPlacement(m_pYZWnd->GetSafeHwnd(), "yzwindow");
+		LoadWindowPlacement(m_pCamWnd->GetSafeHwnd(), "camerawindow");
+		LoadWindowPlacement(m_pZWnd->GetSafeHwnd(), "zwindow");
+		
+		if (!g_PrefsDlg.m_bXZVis)
+			m_pXZWnd->ShowWindow(SW_HIDE);
+		if (!g_PrefsDlg.m_bYZVis)
+			m_pYZWnd->ShowWindow(SW_HIDE);
+		if (!g_PrefsDlg.m_bZVis)
+			m_pZWnd->ShowWindow(SW_HIDE);
 
-    CreateQEChildren();
-  }
-  else // 4 way
-  {
-    m_wndSplit.CreateStatic(this, 2, 2);
+		CreateQEChildren();
+	}
+	else // 4 way
+	{
+		m_wndSplit.CreateStatic(this, 2, 2);
 
-    m_wndSplit.CreateView(0,0,RUNTIME_CLASS(CCamWnd), CSize(25, 100), pContext);
-    m_pCamWnd = dynamic_cast<CCamWnd*>(m_wndSplit.GetPane(0,0));
+		m_wndSplit.CreateView(0,0,RUNTIME_CLASS(CCamWnd), CSize(25, 100), pContext);
+		m_pCamWnd = dynamic_cast<CCamWnd*>(m_wndSplit.GetPane(0,0));
 
-    m_wndSplit.CreateView(0,1,RUNTIME_CLASS(CXYWnd), CSize(25, 100), pContext);
-    m_pXYWnd = dynamic_cast<CXYWnd*>(m_wndSplit.GetPane(0,1));
-    m_pXYWnd->SetViewType(XY);
+		m_wndSplit.CreateView(0,1,RUNTIME_CLASS(CXYWnd), CSize(25, 100), pContext);
+		m_pXYWnd = dynamic_cast<CXYWnd*>(m_wndSplit.GetPane(0,1));
+		m_pXYWnd->SetViewType(XY);
 
-    m_wndSplit.CreateView(1,0,RUNTIME_CLASS(CXYWnd), CSize(25, 100), pContext);
-    m_pYZWnd = dynamic_cast<CXYWnd*>(m_wndSplit.GetPane(1,0));
-    m_pYZWnd->SetViewType(YZ);
+		m_wndSplit.CreateView(1,0,RUNTIME_CLASS(CXYWnd), CSize(25, 100), pContext);
+		m_pYZWnd = dynamic_cast<CXYWnd*>(m_wndSplit.GetPane(1,0));
+		m_pYZWnd->SetViewType(YZ);
 
-    m_wndSplit.CreateView(1,1,RUNTIME_CLASS(CXYWnd), CSize(25, 100), pContext);
-    m_pXZWnd = dynamic_cast<CXYWnd*>(m_wndSplit.GetPane(1,1));
-    m_pXZWnd->SetViewType(XZ);
+		m_wndSplit.CreateView(1,1,RUNTIME_CLASS(CXYWnd), CSize(25, 100), pContext);
+		m_pXZWnd = dynamic_cast<CXYWnd*>(m_wndSplit.GetPane(1,1));
+		m_pXZWnd->SetViewType(XZ);
 
-    m_pCamWnd->SetXYFriend(m_pXYWnd);
+		m_pCamWnd->SetXYFriend(m_pXYWnd);
 
-    m_pTexWnd = new CTexWnd();
-    m_pTexWnd->Create(TEXTURE_WINDOW_CLASS, "", QE3_SPLITTER_STYLE, rect, this, 1237);
-    ::SetParent(m_pTexWnd->GetSafeHwnd(), g_qeglobals.d_hwndEntity);
+		m_pTexWnd = new CTexWnd();
+		m_pTexWnd->Create(TEXTURE_WINDOW_CLASS, "", QE3_SPLITTER_STYLE, rect, this, 1237);
+		::SetParent(m_pTexWnd->GetSafeHwnd(), g_qeglobals.d_hwndEntity);
 
-    m_pZWnd = new CZWnd();
-    m_pZWnd->Create(Z_WINDOW_CLASS, "", QE3_CHILDSTYLE, rect, this, 1236);
-    m_pZWnd->ShowWindow(SW_HIDE);
-
-
-    //m_pEditWnd = new CRADEditWnd();
-    //m_pEditWnd->Create(NULL, "Console", QE3_STYLE, rect, this, 1238);
-    //g_pEdit = m_pEditWnd->GetEditWnd();
-    //if (g_pEdit)
-	  //  g_qeglobals.d_hwndEdit = g_pEdit->GetSafeHwnd();
-
-	  LoadWindowState(m_pTexWnd->GetSafeHwnd(), "texwindow");
-	  LoadWindowState(m_pEditWnd->GetSafeHwnd(), "editwindow");
-    ::ShowWindow(g_qeglobals.d_hwndEntity, SW_HIDE);
-
-    CreateQEChildren();
-
-    CRect rctParent;
-    GetClientRect(rctParent);
-
-    m_wndSplit.SetRowInfo(0, rctParent.Height() * .5, 50);
-    m_wndSplit.SetRowInfo(1, rctParent.Height() * .5, 50);
-
-    m_wndSplit.SetColumnInfo(0, rctParent.Width() * .5, 50);
-    m_wndSplit.SetColumnInfo(1, rctParent.Width() * .5, 50);
-
-    LoadWindowState(m_wndSplit.GetSafeHwnd(), "Radiant::SplitSPLIT");
-
-    m_wndSplit.RecalcLayout();
-  }
-
-  if (g_pEdit)
-    g_pEdit->SendMessage(WM_SETFONT, (WPARAM)::GetStockObject(DEFAULT_GUI_FONT), (LPARAM)TRUE);
+		m_pZWnd = new CZWnd();
+		m_pZWnd->Create(Z_WINDOW_CLASS, "", QE3_CHILDSTYLE, rect, this, 1236);
+		m_pZWnd->ShowWindow(SW_HIDE);
 
 
-  if (m_pXYWnd)
-    m_pXYWnd->SetActive(true);
-  m_bSplittersOK = true;
+		//m_pEditWnd = new CRADEditWnd();
+		//m_pEditWnd->Create(NULL, "Console", QE3_STYLE, rect, this, 1238);
+		//g_pEdit = m_pEditWnd->GetEditWnd();
+		//if (g_pEdit)
+		//	g_qeglobals.d_hwndEdit = g_pEdit->GetSafeHwnd();
+
+		LoadWindowState(m_pTexWnd->GetSafeHwnd(), "texwindow");
+		LoadWindowState(m_pEditWnd->GetSafeHwnd(), "editwindow");
+		::ShowWindow(g_qeglobals.d_hwndEntity, SW_HIDE);
+
+		CreateQEChildren();
+
+		CRect rctParent;
+		GetClientRect(rctParent);
+
+		m_wndSplit.SetRowInfo(0, rctParent.Height() * .5, 50);
+		m_wndSplit.SetRowInfo(1, rctParent.Height() * .5, 50);
+
+		m_wndSplit.SetColumnInfo(0, rctParent.Width() * .5, 50);
+		m_wndSplit.SetColumnInfo(1, rctParent.Width() * .5, 50);
+
+		LoadWindowState(m_wndSplit.GetSafeHwnd(), "Radiant::SplitSPLIT");
+
+		m_wndSplit.RecalcLayout();
+	}
+
+	if (g_pEdit)
+		g_pEdit->SendMessage(WM_SETFONT, (WPARAM)::GetStockObject(DEFAULT_GUI_FONT), (LPARAM)TRUE);
+
+
+	if (m_pXYWnd)
+		m_pXYWnd->SetActive(true);
+	m_bSplittersOK = true;
 	Texture_SetMode(g_qeglobals.d_savedinfo.iTexMenu);
 
-  return TRUE;
+	return TRUE;
 }
 
-CRect g_rctOld(0,0,0,0);
 void CMainFrame::OnSize(UINT nType, int cx, int cy) 
 {
 	CFrameWnd::OnSize(nType, cx, cy);
 
-  CRect rctParent;
-  GetClientRect(rctParent);
+	CRect rctParent;
+	GetClientRect(rctParent);
 
-  UINT nID;
-  UINT nStyle;
-  int nWidth;
-  if (m_wndStatusBar.GetSafeHwnd())
-  {
-    m_wndStatusBar.GetPaneInfo(0, nID, nStyle, nWidth);
-    m_wndStatusBar.SetPaneInfo(0, nID, nStyle, rctParent.Width() * .19);
-    m_wndStatusBar.GetPaneInfo(1, nID, nStyle, nWidth);
-    m_wndStatusBar.SetPaneInfo(1, nID, nStyle, rctParent.Width() * .19);
-    m_wndStatusBar.GetPaneInfo(2, nID, nStyle, nWidth);
-    m_wndStatusBar.SetPaneInfo(2, nID, nStyle, rctParent.Width() * .19);
-    m_wndStatusBar.GetPaneInfo(3, nID, nStyle, nWidth);
-    m_wndStatusBar.SetPaneInfo(3, nID, nStyle, rctParent.Width() * .19);
-    m_wndStatusBar.GetPaneInfo(4, nID, nStyle, nWidth);
-    m_wndStatusBar.SetPaneInfo(4, nID, nStyle, rctParent.Width() * .13);
-    m_wndStatusBar.GetPaneInfo(5, nID, nStyle, nWidth);
-    m_wndStatusBar.SetPaneInfo(5, nID, nStyle, rctParent.Width() * .01);
-  }
+	UINT nID;
+	UINT nStyle;
+	int nWidth;
+	if (m_wndStatusBar.GetSafeHwnd())
+	{
+		m_wndStatusBar.GetPaneInfo(0, nID, nStyle, nWidth);
+		m_wndStatusBar.SetPaneInfo(0, nID, nStyle, rctParent.Width() * .19);
+		m_wndStatusBar.GetPaneInfo(1, nID, nStyle, nWidth);
+		m_wndStatusBar.SetPaneInfo(1, nID, nStyle, rctParent.Width() * .19);
+		m_wndStatusBar.GetPaneInfo(2, nID, nStyle, nWidth);
+		m_wndStatusBar.SetPaneInfo(2, nID, nStyle, rctParent.Width() * .19);
+		m_wndStatusBar.GetPaneInfo(3, nID, nStyle, nWidth);
+		m_wndStatusBar.SetPaneInfo(3, nID, nStyle, rctParent.Width() * .19);
+		m_wndStatusBar.GetPaneInfo(4, nID, nStyle, nWidth);
+		m_wndStatusBar.SetPaneInfo(4, nID, nStyle, rctParent.Width() * .13);
+		m_wndStatusBar.GetPaneInfo(5, nID, nStyle, nWidth);
+		m_wndStatusBar.SetPaneInfo(5, nID, nStyle, rctParent.Width() * .01);
+	}
 
-  if (nType == SIZE_RESTORED && m_bSplittersOK && g_rctOld.Width() > 0)
-  {
-    if (m_nCurrentStyle == 0 || m_nCurrentStyle == 3)
-    {
-      SplitInfo spinfo;
-      m_wndSplit.GetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
-      float fpc1 = (float)spinfo.m_nCur / g_rctOld.Height();
-      m_wndSplit.GetRowInfo(1, spinfo.m_nCur, spinfo.m_nMin);
-      float fpc2 = (float)spinfo.m_nCur / g_rctOld.Height();
-      m_wndSplit2.GetColumnInfo(0, spinfo.m_nCur, spinfo.m_nMin);
-      float fpc3 = (float)spinfo.m_nCur / g_rctOld.Width();
-      m_wndSplit2.GetColumnInfo(1, spinfo.m_nCur, spinfo.m_nMin);
-      float fpc4 = (float)spinfo.m_nCur / g_rctOld.Width();
-      m_wndSplit2.GetColumnInfo(2, spinfo.m_nCur, spinfo.m_nMin);
-      float fpc5 = (float)spinfo.m_nCur / g_rctOld.Width();
-      m_wndSplit3.GetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
-      float fpc6 = (float)spinfo.m_nCur / g_rctOld.Height();
-      m_wndSplit3.GetRowInfo(1, spinfo.m_nCur, spinfo.m_nMin);
-      float fpc7 = (float)spinfo.m_nCur / g_rctOld.Height();
+	if (nType == SIZE_RESTORED && m_bSplittersOK && g_rctOld.Width() > 0)
+	{
+		if (m_nCurrentStyle == 0 || m_nCurrentStyle == 3)
+		{
+			SplitInfo spinfo;
+			m_wndSplit.GetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
+			float fpc1 = (float)spinfo.m_nCur / g_rctOld.Height();
+			m_wndSplit.GetRowInfo(1, spinfo.m_nCur, spinfo.m_nMin);
+			float fpc2 = (float)spinfo.m_nCur / g_rctOld.Height();
+			m_wndSplit2.GetColumnInfo(0, spinfo.m_nCur, spinfo.m_nMin);
+			float fpc3 = (float)spinfo.m_nCur / g_rctOld.Width();
+			m_wndSplit2.GetColumnInfo(1, spinfo.m_nCur, spinfo.m_nMin);
+			float fpc4 = (float)spinfo.m_nCur / g_rctOld.Width();
+			m_wndSplit2.GetColumnInfo(2, spinfo.m_nCur, spinfo.m_nMin);
+			float fpc5 = (float)spinfo.m_nCur / g_rctOld.Width();
+			m_wndSplit3.GetRowInfo(0, spinfo.m_nCur, spinfo.m_nMin);
+			float fpc6 = (float)spinfo.m_nCur / g_rctOld.Height();
+			m_wndSplit3.GetRowInfo(1, spinfo.m_nCur, spinfo.m_nMin);
+			float fpc7 = (float)spinfo.m_nCur / g_rctOld.Height();
 
-      m_wndSplit.SetRowInfo(0, rctParent.Height() * fpc1, 100);
-      m_wndSplit.SetRowInfo(1, rctParent.Height() * fpc2, 25);
+			m_wndSplit.SetRowInfo(0, rctParent.Height() * fpc1, 100);
+			m_wndSplit.SetRowInfo(1, rctParent.Height() * fpc2, 25);
 
-      int nMin1 = (m_nCurrentStyle == 0) ? 10 : 25;
-      int nMin2 = (nMin1 == 10) ? 25 : 10;
+			int nMin1 = (m_nCurrentStyle == 0) ? 10 : 25;
+			int nMin2 = (nMin1 == 10) ? 25 : 10;
 
-      m_wndSplit2.SetColumnInfo(0, rctParent.Width() * fpc3, nMin1);
-      m_wndSplit2.SetColumnInfo(1, rctParent.Width() * fpc4, 100);
-      m_wndSplit2.SetColumnInfo(2, rctParent.Width() * fpc5, nMin2);
+			m_wndSplit2.SetColumnInfo(0, rctParent.Width() * fpc3, nMin1);
+			m_wndSplit2.SetColumnInfo(1, rctParent.Width() * fpc4, 100);
+			m_wndSplit2.SetColumnInfo(2, rctParent.Width() * fpc5, nMin2);
 
-      m_wndSplit3.SetRowInfo(0, rctParent.Height() * fpc6, 50);
-      m_wndSplit3.SetRowInfo(1, rctParent.Height() * fpc7, 50);
+			m_wndSplit3.SetRowInfo(0, rctParent.Height() * fpc6, 50);
+			m_wndSplit3.SetRowInfo(1, rctParent.Height() * fpc7, 50);
 
-      m_wndSplit.RecalcLayout();
-      m_wndSplit2.RecalcLayout();
-      m_wndSplit3.RecalcLayout();
-    }
-  }
+			m_wndSplit.RecalcLayout();
+			m_wndSplit2.RecalcLayout();
+			m_wndSplit3.RecalcLayout();
+		}
+	}
 
 	
 }
 
-
-void OpenDialog (void);
-void SaveAsDialog (bool bRegion);
-void  Select_Ungroup (void);
-
-void CMainFrame::ToggleCamera()
-{
-  if (m_bCamPreview)
-    m_bCamPreview = false;
-  else
-    m_bCamPreview = true;
+void CMainFrame::ToggleCamera() {
+	if (m_bCamPreview)
+		m_bCamPreview = false;
+	else
+		m_bCamPreview = true;
 }
 
 void CMainFrame::OnFileClose() 
@@ -1967,35 +1884,35 @@ void CMainFrame::OnFilePrintPreview()
 
 void CMainFrame::OnFileSave() 
 {
-  if (!strcmp(currentmap, "unnamed.map"))
-  {
-	  SaveAsDialog (false);
-  }
+	if (!strcmp(currentmap, "unnamed.map"))
+	{
+		SaveAsDialog (false);
+	}
 	else
-  {
+	{
 		Map_SaveFile (currentmap, false);
-  }
+	}
 }
 
 void CMainFrame::OnFileSaveas() 
 {
-  SaveAsDialog(false);
+	SaveAsDialog(false);
 }
 
 void CMainFrame::OnView100() 
 {
-  if (m_pXYWnd)
-    m_pXYWnd->SetScale(1);
-  if (m_pXZWnd)
-    m_pXZWnd->SetScale(1);
-  if (m_pYZWnd)
-    m_pYZWnd->SetScale(1);
+	if (m_pXYWnd)
+		m_pXYWnd->SetScale(1);
+	if (m_pXZWnd)
+		m_pXZWnd->SetScale(1);
+	if (m_pYZWnd)
+		m_pYZWnd->SetScale(1);
 	Sys_UpdateWindows (W_XY|W_XY_OVERLAY);
 }
 
 void CMainFrame::OnViewCenter() 
 {
-  m_pCamWnd->Camera().angles[ROLL] = m_pCamWnd->Camera().angles[PITCH] = 0;
+	m_pCamWnd->Camera().angles[ROLL] = m_pCamWnd->Camera().angles[PITCH] = 0;
 	m_pCamWnd->Camera().angles[YAW] = 22.5 * 
 	floor( (m_pCamWnd->Camera().angles[YAW]+11)/22.5 );
 	Sys_UpdateWindows (W_CAMERA | W_XY_OVERLAY);
@@ -2003,122 +1920,122 @@ void CMainFrame::OnViewCenter()
 
 void CMainFrame::OnViewConsole() 
 {
-  if (m_nCurrentStyle > 0 && m_nCurrentStyle < 3) // QE4 style
-  {
-    if (inspector_mode == W_CONSOLE && m_nCurrentStyle != QR_QE4) // are we in console mode already?
-    {
-      if (::IsWindowVisible(g_qeglobals.d_hwndEntity))
-        ::ShowWindow(g_qeglobals.d_hwndEntity, SW_HIDE);
-      else
-        ::ShowWindow(g_qeglobals.d_hwndEntity, SW_NORMAL);
-    }
-    else
-    {
-      ::ShowWindow(g_qeglobals.d_hwndEntity, SW_NORMAL);
-      SetInspectorMode(W_CONSOLE);
-    }
-  }
+	if (m_nCurrentStyle > 0 && m_nCurrentStyle < 3) // QE4 style
+	{
+		if (inspector_mode == W_CONSOLE && m_nCurrentStyle != QR_QE4) // are we in console mode already?
+		{
+			if (::IsWindowVisible(g_qeglobals.d_hwndEntity))
+				::ShowWindow(g_qeglobals.d_hwndEntity, SW_HIDE);
+			else
+				::ShowWindow(g_qeglobals.d_hwndEntity, SW_NORMAL);
+		}
+		else
+		{
+			::ShowWindow(g_qeglobals.d_hwndEntity, SW_NORMAL);
+			SetInspectorMode(W_CONSOLE);
+		}
+	}
 }
 
 void CMainFrame::OnViewDownfloor() 
 {
-  m_pCamWnd->Cam_ChangeFloor (false);
+	m_pCamWnd->Cam_ChangeFloor (false);
 }
 
 void CMainFrame::OnViewEntity() 
 {
-  if (m_nCurrentStyle == 0 || m_nCurrentStyle == 3)
-  {
-    if (::IsWindowVisible(g_qeglobals.d_hwndEntity) && inspector_mode == W_ENTITY)
-      ::ShowWindow(g_qeglobals.d_hwndEntity, SW_HIDE);
-    else
-    {
-      ::ShowWindow(g_qeglobals.d_hwndEntity, SW_NORMAL);
-      SetInspectorMode(W_ENTITY);
-    }
-  }
-  else
-  {
-    if (inspector_mode == W_ENTITY && m_nCurrentStyle != QR_QE4)
-    {
-      if (::IsWindowVisible(g_qeglobals.d_hwndEntity))
-        ::ShowWindow(g_qeglobals.d_hwndEntity, SW_HIDE);
-      else
-        ::ShowWindow(g_qeglobals.d_hwndEntity, SW_NORMAL);
-    }
-    else
-    {
-      ::ShowWindow(g_qeglobals.d_hwndEntity, SW_NORMAL);
-      SetInspectorMode(W_ENTITY);
-    }
-  }
+	if (m_nCurrentStyle == 0 || m_nCurrentStyle == 3)
+	{
+		if (::IsWindowVisible(g_qeglobals.d_hwndEntity) && inspector_mode == W_ENTITY)
+			::ShowWindow(g_qeglobals.d_hwndEntity, SW_HIDE);
+		else
+		{
+			::ShowWindow(g_qeglobals.d_hwndEntity, SW_NORMAL);
+			SetInspectorMode(W_ENTITY);
+		}
+	}
+	else
+	{
+		if (inspector_mode == W_ENTITY && m_nCurrentStyle != QR_QE4)
+		{
+			if (::IsWindowVisible(g_qeglobals.d_hwndEntity))
+				::ShowWindow(g_qeglobals.d_hwndEntity, SW_HIDE);
+			else
+				::ShowWindow(g_qeglobals.d_hwndEntity, SW_NORMAL);
+		}
+		else
+		{
+			::ShowWindow(g_qeglobals.d_hwndEntity, SW_NORMAL);
+			SetInspectorMode(W_ENTITY);
+		}
+	}
 }
 
 void CMainFrame::OnViewFront() 
 {
-  if (m_nCurrentStyle != 2)
-  {
-    m_pXYWnd->SetViewType(YZ);
-    m_pXYWnd->PositionView();
-  }
+	if (m_nCurrentStyle != 2)
+	{
+		m_pXYWnd->SetViewType(YZ);
+		m_pXYWnd->PositionView();
+	}
 	Sys_UpdateWindows (W_XY);
 }
 
 void CMainFrame::OnMru(unsigned int nID) 
 {
-  DoMru(GetSafeHwnd(),nID);
+	DoMru(GetSafeHwnd(),nID);
 }
 
 void CMainFrame::OnViewNearest(unsigned int nID) 
 {
-  Texture_SetMode(nID);
+	Texture_SetMode(nID);
 }
 
 void CMainFrame::OnTextureWad(unsigned int nID) 
 {
-  Sys_BeginWait ();
+	Sys_BeginWait ();
 	Texture_ShowDirectory (nID);
 	Sys_UpdateWindows (W_ALL);
 }
 
 void CMainFrame::OnBspCommand(unsigned int nID) 
 {
-  if (g_PrefsDlg.m_bSnapShots && stricmp(currentmap, "unnamed.map") != 0)
-    Map_Snapshot();
+	if (g_PrefsDlg.m_bSnapShots && stricmp(currentmap, "unnamed.map") != 0)
+		Map_Snapshot();
 
-  if (g_qeglobals.bBSPFrontendPlugin)
-  {
-	  CString foo = g_BSPFrontendCommands.GetAt(nID-CMD_BSPCOMMAND);
-	  g_BSPFrontendTable.m_pfnDispatchBSPCommand( foo.GetBuffer(0) );
-  }
-  else
-  {
-	  RunBsp (bsp_commands[LOWORD(nID-CMD_BSPCOMMAND)]);
-  }
+	if (g_qeglobals.bBSPFrontendPlugin)
+	{
+		CString foo = g_BSPFrontendCommands.GetAt(nID-CMD_BSPCOMMAND);
+		g_BSPFrontendTable.m_pfnDispatchBSPCommand( foo.GetBuffer(0) );
+	}
+	else
+	{
+		RunBsp (bsp_commands[LOWORD(nID-CMD_BSPCOMMAND)]);
+	}
 }
 
 
 
 void CMainFrame::OnViewShowblocks() 
 {
-  g_qeglobals.show_blocks ^= 1;
-  CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWBLOCKS, MF_BYCOMMAND | (g_qeglobals.show_blocks ? MF_CHECKED : MF_UNCHECKED)  );
+	g_qeglobals.show_blocks ^= 1;
+	CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWBLOCKS, MF_BYCOMMAND | (g_qeglobals.show_blocks ? MF_CHECKED : MF_UNCHECKED)	);
 	Sys_UpdateWindows (W_XY);
 }
 
 void CMainFrame::OnViewShowclip() 
 {
 	if ( ( g_qeglobals.d_savedinfo.exclude ^= EXCLUDE_CLIP ) & EXCLUDE_CLIP )
-    CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWCLIP, MF_BYCOMMAND | MF_UNCHECKED );
+		CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWCLIP, MF_BYCOMMAND | MF_UNCHECKED );
 	else
-    CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWCLIP, MF_BYCOMMAND | MF_CHECKED );
+		CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWCLIP, MF_BYCOMMAND | MF_CHECKED );
 	Sys_UpdateWindows (W_XY|W_CAMERA);
 }
 
 void CMainFrame::OnViewShowcoordinates() 
 {
-  g_qeglobals.d_savedinfo.show_coordinates ^= 1;
-  CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWCOORDINATES, MF_BYCOMMAND | (g_qeglobals.d_savedinfo.show_coordinates ? MF_CHECKED : MF_UNCHECKED)  );
+	g_qeglobals.d_savedinfo.show_coordinates ^= 1;
+	CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWCOORDINATES, MF_BYCOMMAND | (g_qeglobals.d_savedinfo.show_coordinates ? MF_CHECKED : MF_UNCHECKED)	);
 	Sys_UpdateWindows (W_XY);
 }
 
@@ -2126,132 +2043,132 @@ void CMainFrame::OnViewShowdetail()
 {
 	if ( ( g_qeglobals.d_savedinfo.exclude ^= EXCLUDE_DETAIL ) & EXCLUDE_DETAIL )
 	{
-    CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWDETAIL, MF_BYCOMMAND | MF_UNCHECKED );
-    ::SetWindowText (g_qeglobals.d_hwndCamera, "Camera View (DETAIL EXCLUDED)");
+		CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWDETAIL, MF_BYCOMMAND | MF_UNCHECKED );
+		::SetWindowText (g_qeglobals.d_hwndCamera, "Camera View (DETAIL EXCLUDED)");
 	}
 	else
 	{
-    CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWDETAIL, MF_BYCOMMAND | MF_CHECKED );
-    ::SetWindowText (g_qeglobals.d_hwndCamera, "Camera View");
+		CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWDETAIL, MF_BYCOMMAND | MF_CHECKED );
+		::SetWindowText (g_qeglobals.d_hwndCamera, "Camera View");
 	}
 	Sys_UpdateWindows (W_XY|W_CAMERA);
 }
 
 void CMainFrame::OnViewShowent() 
 {
-  if ( ( g_qeglobals.d_savedinfo.exclude ^= EXCLUDE_ENT ) & EXCLUDE_ENT )
-    CheckMenuItem( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWENT, MF_BYCOMMAND | MF_UNCHECKED);
+	if ( ( g_qeglobals.d_savedinfo.exclude ^= EXCLUDE_ENT ) & EXCLUDE_ENT )
+		CheckMenuItem( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWENT, MF_BYCOMMAND | MF_UNCHECKED);
 	else
-    CheckMenuItem( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWENT, MF_BYCOMMAND | MF_CHECKED);
+		CheckMenuItem( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWENT, MF_BYCOMMAND | MF_CHECKED);
 	Sys_UpdateWindows (W_XY|W_CAMERA);
 }
 
 void CMainFrame::OnViewShowlights() 
 {
-  if ( ( g_qeglobals.d_savedinfo.exclude ^= EXCLUDE_LIGHTS ) & EXCLUDE_LIGHTS )
-    CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWLIGHTS, MF_BYCOMMAND | MF_UNCHECKED );
+	if ( ( g_qeglobals.d_savedinfo.exclude ^= EXCLUDE_LIGHTS ) & EXCLUDE_LIGHTS )
+		CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWLIGHTS, MF_BYCOMMAND | MF_UNCHECKED );
 	else
-    CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWLIGHTS, MF_BYCOMMAND | MF_CHECKED );				
+		CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWLIGHTS, MF_BYCOMMAND | MF_CHECKED );				
 	Sys_UpdateWindows (W_XY|W_CAMERA);
 }
 
 void CMainFrame::OnViewShownames() 
 {
-  g_qeglobals.d_savedinfo.show_names = !g_qeglobals.d_savedinfo.show_names;
-  CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWNAMES, MF_BYCOMMAND | (g_qeglobals.d_savedinfo.show_names ? MF_CHECKED : MF_UNCHECKED)  );
+	g_qeglobals.d_savedinfo.show_names = !g_qeglobals.d_savedinfo.show_names;
+	CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWNAMES, MF_BYCOMMAND | (g_qeglobals.d_savedinfo.show_names ? MF_CHECKED : MF_UNCHECKED)	);
 	Map_BuildBrushData();
 	Sys_UpdateWindows (W_XY);
 }
 
 void CMainFrame::OnViewShowpath() 
 {
-  if ( ( g_qeglobals.d_savedinfo.exclude ^= EXCLUDE_PATHS ) & EXCLUDE_PATHS )
-    CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWPATH, MF_BYCOMMAND | MF_UNCHECKED );
+	if ( ( g_qeglobals.d_savedinfo.exclude ^= EXCLUDE_PATHS ) & EXCLUDE_PATHS )
+		CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWPATH, MF_BYCOMMAND | MF_UNCHECKED );
 	else
-    CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWPATH, MF_BYCOMMAND | MF_CHECKED );
+		CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWPATH, MF_BYCOMMAND | MF_CHECKED );
 	Sys_UpdateWindows (W_XY|W_CAMERA);
 }
 
 void CMainFrame::OnViewShowwater() 
 {
 	if ( ( g_qeglobals.d_savedinfo.exclude ^= EXCLUDE_WATER ) & EXCLUDE_WATER )
-    CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWWATER, MF_BYCOMMAND | MF_UNCHECKED );
+		CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWWATER, MF_BYCOMMAND | MF_UNCHECKED );
 	else
-    CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWWATER, MF_BYCOMMAND | MF_CHECKED );
+		CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWWATER, MF_BYCOMMAND | MF_CHECKED );
 	Sys_UpdateWindows (W_XY|W_CAMERA);
 }
 
 void CMainFrame::OnViewShowworld() 
 {
 	if ( ( g_qeglobals.d_savedinfo.exclude ^= EXCLUDE_WORLD ) & EXCLUDE_WORLD )
-    CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWWORLD, MF_BYCOMMAND | MF_UNCHECKED );
+		CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWWORLD, MF_BYCOMMAND | MF_UNCHECKED );
 	else
-    CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWWORLD, MF_BYCOMMAND | MF_CHECKED );
+		CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWWORLD, MF_BYCOMMAND | MF_CHECKED );
 	Sys_UpdateWindows (W_XY|W_CAMERA);
 }
 
 void CMainFrame::OnViewTexture() 
 {
-  if (m_nCurrentStyle > 0 && m_nCurrentStyle < 3) // QE4 style
-  {
-    if (inspector_mode == W_TEXTURE && m_nCurrentStyle != QR_QE4) // are we in console mode already?
-    {
-      if (::IsWindowVisible(g_qeglobals.d_hwndEntity))
-        ::ShowWindow(g_qeglobals.d_hwndEntity, SW_HIDE);
-      else
-        ::ShowWindow(g_qeglobals.d_hwndEntity, SW_SHOW);
-    }
-    else
-    {
-      ::ShowWindow(g_qeglobals.d_hwndEntity, SW_SHOW);
-      SetInspectorMode(W_TEXTURE);
-    }
-  }
+	if (m_nCurrentStyle > 0 && m_nCurrentStyle < 3) // QE4 style
+	{
+		if (inspector_mode == W_TEXTURE && m_nCurrentStyle != QR_QE4) // are we in console mode already?
+		{
+			if (::IsWindowVisible(g_qeglobals.d_hwndEntity))
+				::ShowWindow(g_qeglobals.d_hwndEntity, SW_HIDE);
+			else
+				::ShowWindow(g_qeglobals.d_hwndEntity, SW_SHOW);
+		}
+		else
+		{
+			::ShowWindow(g_qeglobals.d_hwndEntity, SW_SHOW);
+			SetInspectorMode(W_TEXTURE);
+		}
+	}
 }
 
 void CMainFrame::OnViewUpfloor() 
 {
-  m_pCamWnd->Cam_ChangeFloor (true);
+	m_pCamWnd->Cam_ChangeFloor (true);
 }
 
 void CMainFrame::OnViewXy() 
 {
-  if (m_nCurrentStyle != 2)
-  {
-    m_pXYWnd->SetViewType(XY);
-    m_pXYWnd->PositionView();
-  }
+	if (m_nCurrentStyle != 2)
+	{
+		m_pXYWnd->SetViewType(XY);
+		m_pXYWnd->PositionView();
+	}
 	Sys_UpdateWindows (W_XY);
 }
 
 void CMainFrame::OnViewZ100() 
 {
-  z.scale = 1;
+	z.scale = 1;
 	Sys_UpdateWindows (W_Z|W_Z_OVERLAY);
 }
 
 void CMainFrame::OnViewZoomin() 
 {
-  if (m_pXYWnd && m_pXYWnd->Active())
-  {
-    m_pXYWnd->SetScale(m_pXYWnd->Scale() * 5.0 / 4);
-    if (m_pXYWnd->Scale() > 20)
-      m_pXYWnd->SetScale(20);
-  }
+	if (m_pXYWnd && m_pXYWnd->Active())
+	{
+		m_pXYWnd->SetScale(m_pXYWnd->Scale() * 5.0 / 4);
+		if (m_pXYWnd->Scale() > 20)
+			m_pXYWnd->SetScale(20);
+	}
 
-  if (m_pXZWnd && m_pXZWnd->Active())
-  {
-    m_pXZWnd->SetScale(m_pXZWnd->Scale() * 5.0 / 4);
-    if (m_pXZWnd->Scale() > 20)
-      m_pXZWnd->SetScale(20);
-  }
+	if (m_pXZWnd && m_pXZWnd->Active())
+	{
+		m_pXZWnd->SetScale(m_pXZWnd->Scale() * 5.0 / 4);
+		if (m_pXZWnd->Scale() > 20)
+			m_pXZWnd->SetScale(20);
+	}
 
-  if (m_pYZWnd && m_pYZWnd->Active())
-  {
-    m_pYZWnd->SetScale(m_pYZWnd->Scale() * 5.0 / 4);
-    if (m_pYZWnd->Scale() > 20)
-      m_pYZWnd->SetScale(20);
-  }
+	if (m_pYZWnd && m_pYZWnd->Active())
+	{
+		m_pYZWnd->SetScale(m_pYZWnd->Scale() * 5.0 / 4);
+		if (m_pYZWnd->Scale() > 20)
+			m_pYZWnd->SetScale(20);
+	}
 
 
 	Sys_UpdateWindows (W_XY|W_XY_OVERLAY);
@@ -2260,58 +2177,58 @@ void CMainFrame::OnViewZoomin()
 void CMainFrame::OnViewZoomout() 
 {
 
-  if (m_pXYWnd && m_pXYWnd->Active())
-  {
-    m_pXYWnd->SetScale(m_pXYWnd->Scale() * 4.0 / 5);
-    if (m_pXYWnd->Scale() < 0.1 / 32)
-      m_pXYWnd->SetScale(0.1 /32);
-  }
+	if (m_pXYWnd && m_pXYWnd->Active())
+	{
+		m_pXYWnd->SetScale(m_pXYWnd->Scale() * 4.0 / 5);
+		if (m_pXYWnd->Scale() < 0.1 / 32)
+			m_pXYWnd->SetScale(0.1 /32);
+	}
 
-  if (m_pXZWnd && m_pXZWnd->Active())
-  {
-    m_pXZWnd->SetScale(m_pXZWnd->Scale() * 4.0 / 5);
-    if (m_pXZWnd->Scale() < 0.1 / 32)
-      m_pXZWnd->SetScale(0.1 / 32);
-  }
+	if (m_pXZWnd && m_pXZWnd->Active())
+	{
+		m_pXZWnd->SetScale(m_pXZWnd->Scale() * 4.0 / 5);
+		if (m_pXZWnd->Scale() < 0.1 / 32)
+			m_pXZWnd->SetScale(0.1 / 32);
+	}
 
-  if (m_pYZWnd && m_pYZWnd->Active())
-  {
-    m_pYZWnd->SetScale(m_pYZWnd->Scale() * 4.0 / 5);
-    if (m_pYZWnd->Scale() < 0.1 / 32)
-      m_pYZWnd->SetScale(0.1 / 32);
-  }
+	if (m_pYZWnd && m_pYZWnd->Active())
+	{
+		m_pYZWnd->SetScale(m_pYZWnd->Scale() * 4.0 / 5);
+		if (m_pYZWnd->Scale() < 0.1 / 32)
+			m_pYZWnd->SetScale(0.1 / 32);
+	}
 	Sys_UpdateWindows (W_XY|W_XY_OVERLAY);
 }
 
 void CMainFrame::OnViewZzoomin() 
 {
-  z.scale *= 5.0/4;
+	z.scale *= 5.0/4;
 	if (z.scale > 4)
-	  z.scale = 4;
+		z.scale = 4;
 	Sys_UpdateWindows (W_Z|W_Z_OVERLAY);
 }
 
 void CMainFrame::OnViewZzoomout() 
 {
-  z.scale *= 4.0/5;
+	z.scale *= 4.0/5;
 	if (z.scale < 0.125)
-	  z.scale = 0.125;
+		z.scale = 0.125;
 	Sys_UpdateWindows (W_Z|W_Z_OVERLAY);
 }
 
 void CMainFrame::OnViewSide() 
 {
-  if (m_nCurrentStyle != 2)
-  {
-    m_pXYWnd->SetViewType(XZ);
-    m_pXYWnd->PositionView();
-  }
+	if (m_nCurrentStyle != 2)
+	{
+		m_pXYWnd->SetViewType(XZ);
+		m_pXYWnd->PositionView();
+	}
 	Sys_UpdateWindows (W_XY);
 }
 
 void CMainFrame::OnGrid1(unsigned int nID) 
 {
-  HMENU hMenu = ::GetMenu(GetSafeHwnd());
+	HMENU hMenu = ::GetMenu(GetSafeHwnd());
 	
 	CheckMenuItem(hMenu, ID_GRID_1, MF_BYCOMMAND | MF_UNCHECKED);
 	CheckMenuItem(hMenu, ID_GRID_2, MF_BYCOMMAND | MF_UNCHECKED);
@@ -2333,10 +2250,10 @@ void CMainFrame::OnGrid1(unsigned int nID)
 	}
 	g_qeglobals.d_gridsize = 1 << g_qeglobals.d_gridsize;
 
-  if (g_PrefsDlg.m_bSnapTToGrid)
-    g_qeglobals.d_savedinfo.m_nTextureTweak = g_qeglobals.d_gridsize;
+	if (g_PrefsDlg.m_bSnapTToGrid)
+		g_qeglobals.d_savedinfo.m_nTextureTweak = g_qeglobals.d_gridsize;
 
-  SetGridStatus();
+	SetGridStatus();
 	CheckMenuItem(hMenu, nID, MF_BYCOMMAND | MF_CHECKED);
 	Sys_UpdateWindows (W_XY|W_Z);
 	
@@ -2344,118 +2261,118 @@ void CMainFrame::OnGrid1(unsigned int nID)
 
 void CMainFrame::OnTexturesShowinuse() 
 {
-  Sys_BeginWait ();
+	Sys_BeginWait ();
 	Texture_ShowInuse ();
-  if (m_pTexWnd)
-  {
-    m_pTexWnd->RedrawWindow();
-  }
+	if (m_pTexWnd)
+	{
+		m_pTexWnd->RedrawWindow();
+	}
 }
 
 //from TexWnd.cpp
 extern qboolean	texture_showinuse;
 void CMainFrame::OnUpdateTexturesShowinuse(CCmdUI* pCmdUI) 
 {
-  pCmdUI->SetCheck(texture_showinuse);
+	pCmdUI->SetCheck(texture_showinuse);
 }
 
 void CMainFrame::OnTexturesInspector() 
 {
-  DoSurface ();
+	DoSurface ();
 }
 
 void CMainFrame::OnMiscBenchmark() 
 {
-  m_pCamWnd->BenchMark();
+	m_pCamWnd->BenchMark();
 }
 
 void CMainFrame::OnMiscFindbrush() 
 {
-  DoFind();
+	DoFind();
 }
 
 void CMainFrame::OnMiscGamma() 
 {
-  float fSave = g_qeglobals.d_savedinfo.fGamma;
-  DoGamma();
-  if (fSave != g_qeglobals.d_savedinfo.fGamma)
-  {
-    MessageBox("You must restart Q3Radiant for Gamma settings to take place");
-  }
+	float fSave = g_qeglobals.d_savedinfo.fGamma;
+	DoGamma();
+	if (fSave != g_qeglobals.d_savedinfo.fGamma)
+	{
+		MessageBox("You must restart Q3Radiant for Gamma settings to take place");
+	}
 }
 
 void CMainFrame::OnMiscNextleakspot() 
 {
-  Pointfile_Next();
+	Pointfile_Next();
 }
 
 void CMainFrame::OnMiscPreviousleakspot() 
 {
-  Pointfile_Prev();
+	Pointfile_Prev();
 }
 
 void CMainFrame::OnMiscPrintxy() 
 {
-  WXY_Print();
+	WXY_Print();
 }
 
 void CMainFrame::OnMiscSelectentitycolor() 
 {
-  if (edit_entity)
-  {
-    CString strColor = ValueForKey(edit_entity, "_color");
-    if (strColor.GetLength() > 0)
-    {
-      float fR, fG, fB;
-	    int n = sscanf(strColor,"%f %f %f", &fR, &fG, &fB);
-      if (n == 3)
-      {
-        g_qeglobals.d_savedinfo.colors[COLOR_ENTITY][0] = fR;
-        g_qeglobals.d_savedinfo.colors[COLOR_ENTITY][1] = fG;
-        g_qeglobals.d_savedinfo.colors[COLOR_ENTITY][2] = fB;
-      }
-    }
+	if (edit_entity)
+	{
+		CString strColor = ValueForKey(edit_entity, "_color");
+		if (strColor.GetLength() > 0)
+		{
+			float fR, fG, fB;
+			int n = sscanf(strColor,"%f %f %f", &fR, &fG, &fB);
+			if (n == 3)
+			{
+				g_qeglobals.d_savedinfo.colors[COLOR_ENTITY][0] = fR;
+				g_qeglobals.d_savedinfo.colors[COLOR_ENTITY][1] = fG;
+				g_qeglobals.d_savedinfo.colors[COLOR_ENTITY][2] = fB;
+			}
+		}
 
-    if (inspector_mode == W_ENTITY && (DoColor(COLOR_ENTITY)))
-    {
-	    char buffer[100];
-	    sprintf(buffer, "%f %f %f", g_qeglobals.d_savedinfo.colors[COLOR_ENTITY][0],
-		          g_qeglobals.d_savedinfo.colors[COLOR_ENTITY][1],
-		          g_qeglobals.d_savedinfo.colors[COLOR_ENTITY][2]);
-	  
-      ::SetWindowText( hwndEnt[EntValueField], buffer );
-      ::SetWindowText( hwndEnt[EntKeyField], "_color" );
-	    AddProp();
+		if (inspector_mode == W_ENTITY && (DoColor(COLOR_ENTITY)))
+		{
+			char buffer[100];
+			sprintf(buffer, "%f %f %f", g_qeglobals.d_savedinfo.colors[COLOR_ENTITY][0],
+							g_qeglobals.d_savedinfo.colors[COLOR_ENTITY][1],
+							g_qeglobals.d_savedinfo.colors[COLOR_ENTITY][2]);
+		
+			::SetWindowText( hwndEnt[EntValueField], buffer );
+			::SetWindowText( hwndEnt[EntKeyField], "_color" );
+			AddProp();
 //DK - SOF change to get color to entity quickly
 		//--::SetWindowText( hwndEnt[EntValueField], buffer );
 //--		::SetWindowText( hwndEnt[EntKeyField], "color" );
 //--		AddProp();
-    }
-    Sys_UpdateWindows( W_ALL );
-  }
+		}
+		Sys_UpdateWindows( W_ALL );
+	}
 }
 
 void CMainFrame::OnTexturebk() 
 {
-  DoColor(COLOR_TEXTUREBACK);
+	DoColor(COLOR_TEXTUREBACK);
 	Sys_UpdateWindows (W_ALL);
 }
 
 void CMainFrame::OnColorsMajor() 
 {
-  DoColor(COLOR_GRIDMAJOR);
+	DoColor(COLOR_GRIDMAJOR);
 	Sys_UpdateWindows (W_ALL);
 }
 
 void CMainFrame::OnColorsMinor() 
 {
-  DoColor(COLOR_GRIDMINOR);
+	DoColor(COLOR_GRIDMINOR);
 	Sys_UpdateWindows (W_ALL);
 }
 
 void CMainFrame::OnColorsXybk() 
 {
-  DoColor(COLOR_GRIDBACK);
+	DoColor(COLOR_GRIDBACK);
 	Sys_UpdateWindows (W_ALL);
 }
 
@@ -2710,8 +2627,8 @@ void CMainFrame::OnSelectionCsgmerge()
 
 void CMainFrame::OnSelectionNoOutline()
 {
-  g_qeglobals.dontDrawSelectedOutlines ^= 1;
-  Sys_UpdateWindows(W_ALL);
+	g_qeglobals.dontDrawSelectedOutlines ^= 1;
+	Sys_UpdateWindows(W_ALL);
 }
 
 void CMainFrame::OnSelectionDelete() 
@@ -2787,28 +2704,28 @@ void CMainFrame::OnSelectionDragedges()
 void CMainFrame::OnSelectionDragvertecies() 
 {
 	if (g_qeglobals.d_select_mode == sel_vertex || g_qeglobals.d_select_mode == sel_curvepoint ||
-      g_qeglobals.d_select_mode == sel_terrainpoint )
+			g_qeglobals.d_select_mode == sel_terrainpoint )
 	{
 		clearSelection();
 		Sys_UpdateWindows (W_ALL);
 	}
 	else
 	{
-	  //--if (QE_SingleBrush() && selected_brushes.next->patchBrush)
+		//--if (QE_SingleBrush() && selected_brushes.next->patchBrush)
 	if ( OnlyTerrainSelected() )
 	{
 		//Terrain_Edit();
 	}
-    else if (OnlyPatchesSelected())
-    {
-      Patch_EditPatch();
-    }
+		else if (OnlyPatchesSelected())
+		{
+			Patch_EditPatch();
+		}
 	else if ( !AnyPatchesSelected() && !AnyTerrainSelected() )
-    {
-		  SetupVertexSelection ();
-		  if (g_qeglobals.d_numpoints)
-		    g_qeglobals.d_select_mode = sel_vertex;
-    }
+		{
+			SetupVertexSelection ();
+			if (g_qeglobals.d_numpoints)
+				g_qeglobals.d_select_mode = sel_vertex;
+		}
 		Sys_UpdateWindows (W_ALL);
 	}
 }
@@ -2904,7 +2821,7 @@ void CMainFrame::OnViewChange()
 
 void CMainFrame::OnViewCameraupdate() 
 {
-  Sys_UpdateWindows(W_CAMERA);
+	Sys_UpdateWindows(W_CAMERA);
 }
 
 void CMainFrame::OnUpdateViewCameraupdate(CCmdUI* pCmdUI) 
@@ -2914,140 +2831,140 @@ void CMainFrame::OnUpdateViewCameraupdate(CCmdUI* pCmdUI)
 
 void CMainFrame::OnSizing(UINT fwSide, LPRECT pRect) 
 {
-  CFrameWnd::OnSizing(fwSide, pRect);
+	CFrameWnd::OnSizing(fwSide, pRect);
 	GetClientRect(g_rctOld);
 }
 
 void CMainFrame::OnHelpAbout() 
 {
-  DoAbout();
+	DoAbout();
 }
 
 void CMainFrame::OnViewClipper() 
 {
-  if (ActiveXY())
-  {
-    if (ActiveXY()->ClipMode())
-    {
-      ActiveXY()->SetClipMode(false);
-      m_wndToolBar.GetToolBarCtrl().CheckButton(ID_VIEW_CLIPPER, FALSE);
-    }
-    else
-    {
-      if (ActiveXY()->RotateMode())
-        OnSelectMouserotate();
-      ActiveXY()->SetClipMode(true);
-      m_wndToolBar.GetToolBarCtrl().CheckButton(ID_VIEW_CLIPPER);
-    }
-  }
+	if (ActiveXY())
+	{
+		if (ActiveXY()->ClipMode())
+		{
+			ActiveXY()->SetClipMode(false);
+			m_wndToolBar.GetToolBarCtrl().CheckButton(ID_VIEW_CLIPPER, FALSE);
+		}
+		else
+		{
+			if (ActiveXY()->RotateMode())
+				OnSelectMouserotate();
+			ActiveXY()->SetClipMode(true);
+			m_wndToolBar.GetToolBarCtrl().CheckButton(ID_VIEW_CLIPPER);
+		}
+	}
 }
 
 void CMainFrame::OnCameraAngledown() 
 {
-  m_pCamWnd->Camera().angles[0] -= SPEED_TURN;
+	m_pCamWnd->Camera().angles[0] -= SPEED_TURN;
 	if (m_pCamWnd->Camera().angles[0] < -85)
-	  m_pCamWnd->Camera().angles[0] = -85;
+		m_pCamWnd->Camera().angles[0] = -85;
 	Sys_UpdateWindows (W_CAMERA|W_XY_OVERLAY);
 }
 
 void CMainFrame::OnCameraAngleup() 
 {
-  m_pCamWnd->Camera().angles[0] += SPEED_TURN;
-  if (m_pCamWnd->Camera().angles[0] > 85)
-	  m_pCamWnd->Camera().angles[0] = 85;
-  Sys_UpdateWindows (W_CAMERA|W_XY_OVERLAY);
+	m_pCamWnd->Camera().angles[0] += SPEED_TURN;
+	if (m_pCamWnd->Camera().angles[0] > 85)
+		m_pCamWnd->Camera().angles[0] = 85;
+	Sys_UpdateWindows (W_CAMERA|W_XY_OVERLAY);
 }
 
 void CMainFrame::OnCameraBack() 
 {
-  VectorMA (m_pCamWnd->Camera().origin, -SPEED_MOVE, m_pCamWnd->Camera().forward, m_pCamWnd->Camera().origin);
-  int nUpdate = (g_PrefsDlg.m_bCamXYUpdate) ? (W_CAMERA | W_XY) : (W_CAMERA);
+	VectorMA (m_pCamWnd->Camera().origin, -SPEED_MOVE, m_pCamWnd->Camera().forward, m_pCamWnd->Camera().origin);
+	int nUpdate = (g_PrefsDlg.m_bCamXYUpdate) ? (W_CAMERA | W_XY) : (W_CAMERA);
 	Sys_UpdateWindows (nUpdate);
 }
 
 void CMainFrame::OnCameraDown() 
 {
-  m_pCamWnd->Camera().origin[2] -= SPEED_MOVE;
-  int nUpdate = (g_PrefsDlg.m_bCamXYUpdate) ? (W_CAMERA | W_XY) : (W_CAMERA);
+	m_pCamWnd->Camera().origin[2] -= SPEED_MOVE;
+	int nUpdate = (g_PrefsDlg.m_bCamXYUpdate) ? (W_CAMERA | W_XY) : (W_CAMERA);
 	Sys_UpdateWindows (nUpdate);
 }
 
 void CMainFrame::OnCameraForward() 
 {
-  VectorMA (m_pCamWnd->Camera().origin, SPEED_MOVE, m_pCamWnd->Camera().forward, m_pCamWnd->Camera().origin);
-  int nUpdate = (g_PrefsDlg.m_bCamXYUpdate) ? (W_CAMERA | W_XY) : (W_CAMERA);
+	VectorMA (m_pCamWnd->Camera().origin, SPEED_MOVE, m_pCamWnd->Camera().forward, m_pCamWnd->Camera().origin);
+	int nUpdate = (g_PrefsDlg.m_bCamXYUpdate) ? (W_CAMERA | W_XY) : (W_CAMERA);
 	Sys_UpdateWindows (nUpdate);
 }
 
 void CMainFrame::OnCameraLeft() 
 {
-  m_pCamWnd->Camera().angles[1] += SPEED_TURN;
-  int nUpdate = (g_PrefsDlg.m_bCamXYUpdate) ? (W_CAMERA | W_XY) : (W_CAMERA);
+	m_pCamWnd->Camera().angles[1] += SPEED_TURN;
+	int nUpdate = (g_PrefsDlg.m_bCamXYUpdate) ? (W_CAMERA | W_XY) : (W_CAMERA);
 	Sys_UpdateWindows (nUpdate);
 }
 
 void CMainFrame::OnCameraRight() 
 {
-  m_pCamWnd->Camera().angles[1] -= SPEED_TURN;
-  int nUpdate = (g_PrefsDlg.m_bCamXYUpdate) ? (W_CAMERA | W_XY) : (W_CAMERA);
+	m_pCamWnd->Camera().angles[1] -= SPEED_TURN;
+	int nUpdate = (g_PrefsDlg.m_bCamXYUpdate) ? (W_CAMERA | W_XY) : (W_CAMERA);
 	Sys_UpdateWindows (nUpdate);
 }
 
 void CMainFrame::OnCameraStrafeleft() 
 {
-  VectorMA (m_pCamWnd->Camera().origin, -SPEED_MOVE, m_pCamWnd->Camera().right, m_pCamWnd->Camera().origin);
-  int nUpdate = (g_PrefsDlg.m_bCamXYUpdate) ? (W_CAMERA | W_XY) : (W_CAMERA);
+	VectorMA (m_pCamWnd->Camera().origin, -SPEED_MOVE, m_pCamWnd->Camera().right, m_pCamWnd->Camera().origin);
+	int nUpdate = (g_PrefsDlg.m_bCamXYUpdate) ? (W_CAMERA | W_XY) : (W_CAMERA);
 	Sys_UpdateWindows (nUpdate);
 }
 
 void CMainFrame::OnCameraStraferight() 
 {
-  VectorMA (m_pCamWnd->Camera().origin, SPEED_MOVE, m_pCamWnd->Camera().right, m_pCamWnd->Camera().origin);
-  int nUpdate = (g_PrefsDlg.m_bCamXYUpdate) ? (W_CAMERA | W_XY) : (W_CAMERA);
+	VectorMA (m_pCamWnd->Camera().origin, SPEED_MOVE, m_pCamWnd->Camera().right, m_pCamWnd->Camera().origin);
+	int nUpdate = (g_PrefsDlg.m_bCamXYUpdate) ? (W_CAMERA | W_XY) : (W_CAMERA);
 	Sys_UpdateWindows (nUpdate);
 }
 
 void CMainFrame::OnCameraUp() 
 {
-  m_pCamWnd->Camera().origin[2] += SPEED_MOVE;
-  int nUpdate = (g_PrefsDlg.m_bCamXYUpdate) ? (W_CAMERA | W_XY) : (W_CAMERA);
+	m_pCamWnd->Camera().origin[2] += SPEED_MOVE;
+	int nUpdate = (g_PrefsDlg.m_bCamXYUpdate) ? (W_CAMERA | W_XY) : (W_CAMERA);
 	Sys_UpdateWindows (nUpdate);
 }
 
 void CMainFrame::OnGridToggle() 
 {
-  g_qeglobals.d_showgrid = !g_qeglobals.d_showgrid;
+	g_qeglobals.d_showgrid = !g_qeglobals.d_showgrid;
 	Sys_UpdateWindows (W_XY|W_Z);
 }
 
 void CMainFrame::OnPrefs() 
 {
-  int nView = g_PrefsDlg.m_nView;
-  BOOL bToolbar = g_PrefsDlg.m_bWideToolbar;
-  BOOL bTextureBar = g_PrefsDlg.m_bTextureBar;
-  BOOL bSGIOpenGL = g_PrefsDlg.m_bSGIOpenGL;
-  BOOL bBuggyICD = g_PrefsDlg.m_bBuggyICD;
-  int nShader = g_PrefsDlg.m_nShader;
-  g_PrefsDlg.LoadPrefs();
-  if (g_PrefsDlg.DoModal() == IDOK)
-  {
-    if (g_PrefsDlg.m_nView != nView || g_PrefsDlg.m_bWideToolbar != bToolbar 
-        || g_PrefsDlg.m_bSGIOpenGL != bSGIOpenGL || g_PrefsDlg.m_bBuggyICD != bBuggyICD || nShader != g_PrefsDlg.m_nShader)
-      MessageBox("You need to restart Q3Radiant for the view changes to take place.");
-    if (m_pTexWnd)
-      m_pTexWnd->UpdatePrefs();
-    if (bTextureBar != g_PrefsDlg.m_bTextureBar)
-    {
-      if (bTextureBar) // was turned on
-        ShowControlBar(&m_wndTextureBar, TRUE, TRUE);
-      else // was turned off
-        ShowControlBar(&m_wndTextureBar, FALSE, TRUE);
-      m_wndTextureBar.Invalidate();
-    }
-    CMenu* pMenu = GetMenu();
-    if (pMenu)
-      pMenu->CheckMenuItem(ID_SNAPTOGRID, MF_BYCOMMAND | (!g_PrefsDlg.m_bNoClamp) ? MF_CHECKED : MF_UNCHECKED);
-  }
+	int nView = g_PrefsDlg.m_nView;
+	BOOL bToolbar = g_PrefsDlg.m_bWideToolbar;
+	BOOL bTextureBar = g_PrefsDlg.m_bTextureBar;
+	BOOL bSGIOpenGL = g_PrefsDlg.m_bSGIOpenGL;
+	BOOL bBuggyICD = g_PrefsDlg.m_bBuggyICD;
+	int nShader = g_PrefsDlg.m_nShader;
+	g_PrefsDlg.LoadPrefs();
+	if (g_PrefsDlg.DoModal() == IDOK)
+	{
+		if (g_PrefsDlg.m_nView != nView || g_PrefsDlg.m_bWideToolbar != bToolbar 
+				|| g_PrefsDlg.m_bSGIOpenGL != bSGIOpenGL || g_PrefsDlg.m_bBuggyICD != bBuggyICD || nShader != g_PrefsDlg.m_nShader)
+			MessageBox("You need to restart Q3Radiant for the view changes to take place.");
+		if (m_pTexWnd)
+			m_pTexWnd->UpdatePrefs();
+		if (bTextureBar != g_PrefsDlg.m_bTextureBar)
+		{
+			if (bTextureBar) // was turned on
+				ShowControlBar(&m_wndTextureBar, TRUE, TRUE);
+			else // was turned off
+				ShowControlBar(&m_wndTextureBar, FALSE, TRUE);
+			m_wndTextureBar.Invalidate();
+		}
+		CMenu* pMenu = GetMenu();
+		if (pMenu)
+			pMenu->CheckMenuItem(ID_SNAPTOGRID, MF_BYCOMMAND | (!g_PrefsDlg.m_bNoClamp) ? MF_CHECKED : MF_UNCHECKED);
+	}
 }
 
 // 0 = radiant styel
@@ -3058,283 +2975,272 @@ void CMainFrame::SetWindowStyle(int nStyle)
 
 void CMainFrame::OnTogglecamera() 
 {
-  if (m_nCurrentStyle > 0 && m_nCurrentStyle < 3) // QE4 style
-  {
-    if (m_pCamWnd && m_pCamWnd->GetSafeHwnd())
-    {
-      if (m_pCamWnd->IsWindowVisible())
-        m_pCamWnd->ShowWindow(SW_HIDE);
-      else
-        m_pCamWnd->ShowWindow(SW_SHOW);
-    }
-  }
+	if (m_nCurrentStyle > 0 && m_nCurrentStyle < 3) // QE4 style
+	{
+		if (m_pCamWnd && m_pCamWnd->GetSafeHwnd())
+		{
+			if (m_pCamWnd->IsWindowVisible())
+				m_pCamWnd->ShowWindow(SW_HIDE);
+			else
+				m_pCamWnd->ShowWindow(SW_SHOW);
+		}
+	}
 }
 
 void CMainFrame::OnToggleconsole() 
 {
-  if (m_nCurrentStyle > 0 && m_nCurrentStyle < 3) // QE4 style
-  {
-    if (m_pEditWnd && m_pEditWnd->GetSafeHwnd())
-    {
-      if (m_pEditWnd->IsWindowVisible())
-        m_pEditWnd->ShowWindow(SW_HIDE);
-      else
-        m_pEditWnd->ShowWindow(SW_SHOW);
-    }
-  }
+	if (m_nCurrentStyle > 0 && m_nCurrentStyle < 3) // QE4 style
+	{
+		if (m_pEditWnd && m_pEditWnd->GetSafeHwnd())
+		{
+			if (m_pEditWnd->IsWindowVisible())
+				m_pEditWnd->ShowWindow(SW_HIDE);
+			else
+				m_pEditWnd->ShowWindow(SW_SHOW);
+		}
+	}
 }
 
 void CMainFrame::OnToggleview() 
 {
-  if (m_nCurrentStyle == 1) // QE4 style
-  {
-    if (m_pXYWnd && m_pXYWnd->GetSafeHwnd())
-    {
-      if (m_pXYWnd->IsWindowVisible())
-        m_pXYWnd->ShowWindow(SW_HIDE);
-      else
-        m_pXYWnd->ShowWindow(SW_SHOW);
-    }
-  }
+	if (m_nCurrentStyle == 1) // QE4 style
+	{
+		if (m_pXYWnd && m_pXYWnd->GetSafeHwnd())
+		{
+			if (m_pXYWnd->IsWindowVisible())
+				m_pXYWnd->ShowWindow(SW_HIDE);
+			else
+				m_pXYWnd->ShowWindow(SW_SHOW);
+		}
+	}
 }
 
 void CMainFrame::OnTogglez() 
 {
-  if (m_nCurrentStyle == 1 || m_nCurrentStyle == 2) // QE4 style
-  {
-    if (m_pZWnd && m_pZWnd->GetSafeHwnd())
-    {
-      if (m_pZWnd->IsWindowVisible())
-        m_pZWnd->ShowWindow(SW_HIDE);
-      else
-        m_pZWnd->ShowWindow(SW_SHOW);
-    }
-  }
-  else
-  {
-	  Undo_Redo();
-  }
+	if (m_nCurrentStyle == 1 || m_nCurrentStyle == 2) // QE4 style
+	{
+		if (m_pZWnd && m_pZWnd->GetSafeHwnd())
+		{
+			if (m_pZWnd->IsWindowVisible())
+				m_pZWnd->ShowWindow(SW_HIDE);
+			else
+				m_pZWnd->ShowWindow(SW_SHOW);
+		}
+	}
+	else
+	{
+		Undo_Redo();
+	}
 }
 
-void CMainFrame::OnToggleLock() 
-{
-  g_PrefsDlg.m_bTextureLock = !g_PrefsDlg.m_bTextureLock;
-  CMenu* pMenu = GetMenu();
-  if (pMenu)
-    pMenu->CheckMenuItem(ID_TOGGLE_LOCK, MF_BYCOMMAND | (g_PrefsDlg.m_bTextureLock) ? MF_CHECKED : MF_UNCHECKED);
-  g_PrefsDlg.SavePrefs();
-  SetGridStatus();
+void CMainFrame::OnToggleLock() {
+	g_PrefsDlg.m_bTextureLock = !g_PrefsDlg.m_bTextureLock;
+	CMenu* pMenu = GetMenu();
+	if (pMenu)
+		pMenu->CheckMenuItem(ID_TOGGLE_LOCK, MF_BYCOMMAND | (g_PrefsDlg.m_bTextureLock) ? MF_CHECKED : MF_UNCHECKED);
+	g_PrefsDlg.SavePrefs();
+	SetGridStatus();
 }
 
-void CMainFrame::OnEditMapinfo() 
-{
-  CMapInfo dlg;
-  dlg.DoModal();
+void CMainFrame::OnEditMapinfo() {
+	CMapInfo dlg;
+	dlg.DoModal();
 }
 
-void CMainFrame::OnEditEntityinfo() 
-{
-  CEntityListDlg dlg;
-  dlg.DoModal();
+void CMainFrame::OnEditEntityinfo() {
+	CEntityListDlg dlg;
+	dlg.DoModal();
 }
 
-
-
-void CMainFrame::OnBrushScripts() 
-{
-  CScriptDlg dlg;
-  dlg.DoModal();
+void CMainFrame::OnBrushScripts() {
+	CScriptDlg dlg;
+	dlg.DoModal();
 }
 
 void CMainFrame::OnViewNextview() 
 {
-  if (m_nCurrentStyle != 2)
-  {
-    if (m_pXYWnd->GetViewType() == XY)
-      m_pXYWnd->SetViewType(XZ);
-    else 
-    if (m_pXYWnd->GetViewType() ==  XZ)
-      m_pXYWnd->SetViewType(YZ);
-    else
-      m_pXYWnd->SetViewType(XY);
-    m_pXYWnd->PositionView();
-	  Sys_UpdateWindows (W_XY);
-  }
+	if (m_nCurrentStyle != 2)
+	{
+		if (m_pXYWnd->GetViewType() == XY)
+			m_pXYWnd->SetViewType(XZ);
+		else 
+		if (m_pXYWnd->GetViewType() ==	XZ)
+			m_pXYWnd->SetViewType(YZ);
+		else
+			m_pXYWnd->SetViewType(XY);
+		m_pXYWnd->PositionView();
+		Sys_UpdateWindows (W_XY);
+	}
 }
 
 void CMainFrame::OnHelpCommandlist() 
 {
-  CCommandsDlg dlg;
-  dlg.DoModal();
+	CCommandsDlg dlg;
+	dlg.DoModal();
 #if 0
-  if (g_b3Dfx)
-  {
-    C3DFXCamWnd* pWnd = new C3DFXCamWnd();
-    CRect rect(50,50,400, 400);
-    pWnd->Create(_3DFXCAMERA_WINDOW_CLASS, "", QE3_CHILDSTYLE, rect, this, 1234);
-    pWnd->ShowWindow(SW_SHOW);
-  }
+	if (g_b3Dfx)
+	{
+		C3DFXCamWnd* pWnd = new C3DFXCamWnd();
+		CRect rect(50,50,400, 400);
+		pWnd->Create(_3DFXCAMERA_WINDOW_CLASS, "", QE3_CHILDSTYLE, rect, this, 1234);
+		pWnd->ShowWindow(SW_SHOW);
+	}
 #endif
 }
 
 void CMainFrame::OnFileNewproject() 
 {
-  CNewProjDlg dlg;
-  if (dlg.DoModal() == IDOK && dlg.m_strName.GetLength() > 0)
-  {
-    CString strQ2;
-    CString strQ2File;
-    ExtractPath_and_Filename(g_PrefsDlg.m_strQuake2, strQ2, strQ2File);
+	CNewProjDlg dlg;
+	if (dlg.DoModal() == IDOK && dlg.m_strName.GetLength() > 0)
+	{
+		CString strQ2;
+		CString strQ2File;
+		ExtractPath_and_Filename(g_PrefsDlg.m_strQuake2, strQ2, strQ2File);
 
 
-    AddSlash(strQ2);
-    strQ2 += dlg.m_strName;
-    CString strProjToLoad;
-    CString strMapToLoad;
-    bool bGood = true;
-    if (::CreateDirectory(strQ2, NULL))
-    {
-      CString strDir = strQ2;
-      strDir += "\\maps";
-      if (::CreateDirectory(strDir, NULL))
-      {
-        CString strSource = g_strAppPath;
-        AddSlash(strSource);
-        strSource += "projmap.dat";
-        CString strDest = strDir;
-        AddSlash(strDest);
-        CString strName;
-        strName.Format("%s.map", dlg.m_strName);
-        strDest += strName;
-        strMapToLoad = strDest;
-        if (!::CopyFile(strSource, strDest, FALSE))
-          bGood = false;
-      }
-      else bGood = false;
+		AddSlash(strQ2);
+		strQ2 += dlg.m_strName;
+		CString strProjToLoad;
+		CString strMapToLoad;
+		bool bGood = true;
+		if (::CreateDirectory(strQ2, NULL))
+		{
+			CString strDir = strQ2;
+			strDir += "\\maps";
+			if (::CreateDirectory(strDir, NULL))
+			{
+				CString strSource = g_strAppPath;
+				AddSlash(strSource);
+				strSource += "projmap.dat";
+				CString strDest = strDir;
+				AddSlash(strDest);
+				CString strName;
+				strName.Format("%s.map", dlg.m_strName);
+				strDest += strName;
+				strMapToLoad = strDest;
+				if (!::CopyFile(strSource, strDest, FALSE))
+					bGood = false;
+			}
+			else bGood = false;
 
-      strDir = strQ2;
-      strDir += "\\pics";
-      if (::CreateDirectory(strDir, NULL))
-      {
-        CString strSource = g_strAppPath;
-        AddSlash(strSource);
-        strSource += "colormap.pcx";
-        CString strDest = strDir;
-        AddSlash(strDest);
-        strDest += "colormap.pcx";
-        if (!::CopyFile(strSource, strDest, FALSE))
-          bGood = false;
-      }
-      else bGood = false;
+			strDir = strQ2;
+			strDir += "\\pics";
+			if (::CreateDirectory(strDir, NULL))
+			{
+				CString strSource = g_strAppPath;
+				AddSlash(strSource);
+				strSource += "colormap.pcx";
+				CString strDest = strDir;
+				AddSlash(strDest);
+				strDest += "colormap.pcx";
+				if (!::CopyFile(strSource, strDest, FALSE))
+					bGood = false;
+			}
+			else bGood = false;
 
-      strDir = strQ2;
-      strDir += "\\scripts";
-      if (::CreateDirectory(strDir, NULL))
-      {
-        CString strSource = g_strAppPath;
-        AddSlash(strSource);
-        strSource += "projqe4.dat";
-        CString strDest = strDir;
-        AddSlash(strDest);
-        strDest += "quake.qe4";
-        if (!::CopyFile(strSource, strDest, FALSE))
-          bGood = false;
-        else
-          strProjToLoad = strDest;
-      }
-      else bGood = false;
-      if (bGood && strProjToLoad.GetLength() > 0)
-      {
-	      if (QE_LoadProject(strProjToLoad.GetBuffer(0)))
-        {
-          if (strMapToLoad.GetLength() > 0)
-            Map_LoadFile(strMapToLoad.GetBuffer(0));
-        }
-      }
-    }
-    else 
-    {
-      CString strMsg;
-      strMsg.Format("Unable to create directory %s", strQ2);
-      MessageBox(strMsg);
-    }
+			strDir = strQ2;
+			strDir += "\\scripts";
+			if (::CreateDirectory(strDir, NULL))
+			{
+				CString strSource = g_strAppPath;
+				AddSlash(strSource);
+				strSource += "projqe4.dat";
+				CString strDest = strDir;
+				AddSlash(strDest);
+				strDest += "quake.qe4";
+				if (!::CopyFile(strSource, strDest, FALSE))
+					bGood = false;
+				else
+					strProjToLoad = strDest;
+			}
+			else bGood = false;
+			if (bGood && strProjToLoad.GetLength() > 0)
+			{
+				if (QE_LoadProject(strProjToLoad.GetBuffer(0)))
+				{
+					if (strMapToLoad.GetLength() > 0)
+						Map_LoadFile(strMapToLoad.GetBuffer(0));
+				}
+			}
+		}
+		else 
+		{
+			CString strMsg;
+			strMsg.Format("Unable to create directory %s", strQ2);
+			MessageBox(strMsg);
+		}
 
-  }
+	}
 }
 
 void CMainFrame::UpdateStatusText()
 {
-  for (int n = 0; n < 6; n++)
-  {
-    if (m_strStatus[n].GetLength() >= 0 && m_wndStatusBar.GetSafeHwnd())
-		  m_wndStatusBar.SetPaneText(n, m_strStatus[n]);
-  }
+	for (int n = 0; n < 6; n++)
+	{
+		if (m_strStatus[n].GetLength() >= 0 && m_wndStatusBar.GetSafeHwnd())
+			m_wndStatusBar.SetPaneText(n, m_strStatus[n]);
+	}
 }
 
 void CMainFrame::SetStatusText(int nPane, const char * pText)
 {
-  if (pText && nPane <= 5 && nPane > 0)
-  {
-    m_strStatus[nPane] = pText;
-    UpdateStatusText();
-  }
+	if (pText && nPane <= 5 && nPane > 0)
+	{
+		m_strStatus[nPane] = pText;
+		UpdateStatusText();
+	}
 }
 
 void CMainFrame::UpdateWindows(int nBits)
 {
 
-  if (!g_bScreenUpdates)
-    return;
+	if (!g_bScreenUpdates)
+		return;
 
-  if (nBits & (W_XY | W_XY_OVERLAY))
-  {
-	  if (m_pXYWnd)
-      m_pXYWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
-	  if (m_pXZWnd)
-      m_pXZWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
-	  if (m_pYZWnd)
-      m_pYZWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
-  }
+	if (nBits & (W_XY | W_XY_OVERLAY))
+	{
+		if (m_pXYWnd)
+			m_pXYWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+		if (m_pXZWnd)
+			m_pXZWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+		if (m_pYZWnd)
+			m_pYZWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+	}
 
 	if (nBits & W_CAMERA || ((nBits & W_CAMERA_IFON) && m_bCamPreview))
-  {
-    if (m_pCamWnd)
-    {
-      m_pCamWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
-    }
-  }
+	{
+		if (m_pCamWnd)
+		{
+			m_pCamWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+		}
+	}
 
-  if (nBits & (W_Z | W_Z_OVERLAY))
-  {
-    if (m_pZWnd)
-      m_pZWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
-  }
+	if (nBits & (W_Z | W_Z_OVERLAY))
+	{
+		if (m_pZWnd)
+			m_pZWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+	}
 		
 	if (nBits & W_TEXTURE)
-  {
-    if (m_pTexWnd)
-      m_pTexWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
-  }
+	{
+		if (m_pTexWnd)
+			m_pTexWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+	}
 }
 
-void WINAPI Sys_UpdateWindows (int nBits)
-{
-  if (g_PrefsDlg.m_bQE4Painting)
-    g_nUpdateBits |= nBits;
-  else
-    g_pParentWnd->UpdateWindows(nBits);
+void WINAPI Sys_UpdateWindows (int nBits) {
+	if (g_PrefsDlg.m_bQE4Painting)
+		g_nUpdateBits |= nBits;
+	else
+		g_pParentWnd->UpdateWindows(nBits);
 }
 
-
-
-void CMainFrame::OnFlipClip() 
-{
+void CMainFrame::OnFlipClip() {
 	if (m_pActiveXY)
-    m_pActiveXY->FlipClip();
+		m_pActiveXY->FlipClip();
 }
 
-void CMainFrame::OnClipSelected() 
-{
+void CMainFrame::OnClipSelected() {
 	if (m_pActiveXY && m_pActiveXY->ClipMode())
 	{
 		Undo_Start("clip selected");
@@ -3352,8 +3258,7 @@ void CMainFrame::OnClipSelected()
 	}
 }
 
-void CMainFrame::OnSplitSelected() 
-{
+void CMainFrame::OnSplitSelected() {
 	if (m_pActiveXY)
 	{
 		Undo_Start("split selected");
@@ -3364,82 +3269,71 @@ void CMainFrame::OnSplitSelected()
 	}
 }
 
-CXYWnd* CMainFrame::ActiveXY()
-{
-  return m_pActiveXY;
+CXYWnd* CMainFrame::ActiveXY() {
+	return m_pActiveXY;
 }
 
-
-void CMainFrame::OnToggleviewXz() 
-{
-  if (m_nCurrentStyle == 1) // QE4 style
-  {
-    if (m_pXZWnd && m_pXZWnd->GetSafeHwnd())
-    {
-       // get windowplacement doesn't actually save this so we will here
-      g_PrefsDlg.m_bXZVis = m_pXZWnd->IsWindowVisible();
-      if (g_PrefsDlg.m_bXZVis)
-        m_pXZWnd->ShowWindow(SW_HIDE);
-      else
-        m_pXZWnd->ShowWindow(SW_SHOW);
-      g_PrefsDlg.m_bXZVis ^= 1;
-      g_PrefsDlg.SavePrefs();
-    }
-  }
+void CMainFrame::OnToggleviewXz() {
+	if (m_nCurrentStyle == 1) // QE4 style
+	{
+		if (m_pXZWnd && m_pXZWnd->GetSafeHwnd())
+		{
+			 // get windowplacement doesn't actually save this so we will here
+			g_PrefsDlg.m_bXZVis = m_pXZWnd->IsWindowVisible();
+			if (g_PrefsDlg.m_bXZVis)
+				m_pXZWnd->ShowWindow(SW_HIDE);
+			else
+				m_pXZWnd->ShowWindow(SW_SHOW);
+			g_PrefsDlg.m_bXZVis ^= 1;
+			g_PrefsDlg.SavePrefs();
+		}
+	}
 }
 
 void CMainFrame::OnToggleviewYz() 
 {
-  if (m_nCurrentStyle == 1) // QE4 style
-  {
-    if (m_pYZWnd && m_pYZWnd->GetSafeHwnd())
-    {
-      g_PrefsDlg.m_bYZVis = m_pYZWnd->IsWindowVisible();
-      if (g_PrefsDlg.m_bYZVis)
-        m_pYZWnd->ShowWindow(SW_HIDE);
-      else
-        m_pYZWnd->ShowWindow(SW_SHOW);
-      g_PrefsDlg.m_bYZVis ^= 1;
-      g_PrefsDlg.SavePrefs();
-    }
-  }
+	if (m_nCurrentStyle == 1) // QE4 style
+	{
+		if (m_pYZWnd && m_pYZWnd->GetSafeHwnd())
+		{
+			g_PrefsDlg.m_bYZVis = m_pYZWnd->IsWindowVisible();
+			if (g_PrefsDlg.m_bYZVis)
+				m_pYZWnd->ShowWindow(SW_HIDE);
+			else
+				m_pYZWnd->ShowWindow(SW_SHOW);
+			g_PrefsDlg.m_bYZVis ^= 1;
+			g_PrefsDlg.SavePrefs();
+		}
+	}
 }
 
-void CMainFrame::OnColorsBrush() 
-{
-  DoColor(COLOR_BRUSHES);
+void CMainFrame::OnColorsBrush() {
+	DoColor(COLOR_BRUSHES);
 	Sys_UpdateWindows (W_ALL);
 }
 
-void CMainFrame::OnColorsClipper() 
-{
-  DoColor(COLOR_CLIPPER);
+void CMainFrame::OnColorsClipper() {
+	DoColor(COLOR_CLIPPER);
 	Sys_UpdateWindows (W_ALL);
 }
 
-void CMainFrame::OnColorsGridtext() 
-{
-  DoColor(COLOR_GRIDTEXT);
+void CMainFrame::OnColorsGridtext() {
+	DoColor(COLOR_GRIDTEXT);
 	Sys_UpdateWindows (W_ALL);
 }
 
-void CMainFrame::OnColorsSelectedbrush() 
-{
-  DoColor(COLOR_SELBRUSHES);
+void CMainFrame::OnColorsSelectedbrush() {
+	DoColor(COLOR_SELBRUSHES);
 	Sys_UpdateWindows (W_ALL);
 }
 
-void CMainFrame::OnColorsGridblock() 
-{
-  DoColor(COLOR_GRIDBLOCK);
+void CMainFrame::OnColorsGridblock() {
+	DoColor(COLOR_GRIDBLOCK);
 	Sys_UpdateWindows (W_ALL);
 }
 
-
-
-void CMainFrame::OnColorsViewname() 
-{
-  DoColor(COLOR_VIEWNAME);
+void CMainFrame::OnColorsViewname() {
+	DoColor(COLOR_VIEWNAME);
 	Sys_UpdateWindows (W_ALL);
 }
 
@@ -3559,11 +3453,11 @@ void CMainFrame::OnColorSetblack()
 
 void CMainFrame::OnSnaptogrid() 
 {
-  g_PrefsDlg.m_bNoClamp ^= 1;
-  g_PrefsDlg.SavePrefs();
-  CMenu* pMenu = GetMenu();
-  if (pMenu)
-    pMenu->CheckMenuItem(ID_SNAPTOGRID, MF_BYCOMMAND | (!g_PrefsDlg.m_bNoClamp) ? MF_CHECKED : MF_UNCHECKED);
+	g_PrefsDlg.m_bNoClamp ^= 1;
+	g_PrefsDlg.SavePrefs();
+	CMenu* pMenu = GetMenu();
+	if (pMenu)
+		pMenu->CheckMenuItem(ID_SNAPTOGRID, MF_BYCOMMAND | (!g_PrefsDlg.m_bNoClamp) ? MF_CHECKED : MF_UNCHECKED);
 }
 
 
@@ -3592,28 +3486,28 @@ void CMainFrame::OnSelectScale()
 
 void CMainFrame::OnSelectMouserotate() 
 {
-  if (ActiveXY())
-  {
-    if (ActiveXY()->ClipMode())
-      OnViewClipper();
-    if (ActiveXY()->RotateMode())
-    {
-      // SetRotateMode(false) always works
-      ActiveXY()->SetRotateMode(false);
-      m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SELECT_MOUSEROTATE, FALSE);
-      Map_BuildBrushData();
-    }
-    else
-    {
-      // may not work if no brush selected, see return value
-      if (ActiveXY()->SetRotateMode(true))
-        m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SELECT_MOUSEROTATE, TRUE);
-      else
-        // if MFC called, we need to set back to FALSE ourselves
-        m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SELECT_MOUSEROTATE, FALSE);
-    }
+	if (ActiveXY())
+	{
+		if (ActiveXY()->ClipMode())
+			OnViewClipper();
+		if (ActiveXY()->RotateMode())
+		{
+			// SetRotateMode(false) always works
+			ActiveXY()->SetRotateMode(false);
+			m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SELECT_MOUSEROTATE, FALSE);
+			Map_BuildBrushData();
+		}
+		else
+		{
+			// may not work if no brush selected, see return value
+			if (ActiveXY()->SetRotateMode(true))
+				m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SELECT_MOUSEROTATE, TRUE);
+			else
+				// if MFC called, we need to set back to FALSE ourselves
+				m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SELECT_MOUSEROTATE, FALSE);
+		}
 
-  }
+	}
 }
 
 void CMainFrame::OnEditCopybrush() 
@@ -3622,32 +3516,29 @@ void CMainFrame::OnEditCopybrush()
 		ActiveXY()->Copy();
 }
 
-void CMainFrame::OnEditPastebrush() 
-{
+void CMainFrame::OnEditPastebrush() {
 	if (ActiveXY())
 		ActiveXY()->Paste();
 }
 
-void CMainFrame::OnEditUndo() 
-{
+void CMainFrame::OnEditUndo() {
 //	if (ActiveXY())
 //		ActiveXY()->Undo();
 	Undo_Undo();
 }
 
-void CMainFrame::OnEditRedo() 
-{
+void CMainFrame::OnEditRedo() {
 	Undo_Redo();
 }
 
 void CMainFrame::OnUpdateEditUndo(CCmdUI* pCmdUI) 
 {
 	/*
-  BOOL bEnable = false;
-  if (ActiveXY())
-    bEnable = ActiveXY()->UndoAvailable();
-  pCmdUI->Enable(bEnable);
-  */
+	BOOL bEnable = false;
+	if (ActiveXY())
+		bEnable = ActiveXY()->UndoAvailable();
+	pCmdUI->Enable(bEnable);
+	*/
 	pCmdUI->Enable(Undo_UndoAvailable());
 }
 
@@ -3658,10 +3549,10 @@ void CMainFrame::OnUpdateEditRedo(CCmdUI* pCmdUI)
 
 void CMainFrame::OnSelectionTextureDec() 
 {
-  g_qeglobals.d_savedinfo.m_nTextureTweak--;
-  if (g_qeglobals.d_savedinfo.m_nTextureTweak == 0)
-    g_qeglobals.d_savedinfo.m_nTextureTweak--;
-  SetTexValStatus();
+	g_qeglobals.d_savedinfo.m_nTextureTweak--;
+	if (g_qeglobals.d_savedinfo.m_nTextureTweak == 0)
+		g_qeglobals.d_savedinfo.m_nTextureTweak--;
+	SetTexValStatus();
 }
 
 void CMainFrame::OnSelectionTextureFit() 
@@ -3672,20 +3563,20 @@ void CMainFrame::OnSelectionTextureFit()
 
 void CMainFrame::OnSelectionTextureInc() 
 {
-  g_qeglobals.d_savedinfo.m_nTextureTweak++;
-  if (g_qeglobals.d_savedinfo.m_nTextureTweak == 0)
-    g_qeglobals.d_savedinfo.m_nTextureTweak++;
-  SetTexValStatus();
+	g_qeglobals.d_savedinfo.m_nTextureTweak++;
+	if (g_qeglobals.d_savedinfo.m_nTextureTweak == 0)
+		g_qeglobals.d_savedinfo.m_nTextureTweak++;
+	SetTexValStatus();
 }
 
 void CMainFrame::OnSelectionTextureRotateclock() 
 {
-  Select_RotateTexture(abs(g_PrefsDlg.m_nRotation));
+	Select_RotateTexture(abs(g_PrefsDlg.m_nRotation));
 }
 
 void CMainFrame::OnSelectionTextureRotatecounter() 
 {
-  Select_RotateTexture(-abs(g_PrefsDlg.m_nRotation));
+	Select_RotateTexture(-abs(g_PrefsDlg.m_nRotation));
 }
 
 void CMainFrame::OnSelectionTextureScaledown() 
@@ -3710,177 +3601,177 @@ void CMainFrame::OnSelectionTextureScaleRight()
 
 void CMainFrame::OnSelectionTextureShiftdown() 
 {
-  Select_ShiftTexture(0, -abs(g_qeglobals.d_savedinfo.m_nTextureTweak));
+	Select_ShiftTexture(0, -abs(g_qeglobals.d_savedinfo.m_nTextureTweak));
 }
 
 void CMainFrame::OnSelectionTextureShiftleft() 
 {
-  Select_ShiftTexture(-abs(g_qeglobals.d_savedinfo.m_nTextureTweak), 0);
+	Select_ShiftTexture(-abs(g_qeglobals.d_savedinfo.m_nTextureTweak), 0);
 }
 
 void CMainFrame::OnSelectionTextureShiftright() 
 {
-  Select_ShiftTexture(abs(g_qeglobals.d_savedinfo.m_nTextureTweak), 0);
+	Select_ShiftTexture(abs(g_qeglobals.d_savedinfo.m_nTextureTweak), 0);
 }
 
 void CMainFrame::OnSelectionTextureShiftup() 
 {
-  Select_ShiftTexture(0, abs(g_qeglobals.d_savedinfo.m_nTextureTweak));
+	Select_ShiftTexture(0, abs(g_qeglobals.d_savedinfo.m_nTextureTweak));
 }
 
 void CMainFrame::OnGridNext() 
 {
-  if (g_qeglobals.d_gridsize < 64)
-  {
-    g_qeglobals.d_gridsize = g_qeglobals.d_gridsize << 1;
-    Sys_UpdateWindows(W_XY | W_Z);
-    SetGridStatus();
+	if (g_qeglobals.d_gridsize < 64)
+	{
+		g_qeglobals.d_gridsize = g_qeglobals.d_gridsize << 1;
+		Sys_UpdateWindows(W_XY | W_Z);
+		SetGridStatus();
 
-    HMENU hMenu = ::GetMenu(GetSafeHwnd());
-	  CheckMenuItem(hMenu, ID_GRID_1, MF_BYCOMMAND | MF_UNCHECKED);
-	  CheckMenuItem(hMenu, ID_GRID_2, MF_BYCOMMAND | MF_UNCHECKED);
-	  CheckMenuItem(hMenu, ID_GRID_4, MF_BYCOMMAND | MF_UNCHECKED);
-	  CheckMenuItem(hMenu, ID_GRID_8, MF_BYCOMMAND | MF_UNCHECKED);
-	  CheckMenuItem(hMenu, ID_GRID_16, MF_BYCOMMAND | MF_UNCHECKED);
-	  CheckMenuItem(hMenu, ID_GRID_32, MF_BYCOMMAND | MF_UNCHECKED);
-	  CheckMenuItem(hMenu, ID_GRID_64, MF_BYCOMMAND | MF_UNCHECKED);
+		HMENU hMenu = ::GetMenu(GetSafeHwnd());
+		CheckMenuItem(hMenu, ID_GRID_1, MF_BYCOMMAND | MF_UNCHECKED);
+		CheckMenuItem(hMenu, ID_GRID_2, MF_BYCOMMAND | MF_UNCHECKED);
+		CheckMenuItem(hMenu, ID_GRID_4, MF_BYCOMMAND | MF_UNCHECKED);
+		CheckMenuItem(hMenu, ID_GRID_8, MF_BYCOMMAND | MF_UNCHECKED);
+		CheckMenuItem(hMenu, ID_GRID_16, MF_BYCOMMAND | MF_UNCHECKED);
+		CheckMenuItem(hMenu, ID_GRID_32, MF_BYCOMMAND | MF_UNCHECKED);
+		CheckMenuItem(hMenu, ID_GRID_64, MF_BYCOMMAND | MF_UNCHECKED);
 
-    int nID;
-	  switch (g_qeglobals.d_gridsize)
-	  {
-		  case  1: nID = ID_GRID_1; break;
-		  case  2: nID = ID_GRID_2; break;
-		  case  4: nID = ID_GRID_4; break;
-		  case  8: nID = ID_GRID_8; break;
-		  case  16: nID = ID_GRID_16; break;
-		  case  32: nID = ID_GRID_32; break;
-		  case  64: nID = ID_GRID_64; break;
-	  }
-	  CheckMenuItem(hMenu, nID, MF_BYCOMMAND | MF_CHECKED);
-  }
+		int nID;
+		switch (g_qeglobals.d_gridsize)
+		{
+			case	1: nID = ID_GRID_1; break;
+			case	2: nID = ID_GRID_2; break;
+			case	4: nID = ID_GRID_4; break;
+			case	8: nID = ID_GRID_8; break;
+			case	16: nID = ID_GRID_16; break;
+			case	32: nID = ID_GRID_32; break;
+			case	64: nID = ID_GRID_64; break;
+		}
+		CheckMenuItem(hMenu, nID, MF_BYCOMMAND | MF_CHECKED);
+	}
 }
 
 void CMainFrame::OnGridPrev() 
 {
-  if (g_qeglobals.d_gridsize > 1)
-  {
-    g_qeglobals.d_gridsize = g_qeglobals.d_gridsize >> 1;
-    Sys_UpdateWindows(W_XY | W_Z);
-    SetGridStatus();
-    HMENU hMenu = ::GetMenu(GetSafeHwnd());
-	  CheckMenuItem(hMenu, ID_GRID_1, MF_BYCOMMAND | MF_UNCHECKED);
-	  CheckMenuItem(hMenu, ID_GRID_2, MF_BYCOMMAND | MF_UNCHECKED);
-	  CheckMenuItem(hMenu, ID_GRID_4, MF_BYCOMMAND | MF_UNCHECKED);
-	  CheckMenuItem(hMenu, ID_GRID_8, MF_BYCOMMAND | MF_UNCHECKED);
-	  CheckMenuItem(hMenu, ID_GRID_16, MF_BYCOMMAND | MF_UNCHECKED);
-	  CheckMenuItem(hMenu, ID_GRID_32, MF_BYCOMMAND | MF_UNCHECKED);
-	  CheckMenuItem(hMenu, ID_GRID_64, MF_BYCOMMAND | MF_UNCHECKED);
+	if (g_qeglobals.d_gridsize > 1)
+	{
+		g_qeglobals.d_gridsize = g_qeglobals.d_gridsize >> 1;
+		Sys_UpdateWindows(W_XY | W_Z);
+		SetGridStatus();
+		HMENU hMenu = ::GetMenu(GetSafeHwnd());
+		CheckMenuItem(hMenu, ID_GRID_1, MF_BYCOMMAND | MF_UNCHECKED);
+		CheckMenuItem(hMenu, ID_GRID_2, MF_BYCOMMAND | MF_UNCHECKED);
+		CheckMenuItem(hMenu, ID_GRID_4, MF_BYCOMMAND | MF_UNCHECKED);
+		CheckMenuItem(hMenu, ID_GRID_8, MF_BYCOMMAND | MF_UNCHECKED);
+		CheckMenuItem(hMenu, ID_GRID_16, MF_BYCOMMAND | MF_UNCHECKED);
+		CheckMenuItem(hMenu, ID_GRID_32, MF_BYCOMMAND | MF_UNCHECKED);
+		CheckMenuItem(hMenu, ID_GRID_64, MF_BYCOMMAND | MF_UNCHECKED);
 
-    int nID;
-	  switch (g_qeglobals.d_gridsize)
-	  {
-		  case  1: nID = ID_GRID_1; break;
-		  case  2: nID = ID_GRID_2; break;
-		  case  4: nID = ID_GRID_4; break;
-		  case  8: nID = ID_GRID_8; break;
-		  case  16: nID = ID_GRID_16; break;
-		  case  32: nID = ID_GRID_32; break;
-		  case  64: nID = ID_GRID_64; break;
-	  }
-	  CheckMenuItem(hMenu, nID, MF_BYCOMMAND | MF_CHECKED);
-  }
+		int nID;
+		switch (g_qeglobals.d_gridsize)
+		{
+			case	1: nID = ID_GRID_1; break;
+			case	2: nID = ID_GRID_2; break;
+			case	4: nID = ID_GRID_4; break;
+			case	8: nID = ID_GRID_8; break;
+			case	16: nID = ID_GRID_16; break;
+			case	32: nID = ID_GRID_32; break;
+			case	64: nID = ID_GRID_64; break;
+		}
+		CheckMenuItem(hMenu, nID, MF_BYCOMMAND | MF_CHECKED);
+	}
 }
 
 void CMainFrame::SetGridStatus()
 {
-  CString strStatus;
-  char c1;
-  char c2;
-  c1 = (g_PrefsDlg.m_bTextureLock) ? 'M' : ' ';
-  c2 = (g_PrefsDlg.m_bRotateLock) ? 'R' : ' ';
-  strStatus.Format("G:%i T:%i R:%i C:%i L:%c%c", g_qeglobals.d_gridsize, g_qeglobals.d_savedinfo.m_nTextureTweak, g_PrefsDlg.m_nRotation, g_PrefsDlg.m_nCubicScale, c1, c2);
-  SetStatusText(4, strStatus);
+	CString strStatus;
+	char c1;
+	char c2;
+	c1 = (g_PrefsDlg.m_bTextureLock) ? 'M' : ' ';
+	c2 = (g_PrefsDlg.m_bRotateLock) ? 'R' : ' ';
+	strStatus.Format("G:%i T:%i R:%i C:%i L:%c%c", g_qeglobals.d_gridsize, g_qeglobals.d_savedinfo.m_nTextureTweak, g_PrefsDlg.m_nRotation, g_PrefsDlg.m_nCubicScale, c1, c2);
+	SetStatusText(4, strStatus);
 }
 
 void CMainFrame::SetTexValStatus()
 {
-  //CString strStatus;
-  //strStatus.Format("T: %i C: %i", g_nTextureTweak, g_nCubicScale);
-  //SetStatusText(5, strStatus.GetBuffer(0));
-  SetGridStatus();
+	//CString strStatus;
+	//strStatus.Format("T: %i C: %i", g_nTextureTweak, g_nCubicScale);
+	//SetStatusText(5, strStatus.GetBuffer(0));
+	SetGridStatus();
 }
 
 void CMainFrame::OnTextureReplaceall() 
 {
-  CFindTextureDlg::show();
+	CFindTextureDlg::show();
 }
 
 
 void CMainFrame::OnScalelockx() 
 {
-  if (g_nScaleHow & SCALE_X)
-  {
-    g_nScaleHow ^= SCALE_X;
-    m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SCALELOCKX, FALSE);
-  }
-  else
-  {
-    g_nScaleHow |= SCALE_X;
-    m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SCALELOCKX);
-  }
+	if (g_nScaleHow & SCALE_X)
+	{
+		g_nScaleHow ^= SCALE_X;
+		m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SCALELOCKX, FALSE);
+	}
+	else
+	{
+		g_nScaleHow |= SCALE_X;
+		m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SCALELOCKX);
+	}
 }
 
 void CMainFrame::OnScalelocky() 
 {
-  if (g_nScaleHow & SCALE_Y)
-  {
-    g_nScaleHow ^= SCALE_Y;
-    m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SCALELOCKY, FALSE);
-  }
-  else
-  {
-    g_nScaleHow |= SCALE_Y;
-    m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SCALELOCKY);
-  }
+	if (g_nScaleHow & SCALE_Y)
+	{
+		g_nScaleHow ^= SCALE_Y;
+		m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SCALELOCKY, FALSE);
+	}
+	else
+	{
+		g_nScaleHow |= SCALE_Y;
+		m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SCALELOCKY);
+	}
 }
 
 void CMainFrame::OnScalelockz() 
 {
-  if (g_nScaleHow & SCALE_Z)
-  {
-    g_nScaleHow ^= SCALE_Z;
-    m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SCALELOCKZ, FALSE);
-  }
-  else
-  {
-    g_nScaleHow |= SCALE_Z;
-    m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SCALELOCKZ);
-  }
+	if (g_nScaleHow & SCALE_Z)
+	{
+		g_nScaleHow ^= SCALE_Z;
+		m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SCALELOCKZ, FALSE);
+	}
+	else
+	{
+		g_nScaleHow |= SCALE_Z;
+		m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SCALELOCKZ);
+	}
 }
 
 void CMainFrame::OnSelectMousescale() 
 {
-  if (ActiveXY())
-  {
-    if (ActiveXY()->ClipMode())
-      OnViewClipper();
-    if (ActiveXY()->RotateMode())
-    {
-      // SetRotateMode(false) always works
-      ActiveXY()->SetRotateMode(false);
-      m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SELECT_MOUSESCALE, FALSE);
-    }
-    if (ActiveXY()->ScaleMode())
-    {
-      ActiveXY()->SetScaleMode(false);
-      m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SELECT_MOUSESCALE, FALSE);
-    }
-    else
-    {
-      ActiveXY()->SetScaleMode(true);
-      m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SELECT_MOUSESCALE);
-    }
-  }
+	if (ActiveXY())
+	{
+		if (ActiveXY()->ClipMode())
+			OnViewClipper();
+		if (ActiveXY()->RotateMode())
+		{
+			// SetRotateMode(false) always works
+			ActiveXY()->SetRotateMode(false);
+			m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SELECT_MOUSESCALE, FALSE);
+		}
+		if (ActiveXY()->ScaleMode())
+		{
+			ActiveXY()->SetScaleMode(false);
+			m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SELECT_MOUSESCALE, FALSE);
+		}
+		else
+		{
+			ActiveXY()->SetScaleMode(true);
+			m_wndToolBar.GetToolBarCtrl().CheckButton(ID_SELECT_MOUSESCALE);
+		}
+	}
 }
 
 void CMainFrame::OnFileImport() 
@@ -3889,55 +3780,55 @@ void CMainFrame::OnFileImport()
 
 void CMainFrame::OnFileProjectsettings() 
 {
-  DoProjectSettings();
+	DoProjectSettings();
 }
 
 void CMainFrame::OnUpdateFileImport(CCmdUI* pCmdUI) 
 {
-  pCmdUI->Enable(FALSE);
+	pCmdUI->Enable(FALSE);
 }
 
 void CMainFrame::OnViewCubein() 
 {
-  g_PrefsDlg.m_nCubicScale--;
-  if (g_PrefsDlg.m_nCubicScale < 1)
-    g_PrefsDlg.m_nCubicScale = 1;
-  g_PrefsDlg.SavePrefs();
+	g_PrefsDlg.m_nCubicScale--;
+	if (g_PrefsDlg.m_nCubicScale < 1)
+		g_PrefsDlg.m_nCubicScale = 1;
+	g_PrefsDlg.SavePrefs();
 	Sys_UpdateWindows(W_CAMERA);
-  SetTexValStatus();
+	SetTexValStatus();
 }
 
 void CMainFrame::OnViewCubeout() 
 {
-  g_PrefsDlg.m_nCubicScale++;
+	g_PrefsDlg.m_nCubicScale++;
 	if (g_PrefsDlg.m_nCubicScale > 22)
-	  g_PrefsDlg.m_nCubicScale = 22;
-  g_PrefsDlg.SavePrefs();
+		g_PrefsDlg.m_nCubicScale = 22;
+	g_PrefsDlg.SavePrefs();
 	Sys_UpdateWindows(W_CAMERA);
-  SetTexValStatus();
+	SetTexValStatus();
 }
 
 void CMainFrame::OnViewCubicclipping() 
 {
-  g_PrefsDlg.m_bCubicClipping ^= 1;
-  CMenu* pMenu = GetMenu();
-  if (pMenu)
-    pMenu->CheckMenuItem(ID_VIEW_CUBICCLIPPING, MF_BYCOMMAND | (g_PrefsDlg.m_bCubicClipping) ? MF_CHECKED : MF_UNCHECKED);
-  m_wndToolBar.GetToolBarCtrl().CheckButton(ID_VIEW_CUBICCLIPPING, (g_PrefsDlg.m_bCubicClipping) ? TRUE : FALSE);
-  g_PrefsDlg.SavePrefs();
-  Map_BuildBrushData ();
-  Sys_UpdateWindows(W_CAMERA);
+	g_PrefsDlg.m_bCubicClipping ^= 1;
+	CMenu* pMenu = GetMenu();
+	if (pMenu)
+		pMenu->CheckMenuItem(ID_VIEW_CUBICCLIPPING, MF_BYCOMMAND | (g_PrefsDlg.m_bCubicClipping) ? MF_CHECKED : MF_UNCHECKED);
+	m_wndToolBar.GetToolBarCtrl().CheckButton(ID_VIEW_CUBICCLIPPING, (g_PrefsDlg.m_bCubicClipping) ? TRUE : FALSE);
+	g_PrefsDlg.SavePrefs();
+	Map_BuildBrushData ();
+	Sys_UpdateWindows(W_CAMERA);
 }
 
 
 void CMainFrame::OnFileSaveregion() 
 {
-  SaveAsDialog (true);
+	SaveAsDialog (true);
 }
 
 void CMainFrame::OnUpdateFileSaveregion(CCmdUI* pCmdUI) 
 {
-  pCmdUI->Enable(static_cast<BOOL>(region_active));
+	pCmdUI->Enable(static_cast<BOOL>(region_active));
 }
 
 void CMainFrame::OnSelectionMovedown() 
@@ -3957,11 +3848,11 @@ void CMainFrame::OnSelectionMovedown()
 
 void CMainFrame::OnSelectionMoveup() 
 {
-  vec3_t vAmt;
-  vAmt[0] = vAmt[1] = 0.0;
-  vAmt[2] = g_qeglobals.d_gridsize;
+	vec3_t vAmt;
+	vAmt[0] = vAmt[1] = 0.0;
+	vAmt[2] = g_qeglobals.d_gridsize;
 	Select_Move (vAmt);
-  Sys_UpdateWindows(W_CAMERA | W_XY | W_Z);
+	Sys_UpdateWindows(W_CAMERA | W_XY | W_Z);
 }
 
 void CMainFrame::OnToolbarMain() 
@@ -3976,38 +3867,36 @@ void CMainFrame::OnToolbarTexture()
 
 void CMainFrame::OnSelectionPrint() 
 {
-  for (brush_t* b=selected_brushes.next ; b != &selected_brushes ; b=b->next)
-    Brush_Print(b);
+	for (brush_t* b=selected_brushes.next ; b != &selected_brushes ; b=b->next)
+		Brush_Print(b);
 }
 
 void CMainFrame::UpdateTextureBar()
 {
-  if (m_wndTextureBar.GetSafeHwnd())
-    m_wndTextureBar.GetSurfaceAttributes();
+	if (m_wndTextureBar.GetSafeHwnd())
+		m_wndTextureBar.GetSurfaceAttributes();
 }
 
-bool g_bTABDown = false;
-bool g_bOriginalFlag;
 void CMainFrame::OnSelectionTogglesizepaint() 
 {
-  if (::GetAsyncKeyState('Q'))
-  {
-    if (!g_bTABDown)
-    {
-      g_bTABDown = true;
-      g_bOriginalFlag = g_PrefsDlg.m_bSizePaint;
-      g_PrefsDlg.m_bSizePaint = !g_bOriginalFlag;
-      Sys_UpdateWindows(W_XY);
-      return;
-    }
-  }
-  else
-  {
-    g_bTABDown = false;
-    g_PrefsDlg.m_bSizePaint = g_bOriginalFlag;
-    Sys_UpdateWindows(W_XY);
-    return;
-  }
+	if (::GetAsyncKeyState('Q'))
+	{
+		if (!g_bTABDown)
+		{
+			g_bTABDown = true;
+			g_bOriginalFlag = g_PrefsDlg.m_bSizePaint;
+			g_PrefsDlg.m_bSizePaint = !g_bOriginalFlag;
+			Sys_UpdateWindows(W_XY);
+			return;
+		}
+	}
+	else
+	{
+		g_bTABDown = false;
+		g_PrefsDlg.m_bSizePaint = g_bOriginalFlag;
+		Sys_UpdateWindows(W_XY);
+		return;
+	}
 }
 
 void CMainFrame::OnBrushMakecone() 
@@ -4019,262 +3908,224 @@ void CMainFrame::OnBrushMakecone()
 	Undo_End();
 }
 
-
-void CMainFrame::OnTexturesLoad() 
-{
-  BROWSEINFO bi;
-  CString strPath;
-  char* p = strPath.GetBuffer(MAX_PATH+1);
-  bi.hwndOwner = GetSafeHwnd();
-  bi.pidlRoot = NULL;
-  bi.pszDisplayName = p;
-  bi.lpszTitle = "Load textures from path";
-  bi.ulFlags = 0;
-  bi.lpfn = NULL;
-  bi.lParam = NULL;
-  bi.iImage = 0;
-  LPITEMIDLIST pidlBrowse;
-  pidlBrowse = SHBrowseForFolder(&bi);
-  if (pidlBrowse)
-  {
-    SHGetPathFromIDList(pidlBrowse, p);
-    strPath.ReleaseBuffer();
-    AddSlash(strPath);
-    Texture_ShowDirectory(strPath.GetBuffer(0));
-  }
+void CMainFrame::OnTexturesLoad() {
+	BROWSEINFO bi;
+	CString strPath;
+	char* p = strPath.GetBuffer(MAX_PATH+1);
+	bi.hwndOwner = GetSafeHwnd();
+	bi.pidlRoot = NULL;
+	bi.pszDisplayName = p;
+	bi.lpszTitle = "Load textures from path";
+	bi.ulFlags = 0;
+	bi.lpfn = NULL;
+	bi.lParam = NULL;
+	bi.iImage = 0;
+	LPITEMIDLIST pidlBrowse;
+	pidlBrowse = SHBrowseForFolder(&bi);
+	if (pidlBrowse)
+	{
+		SHGetPathFromIDList(pidlBrowse, p);
+		strPath.ReleaseBuffer();
+		AddSlash(strPath);
+		Texture_ShowDirectory(strPath.GetBuffer(0));
+	}
 }
 
-void CMainFrame::OnToggleRotatelock() 
-{
-  g_PrefsDlg.m_bRotateLock ^= 1;
-  CMenu* pMenu = GetMenu();
-  if (pMenu)
-    pMenu->CheckMenuItem(ID_TOGGLE_ROTATELOCK, MF_BYCOMMAND | (g_PrefsDlg.m_bRotateLock) ? MF_CHECKED : MF_UNCHECKED);
-  g_PrefsDlg.SavePrefs();
-  SetGridStatus();
+void CMainFrame::OnToggleRotatelock() {
+	g_PrefsDlg.m_bRotateLock ^= 1;
+	CMenu* pMenu = GetMenu();
+	if (pMenu)
+		pMenu->CheckMenuItem(ID_TOGGLE_ROTATELOCK, MF_BYCOMMAND | (g_PrefsDlg.m_bRotateLock) ? MF_CHECKED : MF_UNCHECKED);
+	g_PrefsDlg.SavePrefs();
+	SetGridStatus();
 }
 
-
-void CMainFrame::OnCurveBevel() 
-{
-  //Curve_MakeCurvedBrush (false,	false, false,	false, false, true, true);
+void CMainFrame::OnCurveBevel() {
+	//Curve_MakeCurvedBrush (false,	false, false,	false, false, true, true);
 }
 
-void CMainFrame::OnCurveCylinder() 
-{
-  //Curve_MakeCurvedBrush (false,	false, false,	true, true, true, true);
+void CMainFrame::OnCurveCylinder() {
+	//Curve_MakeCurvedBrush (false,	false, false,	true, true, true, true);
 }
 
-void CMainFrame::OnCurveEighthsphere() 
-{
-  //Curve_MakeCurvedBrush (false,	true, false, true, true, false, false);
+void CMainFrame::OnCurveEighthsphere() {
+	//Curve_MakeCurvedBrush (false,	true, false, true, true, false, false);
 }
 
-void CMainFrame::OnCurveEndcap() 
-{
-  //Curve_MakeCurvedBrush (false,	false, false,	false, true, true, true);
+void CMainFrame::OnCurveEndcap() {
+	//Curve_MakeCurvedBrush (false,	false, false,	false, true, true, true);
 }
 
-void CMainFrame::OnCurveHemisphere() 
-{
-  //Curve_MakeCurvedBrush (false,	true, false, true, true, true, true);
+void CMainFrame::OnCurveHemisphere() {
+	//Curve_MakeCurvedBrush (false,	true, false, true, true, true, true);
 }
 
-void CMainFrame::OnCurveInvertcurve() 
-{
-  //Curve_Invert ();
+void CMainFrame::OnCurveInvertcurve() {
+	//Curve_Invert ();
 }
 
-void CMainFrame::OnCurveQuarter() 
-{
-  //Curve_MakeCurvedBrush (false,	true, false, true, true, true, false);
+void CMainFrame::OnCurveQuarter() {
+	//Curve_MakeCurvedBrush (false,	true, false, true, true, true, false);
 }
 
-void CMainFrame::OnCurveSphere() 
-{
+void CMainFrame::OnCurveSphere() {
 	//Curve_MakeCurvedBrush (false,	true, true,	true, true, true, true);
 }
 
-void CMainFrame::OnFileImportmap() 
-{
-  CFileDialog dlgFile(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, "Map files (*.map)|*.map||", this);
-  if (dlgFile.DoModal() == IDOK)
-  {
-    Map_ImportFile(dlgFile.GetPathName().GetBuffer(0));
-  }
+void CMainFrame::OnFileImportmap() {
+	CFileDialog dlgFile(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, "Map files (*.map)|*.map||", this);
+	if (dlgFile.DoModal() == IDOK) {
+		Map_ImportFile(dlgFile.GetPathName().GetBuffer(0));
+	}
 }
 
-void CMainFrame::OnFileExportmap() 
-{
-  CFileDialog dlgFile(FALSE, "map", NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, "Map files (*.map)|*.map||", this);
-  if (dlgFile.DoModal() == IDOK)
-  {
-    Map_SaveSelected(dlgFile.GetPathName().GetBuffer(0));
-  }
+void CMainFrame::OnFileExportmap() {
+	CFileDialog dlgFile(FALSE, "map", NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, "Map files (*.map)|*.map||", this);
+	if (dlgFile.DoModal() == IDOK)
+	{
+		Map_SaveSelected(dlgFile.GetPathName().GetBuffer(0));
+	}
 }
 
-void CMainFrame::OnViewShowcurves() 
-{
+void CMainFrame::OnViewShowcurves() {
 	if ( ( g_qeglobals.d_savedinfo.exclude ^= EXCLUDE_CURVES ) & EXCLUDE_CURVES )
-    CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWCURVES, MF_BYCOMMAND | MF_UNCHECKED );
+		CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWCURVES, MF_BYCOMMAND | MF_UNCHECKED );
 	else
-    CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWCURVES, MF_BYCOMMAND | MF_CHECKED );
+		CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWCURVES, MF_BYCOMMAND | MF_CHECKED );
 	Sys_UpdateWindows (W_XY|W_CAMERA);
 }
 
-void CMainFrame::OnSelectionSelectNudgedown() 
-{
-  NudgeSelection(3, g_qeglobals.d_savedinfo.m_nTextureTweak);
+void CMainFrame::OnSelectionSelectNudgedown() {
+	NudgeSelection(3, g_qeglobals.d_savedinfo.m_nTextureTweak);
 }
 
-void CMainFrame::OnSelectionSelectNudgeleft() 
-{
-  NudgeSelection(0, g_qeglobals.d_savedinfo.m_nTextureTweak);
+void CMainFrame::OnSelectionSelectNudgeleft() {
+	NudgeSelection(0, g_qeglobals.d_savedinfo.m_nTextureTweak);
 }
 
 void CMainFrame::OnSelectionSelectNudgeright() 
 {
-  NudgeSelection(2, g_qeglobals.d_savedinfo.m_nTextureTweak);
+	NudgeSelection(2, g_qeglobals.d_savedinfo.m_nTextureTweak);
 }
 
 void CMainFrame::OnSelectionSelectNudgeup() 
 {
-  NudgeSelection(1, g_qeglobals.d_savedinfo.m_nTextureTweak);
+	NudgeSelection(1, g_qeglobals.d_savedinfo.m_nTextureTweak);
 }
 
-void CMainFrame::NudgeSelection(int nDirection, int nAmount)
-{
-  if (ActiveXY()->RotateMode())
-  {
-    int nAxis = 0;
-    if (ActiveXY()->GetViewType() == XY)
-    {
-      nAxis = 2;
-    }
-    else 
-    if (g_pParentWnd->ActiveXY()->GetViewType() == XZ)
-    {
-      nAxis = 1;
-      nAmount = -nAmount;
-    }
+void CMainFrame::NudgeSelection(int nDirection, int nAmount) {
+	if (ActiveXY()->RotateMode()) {
+		int nAxis = 0;
+		if (ActiveXY()->GetViewType() == XY) {
+			nAxis = 2;
+		} else if (g_pParentWnd->ActiveXY()->GetViewType() == XZ) {
+			nAxis = 1;
+			nAmount = -nAmount;
+		}
+		if (nDirection == 2 || nDirection == 3) {
+			nAmount = -nAmount;
+		}
+		float fDeg = -nAmount;
+		float fAdj = nAmount;
+		g_pParentWnd->ActiveXY()->Rotation()[nAxis] += fAdj;
+		CString strStatus;
+		strStatus.Format("Rotation x:: %.1f	y:: %.1f	z:: %.1f", g_pParentWnd->ActiveXY()->Rotation()[0], g_pParentWnd->ActiveXY()->Rotation()[1], g_pParentWnd->ActiveXY()->Rotation()[2]);
+		g_pParentWnd->SetStatusText(2, strStatus);
+		Select_RotateAxis(nAxis, fDeg, false, true);
+		Sys_UpdateWindows (W_ALL);
+	} else if (ActiveXY()->ScaleMode()) {
+		if (nDirection == 0 || nDirection == 3) {
+			nAmount = -nAmount;
+		}
+		vec3_t v;
+		v[0] = v[1] = v[2] = 1.0;
+		if (nAmount > 0) {
+			v[0] = 1.1;
+			v[1] = 1.1;
+			v[2] = 1.1;
+		} else {
+			v[0] = 0.9;
+			v[1] = 0.9;
+			v[2] = 0.9;
+		}
 
-    if (nDirection == 2 || nDirection == 3)
-    {
-      nAmount = -nAmount;
-    }
-
-    float fDeg = -nAmount;
-    float fAdj = nAmount;
-
-    g_pParentWnd->ActiveXY()->Rotation()[nAxis] += fAdj;
-    CString strStatus;
-    strStatus.Format("Rotation x:: %.1f  y:: %.1f  z:: %.1f", g_pParentWnd->ActiveXY()->Rotation()[0], g_pParentWnd->ActiveXY()->Rotation()[1], g_pParentWnd->ActiveXY()->Rotation()[2]);
-    g_pParentWnd->SetStatusText(2, strStatus);
-    Select_RotateAxis(nAxis, fDeg, false, true);
-    Sys_UpdateWindows (W_ALL);
-  }
-  else
-  if (ActiveXY()->ScaleMode())
-  {
-    if (nDirection == 0 || nDirection == 3)
-    {
-      nAmount = -nAmount;
-    }
-    vec3_t v;
-    v[0] = v[1] = v[2] = 1.0;
-    if (nAmount > 0)
-    {
-      v[0] = 1.1;
-      v[1] = 1.1;
-      v[2] = 1.1;
-    }
-    else 
-    {
-      v[0] = 0.9;
-      v[1] = 0.9;
-      v[2] = 0.9;
-    }
-
-    Select_Scale((g_nScaleHow & SCALE_X) ? v[0] : 1.0,
-                 (g_nScaleHow & SCALE_Y) ? v[1] : 1.0,
-                 (g_nScaleHow & SCALE_Z) ? v[2] : 1.0);
-	  Sys_UpdateWindows (W_ALL);
-  }
-  else
-  {
-    // 0 - left, 1 - up, 2 - right, 3 - down
-    int nDim;
-    if (nDirection == 0)
-    {
-      nDim = ActiveXY()->GetViewType() == YZ ? 1 : 0;
-      nAmount = -nAmount;
-    }
-    else if (nDirection == 1)
-    {
-      nDim = ActiveXY()->GetViewType() == XY ? 1 : 2;
-    }
-    else if (nDirection == 2)
-    {
-      nDim = ActiveXY()->GetViewType() == YZ ? 1 : 0;
-    }
-    else
-    {
-      nDim = ActiveXY()->GetViewType() == XY ? 1 : 2;
-      nAmount = -nAmount;
-    }
-    Nudge(nDim, nAmount);
-  }
+		Select_Scale((g_nScaleHow & SCALE_X) ? v[0] : 1.0,
+								 (g_nScaleHow & SCALE_Y) ? v[1] : 1.0,
+								 (g_nScaleHow & SCALE_Z) ? v[2] : 1.0);
+		Sys_UpdateWindows (W_ALL);
+	}
+	else
+	{
+		// 0 - left, 1 - up, 2 - right, 3 - down
+		int nDim;
+		if (nDirection == 0)
+		{
+			nDim = ActiveXY()->GetViewType() == YZ ? 1 : 0;
+			nAmount = -nAmount;
+		}
+		else if (nDirection == 1)
+		{
+			nDim = ActiveXY()->GetViewType() == XY ? 1 : 2;
+		}
+		else if (nDirection == 2)
+		{
+			nDim = ActiveXY()->GetViewType() == YZ ? 1 : 0;
+		}
+		else
+		{
+			nDim = ActiveXY()->GetViewType() == XY ? 1 : 2;
+			nAmount = -nAmount;
+		}
+		Nudge(nDim, nAmount);
+	}
 }
 
-
-BOOL CMainFrame::PreTranslateMessage(MSG* pMsg) 
-{
+BOOL CMainFrame::PreTranslateMessage(MSG* pMsg) {
 	return CFrameWnd::PreTranslateMessage(pMsg);
 }
 
-void CMainFrame::Nudge(int nDim, float fNudge)
-{
-  vec3_t vMove;
-  vMove[0] = vMove[1] = vMove[2] = 0;
-  vMove[nDim] = fNudge;
-  Select_Move(vMove, true);
-  Sys_UpdateWindows (W_ALL);
+void CMainFrame::Nudge(int nDim, float fNudge) {
+	vec3_t vMove;
+	vMove[0] = vMove[1] = vMove[2] = 0;
+	vMove[nDim] = fNudge;
+	Select_Move(vMove, true);
+	Sys_UpdateWindows (W_ALL);
 }
 
 void CMainFrame::OnTexturesLoadlist() 
 {
-  CDialogTextures dlg;
-  if (dlg.DoModal() == IDOK && dlg.m_nSelection >= 0)
-  {
-    Texture_ShowDirectory(dlg.m_nSelection + CMD_TEXTUREWAD);
-  }
+	CDialogTextures dlg;
+	if (dlg.DoModal() == IDOK && dlg.m_nSelection >= 0)
+	{
+		Texture_ShowDirectory(dlg.m_nSelection + CMD_TEXTUREWAD);
+	}
 }
 
 void CMainFrame::OnDontselectcurve() 
 {
-  g_PrefsDlg.m_bSelectCurves ^= 1;
-  m_wndToolBar.GetToolBarCtrl().CheckButton(ID_DONTSELECTCURVE, (g_PrefsDlg.m_bSelectCurves) ? FALSE : TRUE);
+	g_PrefsDlg.m_bSelectCurves ^= 1;
+	m_wndToolBar.GetToolBarCtrl().CheckButton(ID_DONTSELECTCURVE, (g_PrefsDlg.m_bSelectCurves) ? FALSE : TRUE);
 }
 
 void CMainFrame::OnConvertcurves() 
 {
 #if 0
-  Select_Deselect();
+	Select_Deselect();
 	for (brush_t* pb = active_brushes.next ; pb != &active_brushes ; pb = pb->next)
 	{
-    if (pb->curveBrush)
-    {
-	    for (face_t* f = pb->brush_faces ; f ; f=f->next) 
-      {
-		    if (f->texdef.contents & CONTENTS_LADDER)
-        {
-          f->texdef.contents &= ~CONTENTS_LADDER;
-          f->texdef.contents |= CONTENTS_NEGATIVE_CURVE;
-        }
-      }
+		if (pb->curveBrush)
+		{
+			for (face_t* f = pb->brush_faces ; f ; f=f->next) 
+			{
+				if (f->texdef.contents & CONTENTS_LADDER)
+				{
+					f->texdef.contents &= ~CONTENTS_LADDER;
+					f->texdef.contents |= CONTENTS_NEGATIVE_CURVE;
+				}
+			}
 		}
-  }
-  Map_BuildBrushData();
+	}
+	Map_BuildBrushData();
 #endif
 
 }
@@ -4287,36 +4138,28 @@ void CMainFrame::OnDynamicLighting()
 	pCam->ShowWindow(SW_SHOW);
 }
 
-
-void CMainFrame::OnCurveSimplepatchmesh() 
-{
+void CMainFrame::OnCurveSimplepatchmesh() {
 	Undo_Start("make simpe patch mesh");
 	Undo_AddBrushList(&selected_brushes);
-
 	CPatchDensityDlg dlg;
 	dlg.DoModal();
-
 	Undo_EndBrushList(&selected_brushes);
 	Undo_End();
 }
 
-
-void CMainFrame::OnPatchToggleBox()
-{
+void CMainFrame::OnPatchToggleBox() {
 	g_bPatchShowBounds ^= 1;
 	m_wndToolBar.GetToolBarCtrl().CheckButton(ID_PATCH_SHOWBOUNDINGBOX, (g_bPatchShowBounds) ? TRUE : FALSE);
 	Sys_UpdateWindows(W_ALL);
 }
 
-void CMainFrame::OnPatchWireframe() 
-{
+void CMainFrame::OnPatchWireframe() {
 	g_bPatchWireFrame ^= 1;
 	m_wndToolBar.GetToolBarCtrl().CheckButton(ID_PATCH_WIREFRAME, (g_bPatchWireFrame) ? TRUE : FALSE);
 	Sys_UpdateWindows(W_ALL);
 }
 
-void CMainFrame::OnCurvePatchcone() 
-{
+void CMainFrame::OnCurvePatchcone() {
 	Undo_Start("make curve cone");
 	Undo_AddBrushList(&selected_brushes);
 	Patch_BrushToMesh(true);
@@ -4325,8 +4168,7 @@ void CMainFrame::OnCurvePatchcone()
 	Undo_End();
 }
 
-void CMainFrame::OnCurvePatchtube() 
-{
+void CMainFrame::OnCurvePatchtube() {
 	Undo_Start("make curve cylinder");
 	Undo_AddBrushList(&selected_brushes);
 	Patch_BrushToMesh(false);
@@ -4335,15 +4177,13 @@ void CMainFrame::OnCurvePatchtube()
 	Undo_End();
 }
 
-void CMainFrame::OnPatchWeld() 
-{
+void CMainFrame::OnPatchWeld() {
 	g_bPatchWeld ^= 1;
 	m_wndToolBar.GetToolBarCtrl().CheckButton(ID_PATCH_WELD, (g_bPatchWeld) ? TRUE : FALSE);
 	Sys_UpdateWindows(W_ALL);
 }
 
-void CMainFrame::OnCurvePatchbevel() 
-{
+void CMainFrame::OnCurvePatchbevel() {
 	Undo_Start("make bevel");
 	Undo_AddBrushList(&selected_brushes);
 	Patch_BrushToMesh(false, true, false);
@@ -4352,8 +4192,7 @@ void CMainFrame::OnCurvePatchbevel()
 	Undo_End();
 }
 
-void CMainFrame::OnCurvePatchendcap() 
-{
+void CMainFrame::OnCurvePatchendcap() {
 	Undo_Start("make end cap");
 	Undo_AddBrushList(&selected_brushes);
 	Patch_BrushToMesh(false, false, true);
@@ -4362,28 +4201,23 @@ void CMainFrame::OnCurvePatchendcap()
 	Undo_End();
 }
 
-void CMainFrame::OnCurvePatchinvertedbevel() 
-{
-  //Patch_BrushToMesh(false, true, false, true);
-  //Sys_UpdateWindows (W_ALL);
+void CMainFrame::OnCurvePatchinvertedbevel() {
+	//Patch_BrushToMesh(false, true, false, true);
+	//Sys_UpdateWindows (W_ALL);
 }
 
-void CMainFrame::OnCurvePatchinvertedendcap() 
-{
-  //Patch_BrushToMesh(false, false, true, true);
-  //Sys_UpdateWindows (W_ALL);
+void CMainFrame::OnCurvePatchinvertedendcap() {
+	//Patch_BrushToMesh(false, false, true, true);
+	//Sys_UpdateWindows (W_ALL);
 }
 
-void CMainFrame::OnPatchDrilldown() 
-{
+void CMainFrame::OnPatchDrilldown() {
 	g_bPatchDrillDown ^= 1;
 	m_wndToolBar.GetToolBarCtrl().CheckButton(ID_PATCH_DRILLDOWN, (g_bPatchDrillDown) ? TRUE : FALSE);
 	Sys_UpdateWindows(W_ALL);
 }
 
-
-void CMainFrame::OnCurveInsertcolumn() 
-{
+void CMainFrame::OnCurveInsertcolumn() {
 	Undo_Start("insert colum");
 	Undo_AddBrushList(&selected_brushes);
 	//Patch_AdjustSelectedRowCols(0, 2);
@@ -4393,8 +4227,7 @@ void CMainFrame::OnCurveInsertcolumn()
 	Undo_End();
 }
 
-void CMainFrame::OnCurveInsertrow() 
-{
+void CMainFrame::OnCurveInsertrow() {
 	Undo_Start("insert row");
 	Undo_AddBrushList(&selected_brushes);
 	//Patch_AdjustSelectedRowCols(2, 0);
@@ -4404,8 +4237,7 @@ void CMainFrame::OnCurveInsertrow()
 	Undo_End();
 }
 
-void CMainFrame::OnCurveDeletecolumn() 
-{
+void CMainFrame::OnCurveDeletecolumn() {
 	Undo_Start("delete column");
 	Undo_AddBrushList(&selected_brushes);
 	Patch_AdjustSelected(false, true, true);
@@ -4414,8 +4246,7 @@ void CMainFrame::OnCurveDeletecolumn()
 	Undo_End();
 }
 
-void CMainFrame::OnCurveDeleterow() 
-{
+void CMainFrame::OnCurveDeleterow() {
 	Undo_Start("delete row");
 	Undo_AddBrushList(&selected_brushes);
 	Patch_AdjustSelected(false, false, true);
@@ -4424,8 +4255,7 @@ void CMainFrame::OnCurveDeleterow()
 	Undo_End();
 }
 
-void CMainFrame::OnCurveInsertAddcolumn() 
-{
+void CMainFrame::OnCurveInsertAddcolumn() {
 	Undo_Start("add (2) columns");
 	Undo_AddBrushList(&selected_brushes);
 	Patch_AdjustSelected(true, true, true);
@@ -4434,8 +4264,7 @@ void CMainFrame::OnCurveInsertAddcolumn()
 	Undo_End();
 }
 
-void CMainFrame::OnCurveInsertAddrow() 
-{
+void CMainFrame::OnCurveInsertAddrow() {
 	Undo_Start("add (2) rows");
 	Undo_AddBrushList(&selected_brushes);
 	Patch_AdjustSelected(true, false, true);
@@ -4444,8 +4273,7 @@ void CMainFrame::OnCurveInsertAddrow()
 	Undo_End();
 }
 
-void CMainFrame::OnCurveInsertInsertcolumn() 
-{
+void CMainFrame::OnCurveInsertInsertcolumn() {
 	Undo_Start("insert (2) columns");
 	Undo_AddBrushList(&selected_brushes);
 	Patch_AdjustSelected(true, true, false);
@@ -4454,8 +4282,7 @@ void CMainFrame::OnCurveInsertInsertcolumn()
 	Undo_End();
 }
 
-void CMainFrame::OnCurveInsertInsertrow() 
-{
+void CMainFrame::OnCurveInsertInsertrow() {
 	Undo_Start("insert (2) rows");
 	Undo_AddBrushList(&selected_brushes);
 	Patch_AdjustSelected(true, false, false);
@@ -4464,27 +4291,22 @@ void CMainFrame::OnCurveInsertInsertrow()
 	Undo_End();
 }
 
-void CMainFrame::OnCurveNegative() 
-{
+void CMainFrame::OnCurveNegative() {
 	Patch_ToggleInverted();
 	//Sys_UpdateWindows(W_ALL);
 }
 
-void CMainFrame::OnCurveNegativeTextureX() 
-{
+void CMainFrame::OnCurveNegativeTextureX() {
 	Patch_InvertTexture(false);
 	//Sys_UpdateWindows(W_ALL);
 }
 
-void CMainFrame::OnCurveNegativeTextureY() 
-{
+void CMainFrame::OnCurveNegativeTextureY() {
 	Patch_InvertTexture(true);
 	//Sys_UpdateWindows(W_ALL);
 }
 
-
-void CMainFrame::OnCurveDeleteFirstcolumn() 
-{
+void CMainFrame::OnCurveDeleteFirstcolumn() {
 	Undo_Start("delete first (2) columns");
 	Undo_AddBrushList(&selected_brushes);
 	Patch_AdjustSelected(false, true, true);
@@ -4493,8 +4315,7 @@ void CMainFrame::OnCurveDeleteFirstcolumn()
 	Undo_End();
 }
 
-void CMainFrame::OnCurveDeleteFirstrow() 
-{
+void CMainFrame::OnCurveDeleteFirstrow() {
 	Undo_Start("delete first (2) rows");
 	Undo_AddBrushList(&selected_brushes);
 	Patch_AdjustSelected(false, false, true);
@@ -4503,8 +4324,7 @@ void CMainFrame::OnCurveDeleteFirstrow()
 	Undo_End();
 }
 
-void CMainFrame::OnCurveDeleteLastcolumn() 
-{
+void CMainFrame::OnCurveDeleteLastcolumn() {
 	Undo_Start("delete last (2) columns");
 	Undo_AddBrushList(&selected_brushes);
 	Patch_AdjustSelected(false, true, false);
@@ -4513,8 +4333,7 @@ void CMainFrame::OnCurveDeleteLastcolumn()
 	Undo_End();
 }
 
-void CMainFrame::OnCurveDeleteLastrow() 
-{
+void CMainFrame::OnCurveDeleteLastrow() {
 	Undo_Start("delete last (2) rows");
 	Undo_AddBrushList(&selected_brushes);
 	Patch_AdjustSelected(false, false, false);
@@ -4523,71 +4342,64 @@ void CMainFrame::OnCurveDeleteLastrow()
 	Undo_End();
 }
 
-void CMainFrame::OnPatchBend() 
-{
+void CMainFrame::OnPatchBend() {
 	Patch_BendToggle();
 	m_wndToolBar.GetToolBarCtrl().CheckButton(ID_PATCH_BEND, (g_bPatchBendMode) ? TRUE : FALSE);
 	Sys_UpdateWindows(W_ALL);
 }
 
-void CMainFrame::OnPatchInsdel() 
-{
+void CMainFrame::OnPatchInsdel() {
 	Patch_InsDelToggle();
 	m_wndToolBar.GetToolBarCtrl().CheckButton(ID_PATCH_INSDEL, (g_bPatchInsertMode) ? TRUE : FALSE);
 	Sys_UpdateWindows(W_ALL);
 }
 
-void CMainFrame::OnPatchEnter() 
-{
-	
+void CMainFrame::OnPatchEnter() {
 }
 
-void CMainFrame::OnPatchTab() 
-{
-  if (g_bPatchBendMode)
-    Patch_BendHandleTAB();
-  else if (g_bPatchInsertMode)
-    Patch_InsDelHandleTAB();
-  else
-  {
-    // check to see if the selected brush is part of a func group
-    // if it is, deselect everything and reselect the next brush 
-    // in the group
-	  brush_t *b = selected_brushes.next;
-    entity_t * e;
-    if (b != &selected_brushes)
-    {
-	    if (strcmpi(b->owner->eclass->name, "worldspawn") != 0)
-      {
-        e = b->owner;
-        Select_Deselect();
+void CMainFrame::OnPatchTab() {
+	if (g_bPatchBendMode)
+		Patch_BendHandleTAB();
+	else if (g_bPatchInsertMode)
+		Patch_InsDelHandleTAB();
+	else
+	{
+		// check to see if the selected brush is part of a func group
+		// if it is, deselect everything and reselect the next brush 
+		// in the group
+		brush_t *b = selected_brushes.next;
+		entity_t * e;
+		if (b != &selected_brushes)
+		{
+			if (strcmpi(b->owner->eclass->name, "worldspawn") != 0)
+			{
+				e = b->owner;
+				Select_Deselect();
 		brush_t * b2 = NULL;
-		    for (b2 = e->brushes.onext ; b2 != &e->brushes ; b2 = b2->onext)
-		    {
-          if (b == b2)
-          {
-            b2 = b2->onext;
-            break;
-          }
-        }
-        if (b2 == &e->brushes)
-          b2 = b2->onext;
+				for (b2 = e->brushes.onext ; b2 != &e->brushes ; b2 = b2->onext)
+				{
+					if (b == b2)
+					{
+						b2 = b2->onext;
+						break;
+					}
+				}
+				if (b2 == &e->brushes)
+					b2 = b2->onext;
 
-        Select_Brush(b2, false);
-        Sys_UpdateWindows(W_ALL);
-      }
-    }
-  }
+				Select_Brush(b2, false);
+				Sys_UpdateWindows(W_ALL);
+			}
+		}
+	}
 }
 
-void CMainFrame::UpdatePatchToolbarButtons() 
-{
-  m_wndToolBar.GetToolBarCtrl().CheckButton(ID_PATCH_BEND, (g_bPatchBendMode) ? TRUE : FALSE);
-  m_wndToolBar.GetToolBarCtrl().CheckButton(ID_PATCH_INSDEL, (g_bPatchInsertMode) ? TRUE : FALSE);
+void CMainFrame::UpdatePatchToolbarButtons() {
+	m_wndToolBar.GetToolBarCtrl().CheckButton(ID_PATCH_BEND, (g_bPatchBendMode) ? TRUE : FALSE);
+	m_wndToolBar.GetToolBarCtrl().CheckButton(ID_PATCH_INSDEL, (g_bPatchInsertMode) ? TRUE : FALSE);
 }
 
-void CMainFrame::OnCurvePatchdensetube() 
-{
+void CMainFrame::OnCurvePatchdensetube() {
 	Undo_Start("dense cylinder");
 	Undo_AddBrushList(&selected_brushes);
 
@@ -4600,278 +4412,225 @@ void CMainFrame::OnCurvePatchdensetube()
 	Undo_End();
 }
 
-void CMainFrame::OnCurvePatchverydensetube() 
-{
+void CMainFrame::OnCurvePatchverydensetube() {
 	Undo_Start("very dense cylinder");
 	Undo_AddBrushList(&selected_brushes);
-
 	Patch_BrushToMesh(false);
 	OnCurveInsertAddrow();
 	OnCurveInsertInsertrow();
 	OnCurveInsertAddrow();
 	OnCurveInsertInsertrow();
-	Sys_UpdateWindows (W_ALL);
-
+	Sys_UpdateWindows(W_ALL);
 	Undo_EndBrushList(&selected_brushes);
 	Undo_End();
 }
 
-void CMainFrame::OnCurveCap() 
-{
-  Patch_CapCurrent();
-  Sys_UpdateWindows (W_ALL);
+void CMainFrame::OnCurveCap() {
+	Patch_CapCurrent();
+	Sys_UpdateWindows(W_ALL);
 }
 
-
-void CMainFrame::OnCurveCapInvertedbevel() 
-{
-  Patch_CapCurrent(true);
-  Sys_UpdateWindows (W_ALL);
+void CMainFrame::OnCurveCapInvertedbevel() {
+	Patch_CapCurrent(true);
+	Sys_UpdateWindows(W_ALL);
 }
 
-void CMainFrame::OnCurveCapInvertedendcap() 
-{
+void CMainFrame::OnCurveCapInvertedendcap() {
 	Patch_CapCurrent(false, true);
-	Sys_UpdateWindows (W_ALL);
+	Sys_UpdateWindows(W_ALL);
 }
 
-void CMainFrame::OnCurveRedisperseCols() 
-{
+void CMainFrame::OnCurveRedisperseCols() {
 	Patch_DisperseColumns();
-	Sys_UpdateWindows (W_ALL);
+	Sys_UpdateWindows(W_ALL);
 }
 
-void CMainFrame::OnCurveRedisperseRows() 
-{
+void CMainFrame::OnCurveRedisperseRows() {
 	Patch_DisperseRows();
-	Sys_UpdateWindows (W_ALL);
+	Sys_UpdateWindows(W_ALL);
 }
 
-void CMainFrame::OnPatchNaturalize()
-{
+void CMainFrame::OnPatchNaturalize() {
 	Patch_NaturalizeSelected();
-	Sys_UpdateWindows (W_ALL);
+	Sys_UpdateWindows(W_ALL);
 }
 
-void CMainFrame::OnSnapToGrid()
-{
+void CMainFrame::OnSnapToGrid() {
 	Select_SnapToGrid();
-	Sys_UpdateWindows (W_ALL);
+	Sys_UpdateWindows(W_ALL);
 }
 
-void CMainFrame::OnCurvePatchsquare() 
-{
+void CMainFrame::OnCurvePatchsquare() {
 	Undo_Start("square cylinder");
 	Undo_AddBrushList(&selected_brushes);
-
 	Patch_BrushToMesh(false, false, false, true);
 	Sys_UpdateWindows (W_ALL);
-
 	Undo_EndBrushList(&selected_brushes);
 	Undo_End();
 }
 
-void CMainFrame::OnTerrainCreateFromBrush()
-{
+void CMainFrame::OnTerrainCreateFromBrush() {
 	Terrain_BrushToMesh();
 	Sys_UpdateWindows (W_ALL);
 }
 
-void CMainFrame::CheckTextureScale(int id)
-{
-  CMenu* pMenu = GetMenu();
-  if (pMenu)
-  {
-    pMenu->CheckMenuItem(ID_TEXTURES_TEXTUREWINDOWSCALE_10, MF_BYCOMMAND | MF_UNCHECKED);
-    pMenu->CheckMenuItem(ID_TEXTURES_TEXTUREWINDOWSCALE_25, MF_BYCOMMAND | MF_UNCHECKED);
-    pMenu->CheckMenuItem(ID_TEXTURES_TEXTUREWINDOWSCALE_50, MF_BYCOMMAND | MF_UNCHECKED);
-    pMenu->CheckMenuItem(ID_TEXTURES_TEXTUREWINDOWSCALE_100, MF_BYCOMMAND | MF_UNCHECKED);
-    pMenu->CheckMenuItem(ID_TEXTURES_TEXTUREWINDOWSCALE_200, MF_BYCOMMAND | MF_UNCHECKED);
-    pMenu->CheckMenuItem(id, MF_BYCOMMAND | MF_CHECKED);
-  }
-  g_PrefsDlg.SavePrefs();
+void CMainFrame::CheckTextureScale(int id) {
+	CMenu* pMenu = GetMenu();
+	if (pMenu) {
+		pMenu->CheckMenuItem(ID_TEXTURES_TEXTUREWINDOWSCALE_10, MF_BYCOMMAND | MF_UNCHECKED);
+		pMenu->CheckMenuItem(ID_TEXTURES_TEXTUREWINDOWSCALE_25, MF_BYCOMMAND | MF_UNCHECKED);
+		pMenu->CheckMenuItem(ID_TEXTURES_TEXTUREWINDOWSCALE_50, MF_BYCOMMAND | MF_UNCHECKED);
+		pMenu->CheckMenuItem(ID_TEXTURES_TEXTUREWINDOWSCALE_100, MF_BYCOMMAND | MF_UNCHECKED);
+		pMenu->CheckMenuItem(ID_TEXTURES_TEXTUREWINDOWSCALE_200, MF_BYCOMMAND | MF_UNCHECKED);
+		pMenu->CheckMenuItem(id, MF_BYCOMMAND | MF_CHECKED);
+	}
+	g_PrefsDlg.SavePrefs();
 	Texture_ResetPosition();
-  Sys_UpdateWindows(W_TEXTURE);
+	Sys_UpdateWindows(W_TEXTURE);
 }
 
-void CMainFrame::OnTexturesTexturewindowscale10() 
-{
-  g_PrefsDlg.m_nTextureScale = 10;
-  CheckTextureScale(ID_TEXTURES_TEXTUREWINDOWSCALE_10);
+void CMainFrame::OnTexturesTexturewindowscale10() {
+	g_PrefsDlg.m_nTextureScale = 10;
+	CheckTextureScale(ID_TEXTURES_TEXTUREWINDOWSCALE_10);
 }
 
-void CMainFrame::OnTexturesTexturewindowscale100() 
-{
-  g_PrefsDlg.m_nTextureScale = 100;
-  CheckTextureScale(ID_TEXTURES_TEXTUREWINDOWSCALE_100);
+void CMainFrame::OnTexturesTexturewindowscale100() {
+	g_PrefsDlg.m_nTextureScale = 100;
+	CheckTextureScale(ID_TEXTURES_TEXTUREWINDOWSCALE_100);
 }
 
-void CMainFrame::OnTexturesTexturewindowscale200() 
-{
-  g_PrefsDlg.m_nTextureScale = 200;
-  CheckTextureScale(ID_TEXTURES_TEXTUREWINDOWSCALE_200);
+void CMainFrame::OnTexturesTexturewindowscale200() {
+	g_PrefsDlg.m_nTextureScale = 200;
+	CheckTextureScale(ID_TEXTURES_TEXTUREWINDOWSCALE_200);
 }
 
-void CMainFrame::OnTexturesTexturewindowscale25() 
-{
-  g_PrefsDlg.m_nTextureScale = 25;
-  CheckTextureScale(ID_TEXTURES_TEXTUREWINDOWSCALE_25);
+void CMainFrame::OnTexturesTexturewindowscale25() {
+	g_PrefsDlg.m_nTextureScale = 25;
+	CheckTextureScale(ID_TEXTURES_TEXTUREWINDOWSCALE_25);
 }
 
-void CMainFrame::OnTexturesTexturewindowscale50() 
-{
-  g_PrefsDlg.m_nTextureScale = 50;
-  CheckTextureScale(ID_TEXTURES_TEXTUREWINDOWSCALE_50);
+void CMainFrame::OnTexturesTexturewindowscale50() {
+	g_PrefsDlg.m_nTextureScale = 50;
+	CheckTextureScale(ID_TEXTURES_TEXTUREWINDOWSCALE_50);
 }
 
-
-
-void CMainFrame::OnTexturesFlush() 
-{
+void CMainFrame::OnTexturesFlush() {
 	Texture_Flush();
 	Sys_UpdateWindows(W_ALL);
 }
 
-void CMainFrame::OnCurveOverlayClear() 
-{
+void CMainFrame::OnCurveOverlayClear() {
 	Patch_ClearOverlays();
 	Sys_UpdateWindows(W_ALL);
 }
 
-void CMainFrame::OnCurveOverlaySet() 
-{
+void CMainFrame::OnCurveOverlaySet() {
 	Patch_SetOverlays();
 	Sys_UpdateWindows(W_ALL);
 }
 
-void CMainFrame::OnCurveThicken() 
-{
+void CMainFrame::OnCurveThicken() {
 	Undo_Start("curve thicken");
 	Undo_AddBrushList(&selected_brushes);
-
 	CDialogThick dlg;
-	if (dlg.DoModal() == IDOK)
-	{
+	if (dlg.DoModal() == IDOK) {
 		Patch_Thicken(dlg.m_nAmount, dlg.m_bSeams);
 		Sys_UpdateWindows(W_ALL);
 	}
-
 	Undo_EndBrushList(&selected_brushes);
 	Undo_End();
 }
 
-void CMainFrame::OnCurveCyclecap() 
-{
-  Patch_NaturalizeSelected(true, true);
-  Sys_UpdateWindows (W_ALL);
+void CMainFrame::OnCurveCyclecap() {
+	Patch_NaturalizeSelected(true, true);
+	Sys_UpdateWindows(W_ALL);
 }
 
-void CMainFrame::OnCurveMatrixTranspose() 
-{
-  Patch_Transpose();
-  Sys_UpdateWindows (W_ALL);
+void CMainFrame::OnCurveMatrixTranspose() {
+	Patch_Transpose();
+	Sys_UpdateWindows (W_ALL);
 }
 
-void CMainFrame::OnTexturesReloadshaders() 
-{
-  CWaitCursor wait;
-  ReloadShaders();
-  Sys_UpdateWindows (W_ALL);
+void CMainFrame::OnTexturesReloadshaders() {
+	CWaitCursor wait;
+	ReloadShaders();
+	Sys_UpdateWindows (W_ALL);
 }
 
-void CMainFrame::SetEntityCheck()
-{
-  CMenu* pMenu = GetMenu();
-  if (pMenu)
-  {
-    pMenu->CheckMenuItem(ID_VIEW_ENTITIESAS_BOUNDINGBOX, MF_BYCOMMAND | (g_PrefsDlg.m_nEntityShowState == ENTITY_BOX) ? MF_CHECKED : MF_UNCHECKED);
-    pMenu->CheckMenuItem(ID_VIEW_ENTITIESAS_WIREFRAME, MF_BYCOMMAND | (g_PrefsDlg.m_nEntityShowState == ENTITY_WIRE) ? MF_CHECKED : MF_UNCHECKED);
-    pMenu->CheckMenuItem(ID_VIEW_ENTITIESAS_SELECTEDWIREFRAME, MF_BYCOMMAND | (g_PrefsDlg.m_nEntityShowState == ENTITY_SELECTED) ? MF_CHECKED : MF_UNCHECKED);
-    pMenu->CheckMenuItem(ID_VIEW_ENTITIESAS_SELECTEDSKINNED, MF_BYCOMMAND | (g_PrefsDlg.m_nEntityShowState == ENTITY_SELECTED_SKIN) ? MF_CHECKED : MF_UNCHECKED);
-    pMenu->CheckMenuItem(ID_VIEW_ENTITIESAS_SKINNED, MF_BYCOMMAND | (g_PrefsDlg.m_nEntityShowState == ENTITY_SKINNED) ? MF_CHECKED : MF_UNCHECKED);
-    pMenu->CheckMenuItem(ID_VIEW_ENTITIESAS_SKINNEDANDBOXED, MF_BYCOMMAND | (g_PrefsDlg.m_nEntityShowState == ENTITY_SKINNED_BOXED) ? MF_CHECKED : MF_UNCHECKED); 
-  }
+void CMainFrame::SetEntityCheck() {
+	CMenu* pMenu = GetMenu();
+	if (pMenu) {
+		pMenu->CheckMenuItem(ID_VIEW_ENTITIESAS_BOUNDINGBOX, MF_BYCOMMAND | (g_PrefsDlg.m_nEntityShowState == ENTITY_BOX) ? MF_CHECKED : MF_UNCHECKED);
+		pMenu->CheckMenuItem(ID_VIEW_ENTITIESAS_WIREFRAME, MF_BYCOMMAND | (g_PrefsDlg.m_nEntityShowState == ENTITY_WIRE) ? MF_CHECKED : MF_UNCHECKED);
+		pMenu->CheckMenuItem(ID_VIEW_ENTITIESAS_SELECTEDWIREFRAME, MF_BYCOMMAND | (g_PrefsDlg.m_nEntityShowState == ENTITY_SELECTED) ? MF_CHECKED : MF_UNCHECKED);
+		pMenu->CheckMenuItem(ID_VIEW_ENTITIESAS_SELECTEDSKINNED, MF_BYCOMMAND | (g_PrefsDlg.m_nEntityShowState == ENTITY_SELECTED_SKIN) ? MF_CHECKED : MF_UNCHECKED);
+		pMenu->CheckMenuItem(ID_VIEW_ENTITIESAS_SKINNED, MF_BYCOMMAND | (g_PrefsDlg.m_nEntityShowState == ENTITY_SKINNED) ? MF_CHECKED : MF_UNCHECKED);
+		pMenu->CheckMenuItem(ID_VIEW_ENTITIESAS_SKINNEDANDBOXED, MF_BYCOMMAND | (g_PrefsDlg.m_nEntityShowState == ENTITY_SKINNED_BOXED) ? MF_CHECKED : MF_UNCHECKED); 
+	}
 }
 
-
-void CMainFrame::OnShowEntities() 
-{
-  HandlePopup(this, IDR_POPUP_ENTITY); 
+void CMainFrame::OnShowEntities() {
+	HandlePopup(this, IDR_POPUP_ENTITY); 
 }
 
-void CMainFrame::OnViewEntitiesasBoundingbox() 
-{
-  g_PrefsDlg.m_nEntityShowState = ENTITY_BOX;
-  SetEntityCheck();
-  g_PrefsDlg.SavePrefs();
-  Sys_UpdateWindows (W_ALL);
+void CMainFrame::OnViewEntitiesasBoundingbox() {
+	g_PrefsDlg.m_nEntityShowState = ENTITY_BOX;
+	SetEntityCheck();
+	g_PrefsDlg.SavePrefs();
+	Sys_UpdateWindows (W_ALL);
 }
 
-void CMainFrame::OnViewEntitiesasSelectedskinned() 
-{
-  g_PrefsDlg.m_nEntityShowState = ENTITY_SELECTED_SKIN;
-  SetEntityCheck();
-  g_PrefsDlg.SavePrefs();
-  Sys_UpdateWindows (W_ALL);
+void CMainFrame::OnViewEntitiesasSelectedskinned() {
+	g_PrefsDlg.m_nEntityShowState = ENTITY_SELECTED_SKIN;
+	SetEntityCheck();
+	g_PrefsDlg.SavePrefs();
+	Sys_UpdateWindows (W_ALL);
 }
 
-void CMainFrame::OnViewEntitiesasSelectedwireframe() 
-{
-  g_PrefsDlg.m_nEntityShowState = ENTITY_SELECTED;
-  SetEntityCheck();
-  g_PrefsDlg.SavePrefs();
-  Sys_UpdateWindows (W_ALL);
+void CMainFrame::OnViewEntitiesasSelectedwireframe() {
+	g_PrefsDlg.m_nEntityShowState = ENTITY_SELECTED;
+	SetEntityCheck();
+	g_PrefsDlg.SavePrefs();
+	Sys_UpdateWindows (W_ALL);
 }
 
-void CMainFrame::OnViewEntitiesasSkinned() 
-{
-  g_PrefsDlg.m_nEntityShowState = ENTITY_SKINNED;
-  SetEntityCheck();
-  g_PrefsDlg.SavePrefs();
-  Sys_UpdateWindows (W_ALL);
+void CMainFrame::OnViewEntitiesasSkinned() {
+	g_PrefsDlg.m_nEntityShowState = ENTITY_SKINNED;
+	SetEntityCheck();
+	g_PrefsDlg.SavePrefs();
+	Sys_UpdateWindows (W_ALL);
 }
 
-void CMainFrame::OnViewEntitiesasSkinnedandboxed() 
-{
-  g_PrefsDlg.m_nEntityShowState = ENTITY_SKINNED_BOXED;
-  SetEntityCheck();
-  g_PrefsDlg.SavePrefs();
-  Sys_UpdateWindows (W_ALL);
+void CMainFrame::OnViewEntitiesasSkinnedandboxed() {
+	g_PrefsDlg.m_nEntityShowState = ENTITY_SKINNED_BOXED;
+	SetEntityCheck();
+	g_PrefsDlg.SavePrefs();
+	Sys_UpdateWindows (W_ALL);
 }
 
-void CMainFrame::OnViewEntitiesasWireframe() 
-{
-  g_PrefsDlg.m_nEntityShowState = ENTITY_WIRE;
-  SetEntityCheck();
-  g_PrefsDlg.SavePrefs();
-  Sys_UpdateWindows (W_ALL);
+void CMainFrame::OnViewEntitiesasWireframe() {
+	g_PrefsDlg.m_nEntityShowState = ENTITY_WIRE;
+	SetEntityCheck();
+	g_PrefsDlg.SavePrefs();
+	Sys_UpdateWindows (W_ALL);
 }
 
-
-
-
-
-
-
-void CMainFrame::OnPluginsRefresh() 
-{
-  CleanPlugInMenu();
-  CString str(g_strAppPath);
-  AddSlash(str);
-  str += "plugins\\";
-  m_PlugInMgr.Init(str);
+void CMainFrame::OnPluginsRefresh() {
+	CleanPlugInMenu();
+	CString str(g_strAppPath);
+	AddSlash(str);
+	str += "plugins\\";
+	m_PlugInMgr.Init(str);
 }
 
-void CMainFrame::CleanPlugInMenu()
-{
+void CMainFrame::CleanPlugInMenu() {
 	m_nNextPlugInID = ID_PLUGIN_START;
 	CMenu* pMenu = GetMenu();
 	//--pMenu->RemoveMenu(MENU_PLUGIN, MF_BYPOSITION);
 	//--pMenu->InsertMenu(MENU_PLUGIN, MF_BYPOSITION, 0, "Plugins");
 	//--DrawMenuBar();
 	CMenu* pSub = pMenu->GetSubMenu(MENU_PLUGIN);
-	if (pSub)
-	{
+	if (pSub) {
 		int n = pSub->GetMenuItemCount();
 		for (int i = n; i > 1 ; i--)
 		{
@@ -4880,285 +4639,231 @@ void CMainFrame::CleanPlugInMenu()
 	}
 }
 
-void CMainFrame::AddPlugInMenuItem(CPlugIn* pPlugIn)
-{
+void CMainFrame::AddPlugInMenuItem(CPlugIn* pPlugIn) {
 	const char	*menuText;		//PGM
 	CMenu* pMenu = GetMenu();
 	CMenu* pSub = pMenu->GetSubMenu(MENU_PLUGIN);
-	if (pSub)
-	{
+	if (pSub) {
 		CMenu* pChild = new CMenu();
 		pChild->CreateMenu();
 		int nCount = pPlugIn->getCommandCount();
-    if (nCount > 0)
-    {
-		  while (nCount > 0)
-		  {
-			  menuText = pPlugIn->getCommand(--nCount);
-        if (menuText != NULL && strlen(menuText) > 0)
-        {
-			    if(!strcmp(menuText, "-"))
-				    pChild->AppendMenu(MF_SEPARATOR, NULL);
-			    else
-				    pChild->AppendMenu(MF_STRING, m_nNextPlugInID, menuText);
-			    pPlugIn->addMenuID(m_nNextPlugInID++);
-        }
-		  }
-		  pSub->AppendMenu(MF_POPUP, reinterpret_cast<unsigned int>(pChild->GetSafeHmenu()), pPlugIn->getMenuName());
-    }
+		if (nCount > 0) {
+			while (nCount > 0) {
+				menuText = pPlugIn->getCommand(--nCount);
+				if (menuText != NULL && strlen(menuText) > 0) {
+					if(!strcmp(menuText, "-"))
+						pChild->AppendMenu(MF_SEPARATOR, NULL);
+					else
+						pChild->AppendMenu(MF_STRING, m_nNextPlugInID, menuText);
+					pPlugIn->addMenuID(m_nNextPlugInID++);
+				}
+			}
+			pSub->AppendMenu(MF_POPUP, reinterpret_cast<unsigned int>(pChild->GetSafeHmenu()), pPlugIn->getMenuName());
+		}
 	}
 }
 
-void CMainFrame::OnPlugIn(unsigned int nID) 
-{
-  CMenu* pMenu = GetMenu();
-  CString str;
-  pMenu->GetMenuString(nID, str, MF_BYCOMMAND);
-  m_PlugInMgr.Dispatch(nID, str);
+void CMainFrame::OnPlugIn(unsigned int nID) {
+	CMenu* pMenu = GetMenu();
+	CString str;
+	pMenu->GetMenuString(nID, str, MF_BYCOMMAND);
+	m_PlugInMgr.Dispatch(nID, str);
 }
 
-void CMainFrame::OnViewShowhint() 
-{
+void CMainFrame::OnViewShowhint() {
 	if ( ( g_qeglobals.d_savedinfo.exclude ^= EXCLUDE_HINT ) & EXCLUDE_HINT )
-    CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWHINT, MF_BYCOMMAND | MF_UNCHECKED );
+		CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWHINT, MF_BYCOMMAND | MF_UNCHECKED );
 	else
-    CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWHINT, MF_BYCOMMAND | MF_CHECKED );
+		CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWHINT, MF_BYCOMMAND | MF_CHECKED );
 	Sys_UpdateWindows (W_XY|W_CAMERA);
 }
 
-void CMainFrame::OnTexturesShowall() 
-{
-  Texture_ShowAll();
+void CMainFrame::OnTexturesShowall() {
+	Texture_ShowAll();
 }
 
-void CMainFrame::OnPatchInspector()
-{
-  DoPatchInspector();
+void CMainFrame::OnPatchInspector() {
+	DoPatchInspector();
 }
 
-void CMainFrame::OnViewOpengllighting() 
-{
-  g_PrefsDlg.m_bGLLighting ^= 1;
-  g_PrefsDlg.SavePrefs();
-  CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_OPENGLLIGHTING, MF_BYCOMMAND | (g_PrefsDlg.m_bGLLighting) ? MF_CHECKED : MF_UNCHECKED );
+void CMainFrame::OnViewOpengllighting() {
+	g_PrefsDlg.m_bGLLighting ^= 1;
+	g_PrefsDlg.SavePrefs();
+	CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_OPENGLLIGHTING, MF_BYCOMMAND | (g_PrefsDlg.m_bGLLighting) ? MF_CHECKED : MF_UNCHECKED );
 	Sys_UpdateWindows (W_XY|W_CAMERA);
 }
 
-void CMainFrame::OnSelectAll()
-{
-  Select_AllOfType();
+void CMainFrame::OnSelectAll() {
+	Select_AllOfType();
 }
 
-void CMainFrame::OnViewShowcaulk() 
-{
+void CMainFrame::OnViewShowcaulk() {
 	if ( ( g_qeglobals.d_savedinfo.exclude ^= EXCLUDE_CAULK ) & EXCLUDE_CAULK )
-    CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWCAULK, MF_BYCOMMAND | MF_UNCHECKED );
+		CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWCAULK, MF_BYCOMMAND | MF_UNCHECKED );
 	else
-    CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWCAULK, MF_BYCOMMAND | MF_CHECKED );
+		CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWCAULK, MF_BYCOMMAND | MF_CHECKED );
 	Sys_UpdateWindows (W_XY|W_CAMERA);
 	
 }
 
-void CMainFrame::OnCurveFreeze()
-{
-  Patch_Freeze();
+void CMainFrame::OnCurveFreeze() {
+	Patch_Freeze();
 }
 
-void CMainFrame::OnCurveUnFreeze()
-{
-  Patch_UnFreeze(false);
+void CMainFrame::OnCurveUnFreeze() {
+	Patch_UnFreeze(false);
 }
 
-void CMainFrame::OnCurveUnFreezeAll()
-{
-  Patch_UnFreeze(true);
+void CMainFrame::OnCurveUnFreezeAll() {
+	Patch_UnFreeze(true);
 }
 
-void CMainFrame::OnSelectReselect()
-{
-  Select_Reselect();
+void CMainFrame::OnSelectReselect() {
+	Select_Reselect();
 }
 
-void CMainFrame::OnViewShowangles() 
-{
+void CMainFrame::OnViewShowangles() {
 	if ( ( g_qeglobals.d_savedinfo.exclude ^= EXCLUDE_ANGLES ) & EXCLUDE_ANGLES )
-    CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWANGLES, MF_BYCOMMAND | MF_UNCHECKED );
+		CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWANGLES, MF_BYCOMMAND | MF_UNCHECKED );
 	else
-    CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWANGLES, MF_BYCOMMAND | MF_CHECKED );
+		CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_VIEW_SHOWANGLES, MF_BYCOMMAND | MF_CHECKED );
 	Sys_UpdateWindows (W_XY|W_CAMERA);
 }
 
-void CMainFrame::OnEditSaveprefab() 
-{
-  CFileDialog dlgFile(FALSE, "pfb", NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, "Prefab files (*.pfb)|*.pfb||", this);
-  char CurPath[1024];
-  if (g_PrefsDlg.m_strPrefabPath.GetLength() > 0)
-  {
-    strcpy(CurPath, g_PrefsDlg.m_strPrefabPath);
-  }
-  else
-  {
-    ::GetCurrentDirectory(1024, CurPath);
-  }
-  dlgFile.m_ofn.lpstrInitialDir = CurPath;
-  if (dlgFile.DoModal() == IDOK)
-  {
-    Map_SaveSelected(dlgFile.GetPathName().GetBuffer(0));
-  }
+void CMainFrame::OnEditSaveprefab() {
+	CFileDialog dlgFile(FALSE, "pfb", NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, "Prefab files (*.pfb)|*.pfb||", this);
+	char CurPath[1024];
+	if (g_PrefsDlg.m_strPrefabPath.GetLength() > 0) {
+		strcpy(CurPath, g_PrefsDlg.m_strPrefabPath);
+	} else {
+		::GetCurrentDirectory(1024, CurPath);
+	}
+	dlgFile.m_ofn.lpstrInitialDir = CurPath;
+	if (dlgFile.DoModal() == IDOK) {
+		Map_SaveSelected(dlgFile.GetPathName().GetBuffer(0));
+	}
 }
 
-
-void CMainFrame::OnEditLoadprefab() 
-{
-  CFileDialog dlgFile(TRUE, "pfb", NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, "Prefab files (*.pfb)|*.pfb||", this);
-  char CurPath[1024];
-  if (g_PrefsDlg.m_strPrefabPath.GetLength() > 0)
-  {
-    strcpy(CurPath, g_PrefsDlg.m_strPrefabPath);
-  }
-  else
-  {
-    ::GetCurrentDirectory(1024, CurPath);
-  }
-  dlgFile.m_ofn.lpstrInitialDir = CurPath;
-  if (dlgFile.DoModal() == IDOK)
-  {
-    Map_ImportFile(dlgFile.GetPathName().GetBuffer(0));
-  }
+void CMainFrame::OnEditLoadprefab() {
+	CFileDialog dlgFile(TRUE, "pfb", NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, "Prefab files (*.pfb)|*.pfb||", this);
+	char CurPath[1024];
+	if (g_PrefsDlg.m_strPrefabPath.GetLength() > 0)
+	{
+		strcpy(CurPath, g_PrefsDlg.m_strPrefabPath);
+	}
+	else
+	{
+		::GetCurrentDirectory(1024, CurPath);
+	}
+	dlgFile.m_ofn.lpstrInitialDir = CurPath;
+	if (dlgFile.DoModal() == IDOK)
+	{
+		Map_ImportFile(dlgFile.GetPathName().GetBuffer(0));
+	}
 }
 
-void CMainFrame::OnCurveMoreendcapsbevelsSquarebevel() 
-{
+void CMainFrame::OnCurveMoreendcapsbevelsSquarebevel() {
 	Undo_Start("square bevel");
 	Undo_AddBrushList(&selected_brushes);
-
 	Patch_BrushToMesh(false, true, false, true);
 	Sys_UpdateWindows (W_ALL);
-	
 	Undo_EndBrushList(&selected_brushes);
 	Undo_End();
 }
 
-void CMainFrame::OnCurveMoreendcapsbevelsSquareendcap() 
-{
+void CMainFrame::OnCurveMoreendcapsbevelsSquareendcap() {
 	Undo_Start("square endcap");
 	Undo_AddBrushList(&selected_brushes);
-
 	Patch_BrushToMesh(false, false, true, true);
 	Sys_UpdateWindows (W_ALL);
-	
 	Undo_EndBrushList(&selected_brushes);
 	Undo_End();
 }
 
-void CMainFrame::OnBrushPrimitivesSphere() 
-{
+void CMainFrame::OnBrushPrimitivesSphere() {
 	Undo_Start("make sphere");
 	Undo_AddBrushList(&selected_brushes);
-
 	DoSides(false, true);
-
 	Undo_EndBrushList(&selected_brushes);
 	Undo_End();
 }
 
-extern bool g_bCrossHairs;
-void CMainFrame::OnViewCrosshair() 
-{
+void CMainFrame::OnViewCrosshair() {
 	g_bCrossHairs ^= 1; 
 	Sys_UpdateWindows (W_XY);
 }
 
-void CMainFrame::OnViewHideshowHideselected() 
-{
-  Select_Hide();  
-  Select_Deselect();
+void CMainFrame::OnViewHideshowHideselected() {
+	Select_Hide();	
+	Select_Deselect();
 }
 
-void CMainFrame::OnViewHideshowShowhidden() 
-{
-  Select_ShowAllHidden();
+void CMainFrame::OnViewHideshowShowhidden() {
+	Select_ShowAllHidden();
 }
 
 void CMainFrame::OnTexturesShadersShow() 
 {
-  g_PrefsDlg.m_bShowShaders ^= 1;
-  CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_TEXTURES_SHADERS_SHOW, MF_BYCOMMAND | ((g_PrefsDlg.m_bShowShaders) ? MF_CHECKED : MF_UNCHECKED ));
-  Sys_UpdateWindows(W_TEXTURE);
+	g_PrefsDlg.m_bShowShaders ^= 1;
+	CheckMenuItem ( ::GetMenu(g_qeglobals.d_hwndMain), ID_TEXTURES_SHADERS_SHOW, MF_BYCOMMAND | ((g_PrefsDlg.m_bShowShaders) ? MF_CHECKED : MF_UNCHECKED ));
+	Sys_UpdateWindows(W_TEXTURE);
 	
 }
 
-void CMainFrame::OnTexturesFlushUnused() 
-{
-  Texture_FlushUnused();
-  Sys_UpdateWindows(W_TEXTURE);
+void CMainFrame::OnTexturesFlushUnused() {
+	Texture_FlushUnused();
+	Sys_UpdateWindows(W_TEXTURE);
 }
 
-void CMainFrame::OnSelectionInvert()
-{
-  Select_Invert();
-  Sys_UpdateWindows(W_XY | W_Z | W_CAMERA);
+void CMainFrame::OnSelectionInvert() {
+	Select_Invert();
+	Sys_UpdateWindows(W_XY | W_Z | W_CAMERA);
 }
 
-
-void CMainFrame::OnViewGroups()
-{
-  if (m_nCurrentStyle == 0 || m_nCurrentStyle == 3)
-  {
-    if (::IsWindowVisible(g_qeglobals.d_hwndEntity) && inspector_mode == W_GROUP)
-      ::ShowWindow(g_qeglobals.d_hwndEntity, SW_HIDE);
-    else
-    {
-      ::ShowWindow(g_qeglobals.d_hwndEntity, SW_NORMAL);
-      SetInspectorMode(W_GROUP);
-    }
-  }
-  else
-  {
-    if (inspector_mode == W_GROUP && m_nCurrentStyle != QR_QE4)
-    {
-      if (::IsWindowVisible(g_qeglobals.d_hwndEntity))
-        ::ShowWindow(g_qeglobals.d_hwndEntity, SW_HIDE);
-      else
-        ::ShowWindow(g_qeglobals.d_hwndEntity, SW_NORMAL);
-    }
-    else
-    {
-      ::ShowWindow(g_qeglobals.d_hwndEntity, SW_NORMAL);
-      SetInspectorMode(W_GROUP);
-    }
-  }
+void CMainFrame::OnViewGroups() {
+	if (m_nCurrentStyle == 0 || m_nCurrentStyle == 3) {
+		if (::IsWindowVisible(g_qeglobals.d_hwndEntity) && inspector_mode == W_GROUP) {
+			::ShowWindow(g_qeglobals.d_hwndEntity, SW_HIDE);
+		} else {
+			::ShowWindow(g_qeglobals.d_hwndEntity, SW_NORMAL);
+			SetInspectorMode(W_GROUP);
+		}
+	} else {
+		if (inspector_mode == W_GROUP && m_nCurrentStyle != QR_QE4) {
+			if (::IsWindowVisible(g_qeglobals.d_hwndEntity))
+				::ShowWindow(g_qeglobals.d_hwndEntity, SW_HIDE);
+			else
+				::ShowWindow(g_qeglobals.d_hwndEntity, SW_NORMAL);
+		} else {
+			::ShowWindow(g_qeglobals.d_hwndEntity, SW_NORMAL);
+			SetInspectorMode(W_GROUP);
+		}
+	}
 }
 
-void CMainFrame::OnDropGroupAddtoWorld() 
-{
-  Select_AddToGroup("World");
-  Sys_UpdateWindows (W_ALL);
+void CMainFrame::OnDropGroupAddtoWorld() {
+	Select_AddToGroup("World");
+	Sys_UpdateWindows(W_ALL);
 }
 
-void CMainFrame::OnDropGroupName() 
-{
-  CNameDlg dlg("Name Selection", this);
-  if (dlg.DoModal() == IDOK)
-  {
-    Select_Name(dlg.m_strName);
-    Sys_UpdateWindows (W_ALL);
-  }
+void CMainFrame::OnDropGroupName() {
+	CNameDlg dlg("Name Selection", this);
+	if (dlg.DoModal() == IDOK)
+	{
+		Select_Name(dlg.m_strName);
+		Sys_UpdateWindows(W_ALL);
+	}
 }
 
-void CMainFrame::OnDropGroupNewgroup() 
-{
-
+void CMainFrame::OnDropGroupNewgroup() {
 }
 
-void CMainFrame::OnDropGroupRemove() 
-{
-  Select_AddToGroup("World");
-  Sys_UpdateWindows (W_ALL);
+void CMainFrame::OnDropGroupRemove() {
+	Select_AddToGroup("World");
+	Sys_UpdateWindows(W_ALL);
 }
 
-void CMainFrame::OnSplinesMode() 
-{
+void CMainFrame::OnSplinesMode() {
 	g_qeglobals.d_select_mode = sel_addpoint;
 	g_qeglobals.selectObject = g_splineList->getPositionObj();
 	g_splineList->clear();
@@ -5167,26 +4872,21 @@ void CMainFrame::OnSplinesMode()
 	Sys_UpdateWindows(W_ALL);
 }
 
-void CMainFrame::OnSplinesLoad() 
-{
+void CMainFrame::OnSplinesLoad() {
 	g_splineList->load("maps/test.camera");
 	g_splineList->buildCamera();
 }
 
-void CMainFrame::OnSplinesSave() 
-{
+void CMainFrame::OnSplinesSave() {
 	g_splineList->save("maps/test.camera");
 }
 
-void CMainFrame::OnSplinesEdit() 
-{
+void CMainFrame::OnSplinesEdit() {
 	showCameraInspector();
 	Sys_UpdateWindows(W_ALL);
 }
 
-extern void testCamSpeed();
-void CMainFrame::OnSplineTest() 
-{
+void CMainFrame::OnSplineTest() {
 	long start = GetTickCount();
 	g_splineList->startCamera(start);
 	float cycle = g_splineList->getTotalTime();
@@ -5200,40 +4900,34 @@ void CMainFrame::OnSplineTest()
 		g_splineList->getCameraInfo(current, &g_pParentWnd->GetCamera()->Camera().origin[0], &dir[0], &fov);
 		g_pParentWnd->GetCamera()->Camera().angles[1] = atan2 (dir[1], dir[0])*180/3.14159;
 		g_pParentWnd->GetCamera()->Camera().angles[0] = asin (dir[2])*180/3.14159;
-	    g_pParentWnd->UpdateWindows(W_XY | W_CAMERA);
+			g_pParentWnd->UpdateWindows(W_XY | W_CAMERA);
 		current = GetTickCount();
 	}
 	g_splineList->setRunning(false);
 }
 
-void CMainFrame::OnSplinesTarget() 
-{
+void CMainFrame::OnSplinesTarget() {
 }
 
-void CMainFrame::OnSplinesTargetPoints() 
-{
+void CMainFrame::OnSplinesTargetPoints() {
 }
 
-void CMainFrame::OnSplinesCameraPoints() 
-{
+void CMainFrame::OnSplinesCameraPoints() {
 }
 
-void CMainFrame::OnPopupNewcameraInterpolated() 
-{
+void CMainFrame::OnPopupNewcameraInterpolated() {
 	g_qeglobals.d_select_mode = sel_addpoint;
 	g_qeglobals.selectObject = g_splineList->startNewCamera(idCameraPosition::INTERPOLATED);
 	OnSplinesEdit();
 }
 
-void CMainFrame::OnPopupNewcameraSpline() 
-{
+void CMainFrame::OnPopupNewcameraSpline() {
 	g_qeglobals.d_select_mode = sel_addpoint;
 	g_qeglobals.selectObject = g_splineList->startNewCamera(idCameraPosition::SPLINE);
 	OnSplinesEdit();
 }
 
-void CMainFrame::OnPopupNewcameraFixed() 
-{
+void CMainFrame::OnPopupNewcameraFixed() {
 	g_qeglobals.d_select_mode = sel_addpoint;
 	g_qeglobals.selectObject = g_splineList->startNewCamera(idCameraPosition::FIXED);
 	OnSplinesEdit();
