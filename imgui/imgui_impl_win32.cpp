@@ -205,7 +205,7 @@ void    ImGui_ImplWin32_NewFrame()
     // io.KeysDown[], io.MousePos, io.MouseDown[], io.MouseWheel: filled by the WndProc handler below.
 
     // Update OS mouse position
-    ImGui_ImplWin32_UpdateMousePos();
+    //ImGui_ImplWin32_UpdateMousePos();
 
     // Update OS mouse cursor with the cursor requested by imgui
     ImGuiMouseCursor mouse_cursor = io.MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor();
@@ -290,6 +290,9 @@ IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARA
     case WM_DISPLAYCHANGE:
         g_WantUpdateMonitors = true;
         return 0;
+	case WM_MOUSEMOVE:
+		io.MousePos.x = GET_X_LPARAM(lParam);
+		io.MousePos.y = GET_Y_LPARAM(lParam);
     }
     return 0;
 }
