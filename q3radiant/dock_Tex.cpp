@@ -2346,6 +2346,10 @@ DRAWING
 int imax(int iFloor, int i) { if (i>iFloor) return iFloor; return i; }
 HFONT ghFont = NULL;
 
+#include "ccall.h"
+CCALL void imgui_init();
+CCALL void imgui_step();
+
 /*
 ============
 Texture_Draw2
@@ -2482,6 +2486,13 @@ void Texture_Draw2 (int width, int height)
 	// reset the current texture
 	qglBindTexture( GL_TEXTURE_2D, 0 );
 	qglFinish();
+
+	static int first = 1;
+	if (first) {
+		first = 0;
+		imgui_init();
+	}
+	imgui_step();
 }
 
 
