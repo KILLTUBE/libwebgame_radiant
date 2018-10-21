@@ -97,6 +97,7 @@ class CMainFrame : public CFrameWnd {
 	CSplitterWnd m_wndSplit;
 	CSplitterWnd m_wndSplit2;
 	CSplitterWnd m_wndSplit3;
+	CSplitterWnd dockConsoleREPL;
 	CXYWnd* m_pXYWnd;
 	CXYWnd* m_pYZWnd;
 	CXYWnd* m_pXZWnd;

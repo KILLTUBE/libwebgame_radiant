@@ -258,9 +258,6 @@
     <ClCompile Include="dock_edit.cpp">
       <Filter>Source Files\docks</Filter>
     </ClCompile>
-    <ClCompile Include="dock_RADEdit.cpp">
-      <Filter>Source Files\docks</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Radiant.rc">

@@ -19,8 +19,6 @@ along with Foobar; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-// EditWnd.cpp : implementation file
-//
 
 #include "stdafx.h"
 #include "Radiant.h"
@@ -43,4 +41,35 @@ BOOL CEditWnd::PreCreateWindow(CREATESTRUCT& cs) {
 	cs.style = WS_CHILD | WS_VSCROLL | ES_AUTOHSCROLL | ES_MULTILINE | WS_VISIBLE;
 	cs.lpszClass = "EDIT";
 	return CEdit::PreCreateWindow(cs);
+}
+
+
+
+
+
+CRADEditWnd::CRADEditWnd() {
+}
+
+CRADEditWnd::~CRADEditWnd() {
+}
+
+BEGIN_MESSAGE_MAP(CRADEditWnd, CWnd)
+	ON_WM_CREATE()
+	ON_WM_SIZE()
+END_MESSAGE_MAP()
+
+int CRADEditWnd::OnCreate(LPCREATESTRUCT lpCreateStruct) {
+	if (CWnd::OnCreate(lpCreateStruct) == -1)
+		return -1;
+	CRect rctClient;
+	GetClientRect(rctClient);
+	m_wndEdit.Create(WS_CHILD | WS_VSCROLL | ES_AUTOHSCROLL | ES_MULTILINE | WS_VISIBLE, rctClient, this, 101);
+	return 0;
+}
+
+void CRADEditWnd::OnSize(UINT nType, int cx, int cy) {
+	CWnd::OnSize(nType, cx, cy);
+	CRect rctClient;
+	GetClientRect(rctClient);
+	m_wndEdit.SetWindowPos(NULL, rctClient.left, rctClient.top, rctClient.Width(), rctClient.Height(), SWP_SHOWWINDOW);
 }
