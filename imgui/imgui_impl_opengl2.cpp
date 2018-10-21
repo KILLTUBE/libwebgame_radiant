@@ -58,6 +58,10 @@ static GLuint       g_FontTexture = 0;
 static void ImGui_ImplOpenGL2_InitPlatformInterface();
 static void ImGui_ImplOpenGL2_ShutdownPlatformInterface();
 
+
+
+
+
 // Functions
 bool    ImGui_ImplOpenGL2_Init()
 {
@@ -214,6 +218,8 @@ void ImGui_ImplOpenGL2_DestroyFontsTexture()
         g_FontTexture = 0;
     }
 }
+
+
 
 bool    ImGui_ImplOpenGL2_CreateDeviceObjects()
 {

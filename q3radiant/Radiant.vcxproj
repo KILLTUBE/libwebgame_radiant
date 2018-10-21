@@ -282,6 +282,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">WIN32;_DEBUG;_WINDOWS;QUAKE3;Q3RADIANT;%(PreprocessorDefinitions);</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="..\imgui\imgui_impl_opengl2.cpp" />
+    <ClCompile Include="..\imgui\imgui_main.cpp" />
     <ClCompile Include="..\imgui\imgui_widgets.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">WIN32;_DEBUG;_WINDOWS;QUAKE3;Q3RADIANT;%(PreprocessorDefinitions);</PreprocessorDefinitions>
