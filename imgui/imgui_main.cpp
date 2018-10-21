@@ -1,8 +1,9 @@
 #include "stdafx.h"
-#include "../q3radiant/ccall.h"
+#include "imgui_main.h"
 #include <Windows.h>
 #include "imgui.h"
 #include "imgui_impl_opengl2.h"
+#include "imgui_impl_win32.h"
 #include <GL/gl.h>
 #include <stdio.h>
 
@@ -19,8 +20,6 @@ bool show_demo_window = true;
 bool show_another_window = false;
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-CCALL void imgui_init();
-CCALL void imgui_step();
 
 void imgui_init() {
     // Setup Dear ImGui binding
@@ -33,6 +32,8 @@ void imgui_init() {
     //io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
     //io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
 
+	HWND hwnd = NULL; // todo or not *shrug*
+	ImGui_ImplWin32_Init(&hwnd);
     ImGui_ImplOpenGL2_Init();
 
     // Setup style
