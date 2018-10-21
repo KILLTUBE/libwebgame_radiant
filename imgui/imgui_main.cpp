@@ -20,6 +20,10 @@ bool show_demo_window = true;
 bool show_another_window = false;
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+HWND imgui_hwnd = NULL;
+void imgui_set_hwnd(HWND hwnd) {
+	imgui_hwnd = hwnd;
+}
 
 void imgui_init() {
     // Setup Dear ImGui binding
@@ -32,8 +36,7 @@ void imgui_init() {
     //io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoTaskBarIcons;
     //io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
 
-	HWND hwnd = NULL; // todo or not *shrug*
-	ImGui_ImplWin32_Init(&hwnd);
+	ImGui_ImplWin32_Init(&imgui_hwnd);
     ImGui_ImplOpenGL2_Init();
 
     // Setup style
@@ -68,6 +71,7 @@ void imgui_step() {
 
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL2_NewFrame();
+		ImGui_ImplWin32_NewFrame();
         //ImGui_ImplSDL2_NewFrame(window);
         ImGui::NewFrame();
 
