@@ -2282,71 +2282,64 @@ Texture_MouseDown
 */
 void Texture_MouseDown (int x, int y, int buttons)
 {
-	Sys_GetCursorPos (&textures_cursorx, &textures_cursory);
 
-	// lbutton = select texture
-	if (buttons == MK_LBUTTON || buttons == (MK_LBUTTON | MK_SHIFT) || buttons == (MK_LBUTTON | MK_CONTROL))
-	{
-    SelectTexture (x, g_qeglobals.d_texturewin.height - 1 - y, buttons & MK_SHIFT, buttons & MK_CONTROL);
-    UpdateSurfaceDialog();
-    UpdatePatchInspector();
-	}
 }
 
-/*
-==============
-Texture_MouseUp
-==============
-*/
 void Texture_MouseUp (int x, int y, int buttons)
 {
 }
 
-/*
-==============
-Texture_MouseMoved
-==============
-*/
 void Texture_MouseMoved (int x, int y, int buttons)
 {
-	int scale = 1;
 
-	if ( buttons & MK_SHIFT )
-		scale = 4;
-
-	// rbutton = drag texture origin
-	if (buttons & MK_RBUTTON)
-	{
-		Sys_GetCursorPos (&x, &y);
-		if ( y != textures_cursory)
-		{
-			g_qeglobals.d_texturewin.originy += ( y-textures_cursory) * scale;
-			if (g_qeglobals.d_texturewin.originy > 0)
-				g_qeglobals.d_texturewin.originy = 0;
-			Sys_SetCursorPos (textures_cursorx, textures_cursory);
-      CWnd *pWnd = CWnd::FromHandle(g_qeglobals.d_hwndTexture);
-      if (g_PrefsDlg.m_bTextureScrollbar && pWnd != NULL)
-      {
-        pWnd->SetScrollPos(SB_VERT, abs(g_qeglobals.d_texturewin.originy));
-      }
-		  InvalidateRect(g_qeglobals.d_hwndTexture, NULL, false);
-		  UpdateWindow (g_qeglobals.d_hwndTexture);
-		}
-		return;
-	}
 }
 
 
-/*
-============================================================================
-
-DRAWING
-
-============================================================================
-*/
-
 int imax(int iFloor, int i) { if (i>iFloor) return iFloor; return i; }
 HFONT ghFont = NULL;
+
+
+void qtexture_select(qtexture_t *q) {
+	bool bShift = false; // was alt+click
+	bool bFitScale = false; // was ctrl+click... reenable at some point
+	texdef_t	tex;
+	brushprimit_texdef_t brushprimit_tex;
+
+	if (bShift) {
+		if (g_PrefsDlg.m_bHiColorTextures && q->shadername[0] != 0) {
+			//CString s = "notepad ";
+			//s += q->shadername;
+			//WinExec(s, SW_SHOWNORMAL);
+			ViewShader(q->shadername, q->name);
+		}
+	}
+	memset (&tex, 0, sizeof(tex));
+	memset (&brushprimit_tex, 0, sizeof(brushprimit_tex));
+	if (g_qeglobals.m_bBrushPrimitMode) {
+		// brushprimit fitted to a 2x2 texture
+		brushprimit_tex.coords[0][0] = 1.0f;
+		brushprimit_tex.coords[1][1] = 1.0f;
+	} else {
+		tex.scale[0] = (g_PrefsDlg.m_bHiColorTextures) ? 0.5 : 1;
+		tex.scale[1] = (g_PrefsDlg.m_bHiColorTextures) ? 0.5 : 1;
+	}
+	tex.flags = q->flags;
+	tex.value = q->value;
+	tex.contents = q->contents;
+	//strcpy (tex.name, q->name);
+	tex.SetName(q->name);
+	Texture_SetTexture ( &tex, &brushprimit_tex, bFitScale, GETPLUGINTEXDEF(q));
+	CString strTex;
+	CString strName = q->name;
+	//int nPos = strName.Find('\\');
+	//if (nPos == -1)
+	//  nPos = strName.Find('/');
+	//if (nPos >= 0)
+	//  strName = strName.Right(strName.GetLength() - nPos - 1);
+	strTex.Format("%s W: %i H: %i", strName.GetBuffer(0), q->width, q->height);
+	g_pParentWnd->SetStatusText(3, strTex);
+
+}
 
 void texwnd_imgui() {
 	qtexture_t *q = NULL;
@@ -2421,6 +2414,10 @@ void texwnd_imgui() {
 		}
 		if (ImGui::IsItemClicked()) {
 			//assign_shader_to_selection(pCurrentShader);
+			//SelectTexture (x, g_qeglobals.d_texturewin.height - 1 - y, false, false); // /*show shader*/buttons & MK_SHIFT, /*fit texture*/buttons & MK_CONTROL);
+			qtexture_select(q);
+			UpdateSurfaceDialog();
+			UpdatePatchInspector();
 		}
 
 		i++;
