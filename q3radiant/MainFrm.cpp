@@ -1554,6 +1554,19 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 
 	if (g_PrefsDlg.m_nView == 0 || g_PrefsDlg.m_nView == 3)
 	{
+
+#if 0
+		m_wndSplit.CreateStatic(this, 2, 1);
+		m_wndSplit2.CreateStatic(&m_wndSplit, 1, 2);
+		m_wndSplit3.CreateStatic(&m_wndSplit2, 2,1);
+		dockConsoleREPL.CreateStatic(&m_wndSplit, 1, 0);
+		dockConsoleREPL.CreateView(0,0,RUNTIME_CLASS(CEditWnd), CSize(25, 100), pContext);
+		dockConsoleREPL.CreateView(0,1,RUNTIME_CLASS(CEditWnd), CSize(25, 100), pContext);
+		g_pEdit = dynamic_cast<CEdit*>(dockConsoleREPL.GetPane(0,1));
+		g_pREPL = dynamic_cast<CEdit*>(dockConsoleREPL.GetPane(0,2));
+		if (g_pEdit)
+			g_qeglobals.d_hwndEdit = g_pEdit->GetSafeHwnd();
+#else
 		m_wndSplit.CreateStatic(this, 2, 1);
 		m_wndSplit2.CreateStatic(&m_wndSplit, 1, 3);
 		m_wndSplit3.CreateStatic(&m_wndSplit2, 2,1);
@@ -1562,7 +1575,7 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 		g_pEdit = dynamic_cast<CEdit*>(m_wndSplit.GetPane(1,0));
 		if (g_pEdit)
 			g_qeglobals.d_hwndEdit = g_pEdit->GetSafeHwnd();
-
+#endif
 		m_wndSplit3.CreateView(0,0,RUNTIME_CLASS(CCamWnd), CSize(25, 100), pContext);
 		m_pCamWnd = dynamic_cast<CCamWnd*>(m_wndSplit3.GetPane(0,0));
 	
