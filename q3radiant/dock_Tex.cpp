@@ -212,53 +212,6 @@ void SortTextures(void)
 	g_qeglobals.d_qtextures = qhead;
 }
 
-/*
-==============
-Texture_InitPalette
-==============
-*/
-void Texture_InitPalette (byte *pal)
-{
-    int		r,g,b,v;
-    int		i;
-	int		inf;
-	byte	gammatable[256];
-	float	gamma;
-
-	gamma = g_qeglobals.d_savedinfo.fGamma;
-
-	if (gamma == 1.0)
-	{
-		for (i=0 ; i<256 ; i++)
-			gammatable[i] = i;
-	}
-	else
-	{
-		for (i=0 ; i<256 ; i++)
-		{
-			inf = 255 * pow ( (float)( (i+0.5)/255.5 ), gamma ) + 0.5;
-			if (inf < 0)
-				inf = 0;
-			if (inf > 255)
-				inf = 255;
-			gammatable[i] = inf;
-		}
-	}
-
-    for (i=0 ; i<256 ; i++)
-    {
-		  r = gammatable[pal[0]];
-		  g = gammatable[pal[1]];
-		  b = gammatable[pal[2]];
-		  pal += 3;
-		
-		  v = (r<<24) + (g<<16) + (b<<8) + 255;
-		  v = BigLong (v);
-		
-		  tex_palette[i] = v;
-    }
-}
-
 void SetTexParameters (void)
 {
 	qglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texture_mode );
@@ -2156,48 +2109,6 @@ void Delay(float fSeconds)
 
 void ViewShader(const char *pFile, const char *pName)
 {
-  CString str;
-  char* pBuff = NULL;
-  int nSize = LoadFile(pFile, reinterpret_cast<void**>(&pBuff));
-  if (nSize == -1)
-  {
-    nSize = PakLoadAnyFile(pFile, reinterpret_cast<void**>(&pBuff));
-  }
-  if (nSize > 0)
-  {
-    str = pBuff;
-  }
-  int nStart = 0; 
-  if (str.GetLength() > 0)
-  {
-    CString strFind = pName;
-    CString strLook = str;
-    strLook.MakeLower();
-    strFind.MakeLower();
-    int n = strLook.Find(strFind);
-    if (n >= 0)
-    {
-      nStart = n;
-    }
-  }
-
-  CString s= "editpad ";
-  s += pFile;
-  WinExec(s, SW_SHOWNORMAL);
-
-  Delay(1.5);
-
-  HWND hwndEdit = FindEditWindow();
-
-  if (hwndEdit != NULL)
-  {
-    PostMessage(hwndEdit, EM_SETSEL, nStart, nStart);
-  }
-  else
-  {
-    Sys_Printf("Unable to load shader editor.\n");
-  }
-
 
 }
 
@@ -2228,18 +2139,6 @@ void SelectTexture (int mx, int my, bool bShift, bool bFitScale)
 		if (mx > x && mx - x < nWidth
 			&& my < y && y - my < nHeight + FONT_HEIGHT)
 		{
-			if (bShift)
-			{
-				if (g_PrefsDlg.m_bHiColorTextures && q->shadername[0] != 0)
-				{
-					//CString s = "notepad ";
-					//s += q->shadername;
-					//WinExec(s, SW_SHOWNORMAL);	
-	
-					ViewShader(q->shadername, q->name);				
-
-				}
-			}
 			memset (&tex, 0, sizeof(tex));
 			memset (&brushprimit_tex, 0, sizeof(brushprimit_tex));
 			if (g_qeglobals.m_bBrushPrimitMode)
@@ -2300,19 +2199,10 @@ HFONT ghFont = NULL;
 
 
 void qtexture_select(qtexture_t *q) {
-	bool bShift = false; // was alt+click
-	bool bFitScale = false; // was ctrl+click... reenable at some point
+	bool bShift = false; // was ViewShader, not needed atm
+	bool bFitScale = false; // was ctrl+click... reenable at some point via imgui
 	texdef_t	tex;
 	brushprimit_texdef_t brushprimit_tex;
-
-	if (bShift) {
-		if (g_PrefsDlg.m_bHiColorTextures && q->shadername[0] != 0) {
-			//CString s = "notepad ";
-			//s += q->shadername;
-			//WinExec(s, SW_SHOWNORMAL);
-			ViewShader(q->shadername, q->name);
-		}
-	}
 	memset (&tex, 0, sizeof(tex));
 	memset (&brushprimit_tex, 0, sizeof(brushprimit_tex));
 	if (g_qeglobals.m_bBrushPrimitMode) {
@@ -2331,14 +2221,8 @@ void qtexture_select(qtexture_t *q) {
 	Texture_SetTexture ( &tex, &brushprimit_tex, bFitScale, GETPLUGINTEXDEF(q));
 	CString strTex;
 	CString strName = q->name;
-	//int nPos = strName.Find('\\');
-	//if (nPos == -1)
-	//  nPos = strName.Find('/');
-	//if (nPos >= 0)
-	//  strName = strName.Right(strName.GetLength() - nPos - 1);
 	strTex.Format("%s W: %i H: %i", strName.GetBuffer(0), q->width, q->height);
 	g_pParentWnd->SetStatusText(3, strTex);
-
 }
 
 void texwnd_imgui() {
@@ -2471,44 +2355,14 @@ void Texture_Draw2 (int width, int height)
 	imgui_endframe();
 }
 
-
-void Texture_Init (bool bHardInit)
-{
+void Texture_Init (bool bHardInit) {
 	char	name[1024];
 	byte	*pal = NULL;
-
-  if (g_PrefsDlg.m_bHiColorTextures == FALSE)
-  {
-	  // load the palette
-	  sprintf (name, "%s/pics/colormap.pcx", ValueForKey (g_qeglobals.d_project_entity, "basepath"));
-
-	  Load256Image (name, NULL, &pal, NULL, NULL);
-	  if (!pal)
-    {
-      // before dropping out, try to load it from the QERadiant directory
-      CString strFile = g_strAppPath;
-      AddSlash(strFile);
-      strFile += "colormap.pcx";
-	    Load256Image (strFile.GetBuffer(0), NULL, &pal, NULL, NULL);
-	    if (!pal)
-		    Sys_Printf ("Couldn't load %s or %s", name, strFile);
-    }
-    else
-    {
-	    Texture_InitPalette (pal);
-	    free (pal);
-    }
-  }
-
-	// create the fallback texture
-
-  if (bHardInit)
-  {
-	  Texture_MakeNotexture();
-	  g_qeglobals.d_qtextures = NULL;
-  }
-  LoadShaders();
-
+	if (bHardInit) {
+		Texture_MakeNotexture();
+		g_qeglobals.d_qtextures = NULL;
+	}
+	LoadShaders();
 }
 
 void Texture_FlushUnused()
@@ -2629,21 +2483,14 @@ void Texture_Flush (bool bReload)
 
 }
 
-
-
-/////////////////////////////////////////////////////////////////////////////
-// CTexWnd
 IMPLEMENT_DYNCREATE(CTexWnd, CWnd);
 
-CTexWnd::CTexWnd()
-{
-  m_bNeedRange = true;
+CTexWnd::CTexWnd() {
+	m_bNeedRange = true;
 }
 
-CTexWnd::~CTexWnd()
-{
+CTexWnd::~CTexWnd() {
 }
-
 
 BEGIN_MESSAGE_MAP(CTexWnd, CWnd)
 	//{{AFX_MSG_MAP(CTexWnd)
@@ -2660,37 +2507,20 @@ BEGIN_MESSAGE_MAP(CTexWnd, CWnd)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
-
-/////////////////////////////////////////////////////////////////////////////
-// CTexWnd message handlers
-
-/*
-============
-WTexWndProc
-============
-*/
 LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-LONG WINAPI TexWndProc (
-    HWND    hWnd,
-    UINT    uMsg,
-    WPARAM  wParam,
-    LPARAM  lParam)
-{
+LONG WINAPI TexWndProc(HWND    hWnd, UINT    uMsg, WPARAM  wParam, LPARAM  lParam) {
 	int		xPos, yPos;
     RECT	rect;
-
     GetClientRect(hWnd, &rect);
 	//Sys_Printf("left=%d top=%d right=%d bottom=%d\n", rect.left, rect.top, rect.right, rect.bottom);
-	//imgui_set_widthheight(rect.)
-	
 	if (g_pParentWnd->m_pTexWnd) {
 		CRect size;
 		g_pParentWnd->m_pTexWnd->GetWindowRect(&size);
 		int width = size.right - size.left;
 		int height = size.bottom - size.top;
 		imgui_set_widthheight(width, height);
-		Sys_Printf("left=%d top=%d right=%d bottom=%d\n", size.left, size.top, size.right, size.bottom);
+		//Sys_Printf("left=%d top=%d right=%d bottom=%d\n", size.left, size.top, size.right, size.bottom);
 		ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 	}
 
@@ -2759,7 +2589,6 @@ LONG WINAPI TexWndProc (
 		if (! (wParam & (MK_LBUTTON|MK_RBUTTON|MK_MBUTTON)))
 			ReleaseCapture ();
 		return 0;
-
 	case WM_MOUSEMOVE:
 		xPos = (short)LOWORD(lParam);  // horizontal position of cursor 
 		yPos = (short)HIWORD(lParam);  // vertical position of cursor 
@@ -2767,33 +2596,26 @@ LONG WINAPI TexWndProc (
 		Texture_MouseMoved (xPos, yPos - g_nTextureOffset, wParam);
 		return 0;
     }
-
     return DefWindowProc (hWnd, uMsg, wParam, lParam);
 }
 
-
-
-BOOL CTexWnd::PreCreateWindow(CREATESTRUCT& cs) 
-{
-  WNDCLASS wc;
-  HINSTANCE hInstance = AfxGetInstanceHandle();
-  if (::GetClassInfo(hInstance, TEXTURE_WINDOW_CLASS, &wc) == FALSE)
-  {
-    // Register a new class
-  	memset (&wc, 0, sizeof(wc));
-    wc.style         = CS_NOCLOSE | CS_OWNDC;
-    wc.lpszClassName = TEXTURE_WINDOW_CLASS;
-    wc.hCursor       = LoadCursor (NULL,IDC_ARROW);
-    wc.lpfnWndProc = TexWndProc;
-    if (AfxRegisterClass(&wc) == FALSE)
-      Error ("CZWnd RegisterClass: failed");
-  }
-
-  cs.lpszClass = TEXTURE_WINDOW_CLASS;
-  cs.lpszName = "TEX";
-  if (cs.style != QE3_CHILDSTYLE && cs.style != QE3_STYLE)
-    cs.style = QE3_SPLITTER_STYLE;
-
+BOOL CTexWnd::PreCreateWindow(CREATESTRUCT& cs) {
+	WNDCLASS wc;
+	HINSTANCE hInstance = AfxGetInstanceHandle();
+	if (::GetClassInfo(hInstance, TEXTURE_WINDOW_CLASS, &wc) == FALSE) {
+		// Register a new class
+		memset (&wc, 0, sizeof(wc));
+		wc.style         = CS_NOCLOSE | CS_OWNDC;
+		wc.lpszClassName = TEXTURE_WINDOW_CLASS;
+		wc.hCursor       = LoadCursor (NULL,IDC_ARROW);
+		wc.lpfnWndProc = TexWndProc;
+		if (AfxRegisterClass(&wc) == FALSE)
+		Error ("CZWnd RegisterClass: failed");
+	}
+	cs.lpszClass = TEXTURE_WINDOW_CLASS;
+	cs.lpszName = "TEX";
+	if (cs.style != QE3_CHILDSTYLE && cs.style != QE3_STYLE)
+	cs.style = QE3_SPLITTER_STYLE;
 	return CWnd::PreCreateWindow(cs);
 }
 
@@ -2802,60 +2624,29 @@ int CTexWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-  CRect rctEdit(8, 5, 20, 20);
-  g_nTextureOffset = 0;
-
-/*
-  if (g_PrefsDlg.m_bShaderTest)
-  {
-    m_wndShaders.Create("Show Shaders", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, rctEdit, this, 1200);
-    m_wndShaders.ModifyStyleEx(0, WS_EX_CLIENTEDGE, 0);
-    m_wndShaders.SetCheck(g_PrefsDlg.m_bShowShaders);
-    g_nTextureOffset = 25;
-  }
-*/
-  rctEdit.SetRect(8, g_nTextureOffset, 20, 20);
-  m_wndFilter.Create(WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL | ES_LEFT, rctEdit, this, 1201);
-  m_wndFilter.ModifyStyleEx(0, WS_EX_CLIENTEDGE, 0);
-  m_wndFilter.SetTexWnd(this);
-
-  g_nTextureOffset += 25;
+  g_nTextureOffset = 25;
   if (!g_PrefsDlg.m_bTextureWindow)
   {
-    m_wndFilter.ShowWindow(SW_HIDE);
     g_nTextureOffset -= 25;
   }
-
   ShowScrollBar(SB_VERT, g_PrefsDlg.m_bTextureScrollbar);
   m_bNeedRange = true;
-
 	return 0;
 }
 
 void CTexWnd::OnSize(UINT nType, int cx, int cy) 
 {
 	CWnd::OnSize(nType, cx, cy);
-  CRect rctClient;
-  GetClientRect(rctClient);
-/*
-  if (g_PrefsDlg.m_bShaderTest && m_wndShaders.GetSafeHwnd())
-  {
-    m_wndShaders.SetWindowPos(NULL, rctClient.left + 8, rctClient.top + 5, rctClient.right - 16, 20, 0);
-  }
-*/
-  m_wndFilter.SetWindowPos(NULL, rctClient.left + 8, rctClient.top + 25, rctClient.right - 16, 20, 0);
   m_bNeedRange = true;
 }
 
-void CTexWnd::OnShaderClick()
-{
-  g_PrefsDlg.m_bShowShaders = (m_wndShaders.GetCheck() != 0);
-  g_PrefsDlg.SavePrefs();
+void CTexWnd::OnShaderClick() {
+	g_PrefsDlg.m_bShowShaders = false;
+	g_PrefsDlg.SavePrefs();
 	RedrawWindow();
 }
 
-void CTexWnd::OnParentNotify(UINT message, LPARAM lParam) 
-{
+void CTexWnd::OnParentNotify(UINT message, LPARAM lParam) {
 	CWnd::OnParentNotify(message, lParam);
 }
 
@@ -2892,43 +2683,26 @@ void CTexWnd::UpdateFilter(const char* pFilter)
   Sys_UpdateWindows (W_TEXTURE);
 }
 
-void CTexWnd::UpdatePrefs()
-{
-  if (!g_PrefsDlg.m_bTextureWindow)
-  {
-    m_wndFilter.ShowWindow(SW_HIDE);
-    g_nTextureOffset = 0;
-  }
-  else
-  {
-    m_wndFilter.ShowWindow(SW_SHOW);
-    g_nTextureOffset = 25;
-  }
-  ShowScrollBar(SB_VERT, g_PrefsDlg.m_bTextureScrollbar);
-  m_bNeedRange = true;
-  Invalidate();
-  UpdateWindow();
+void CTexWnd::UpdatePrefs() {
+	ShowScrollBar(SB_VERT, g_PrefsDlg.m_bTextureScrollbar);
+	m_bNeedRange = true;
+	Invalidate();
+	UpdateWindow();
 }
 
-void CTexWnd::FocusEdit()
-{
-  if (m_wndFilter.IsWindowVisible())
-    m_wndFilter.SetFocus();
+void CTexWnd::FocusEdit() {
 }
 
-void CTexWnd::OnTimer(UINT nIDEvent) 
-{
-  KillTimer(1);
-  g_nLastLen = 0;
-  g_nTimerHandle = -1;
-  ::SetFocus(g_qeglobals.d_hwndEntity);
-  ::PostMessage(g_qeglobals.d_hwndEntity, WM_CHAR, g_cLastChar, 0);
+void CTexWnd::OnTimer(UINT nIDEvent) {
+	KillTimer(1);
+	g_nLastLen = 0;
+	g_nTimerHandle = -1;
+	::SetFocus(g_qeglobals.d_hwndEntity);
+	::PostMessage(g_qeglobals.d_hwndEntity, WM_CHAR, g_cLastChar, 0);
 }
 
-void CTexWnd::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) 
-{
-  g_pParentWnd->HandleKey(nChar, nRepCnt, nFlags);
-	//CWnd::OnKeyDown(nChar, nRepCnt, nFlags);
+void CTexWnd::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	g_pParentWnd->HandleKey(nChar, nRepCnt, nFlags);
 }
 
 void CTexWnd::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) 
