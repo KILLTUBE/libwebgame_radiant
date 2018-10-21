@@ -19,16 +19,8 @@ along with Foobar; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-// MainFrm.h : interface of the CMainFrame class
-//
-/////////////////////////////////////////////////////////////////////////////
 
-#if !defined(AFX_MAINFRM_H__330BBF0A_731C_11D1_B539_00AA00A410FC__INCLUDED_)
-#define AFX_MAINFRM_H__330BBF0A_731C_11D1_B539_00AA00A410FC__INCLUDED_
-
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
 
 #include "LstToolBar.h"
 #include "XYWnd.h"
@@ -41,67 +33,48 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlugIn.h"
 #include "groupdlg.h"
 
-
 const int RAD_SHIFT =   0x01;
 const int RAD_ALT =     0x02;
 const int RAD_CONTROL = 0x04;
 const int RAD_PRESS   = 0x08;
 
-struct SCommandInfo
-{
-  char* m_strCommand;
-  unsigned int   m_nKey;
-  unsigned int   m_nModifiers;
-  unsigned int m_nCommand;
+struct SCommandInfo {
+	char* m_strCommand;
+	unsigned int m_nKey;
+	unsigned int m_nModifiers;
+	unsigned int m_nCommand;
 };
 
-struct SKeyInfo
-{
-  char* m_strName;
-  unsigned int m_nVKKey;
+struct SKeyInfo {
+	char* m_strName;
+	unsigned int m_nVKKey;
 };
 
-
-
-
-class CMainFrame : public CFrameWnd
-{
+class CMainFrame : public CFrameWnd {
 	DECLARE_DYNAMIC(CMainFrame)
-public:
-	CMainFrame();
-  void HandleKey(UINT nChar, UINT nRepCnt, UINT nFlags, bool bDown = true) 
-  {
-    if (bDown)
-      OnKeyDown(nChar, nRepCnt, nFlags);
-    else
-      OnKeyUp(nChar, nRepCnt, nFlags);
-  };
+	DECLARE_MESSAGE_MAP()
 
-// Attributes
-public:
-
-// Operations
-public:
-
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CMainFrame)
 	public:
+
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	protected:
 	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
 	virtual LRESULT DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 	virtual LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
-	//}}AFX_VIRTUAL
-
-// Implementation
-public:
-  void UpdatePatchToolbarButtons();
-  void NudgeSelection(int nDirection, int nAmount);
+	virtual ~CMainFrame();
+	#ifdef _DEBUG
+	virtual void AssertValid() const;
+	virtual void Dump(CDumpContext& dc) const;
+	#endif
+	
+	CMainFrame();
+	void HandleKey(UINT nChar, UINT nRepCnt, UINT nFlags, bool bDown = true);
+	void SetActiveXY(CXYWnd* p);
+	void UpdatePatchToolbarButtons();
+	void NudgeSelection(int nDirection, int nAmount);
 	void UpdateTextureBar();
-  void SetButtonMenuStates();
+	void SetButtonMenuStates();
 	void SetTexValStatus();
 	void SetGridStatus();
 	void RoutineProcessing();
@@ -110,72 +83,48 @@ public:
 	void SetStatusText(int nPane, const char* pText);
 	void UpdateStatusText();
 	void SetWindowStyle(int nStyle);
-	virtual ~CMainFrame();
-  CXYWnd* GetXYWnd() {return m_pXYWnd;};
-  CXYWnd* GetXZWnd() {return m_pXZWnd;};
-  CXYWnd* GetYZWnd() {return m_pYZWnd;};
-  CCamWnd* GetCamera() {return m_pCamWnd;};
-  CTexWnd* GetTexWnd() {return m_pTexWnd;};
-  void SetActiveXY(CXYWnd* p) 
-  {
-    if (m_pActiveXY)
-      m_pActiveXY->SetActive(false);
+	CXYWnd* GetXYWnd() {return m_pXYWnd;};
+	CXYWnd* GetXZWnd() {return m_pXZWnd;};
+	CXYWnd* GetYZWnd() {return m_pYZWnd;};
+	CCamWnd* GetCamera() {return m_pCamWnd;};
+	CTexWnd* GetTexWnd() {return m_pTexWnd;};
+	int CurrentStyle() { return m_nCurrentStyle; };
 
-    m_pActiveXY = p;
-
-    if (m_pActiveXY)
-      m_pActiveXY->SetActive(true);
-
-  };
-  int CurrentStyle() { return m_nCurrentStyle; };
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
-
-protected:  // control bar embedded members
 	CStatusBar  m_wndStatusBar;
 	CLstToolBar m_wndToolBar;
 	CLstToolBar m_wndScaleBar;
 	CDialogBar m_wndHelpBar;
 	CTextureBar m_wndTextureBar;
-  CSplitterWnd m_wndSplit;
-  CSplitterWnd m_wndSplit2;
-  CSplitterWnd m_wndSplit3;
-  CXYWnd* m_pXYWnd;
-  CXYWnd* m_pYZWnd;
-  CXYWnd* m_pXZWnd;
-  CCamWnd* m_pCamWnd;
-  CTexWnd* m_pTexWnd;
-  CZWnd* m_pZWnd;
-  CRADEditWnd* m_pEditWnd;
-  int m_nCurrentStyle;
-  CString m_strStatus[15];
-  CXYWnd* m_pActiveXY;
-  bool m_bCamPreview;
-  CPlugInManager m_PlugInMgr;
-  int m_nNextPlugInID;
-
-// Generated message map functions
-protected:
+	CSplitterWnd m_wndSplit;
+	CSplitterWnd m_wndSplit2;
+	CSplitterWnd m_wndSplit3;
+	CXYWnd* m_pXYWnd;
+	CXYWnd* m_pYZWnd;
+	CXYWnd* m_pXZWnd;
+	CCamWnd* m_pCamWnd;
+	CTexWnd* m_pTexWnd;
+	CZWnd* m_pZWnd;
+	CRADEditWnd* m_pEditWnd;
+	int m_nCurrentStyle;
+	CString m_strStatus[15];
+	CXYWnd* m_pActiveXY;
+	bool m_bCamPreview;
+	CPlugInManager m_PlugInMgr;
+	int m_nNextPlugInID;
 	bool m_bDoLoop;
 	bool m_bSplittersOK;
 	void CreateQEChildren();
-  	void LoadCommandMap();
+	void LoadCommandMap();
 	void ShowMenuItemKeyBindings(CMenu *pMenu);
-  	void SetEntityCheck();
+	void SetEntityCheck();
+	void Nudge(int nDim, float fNudge);
+	CPlugInManager &GetPlugInMgr() {return m_PlugInMgr;};
+	void AddPlugInMenuItem(CPlugIn* pPlugIn);
+	void CleanPlugInMenu();
+	void CheckTextureScale(int id);
+  
 	afx_msg LRESULT OnBSPStatus(UINT wParam, long lParam);
 	afx_msg LRESULT OnBSPDone(UINT wParam, long lParam);
-public:
-	void Nudge(int nDim, float fNudge);
-
-  	CPlugInManager &GetPlugInMgr() {return m_PlugInMgr;};
-  	void AddPlugInMenuItem(CPlugIn* pPlugIn);
-	void CleanPlugInMenu();
-
-  // these are public so i can easily reflect messages
-  // from child windows..
-	//{{AFX_MSG(CMainFrame)
 	afx_msg void OnParentNotify(UINT message, LPARAM lParam);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnTimer(UINT nIDEvent);
@@ -453,10 +402,10 @@ public:
 	afx_msg void OnViewOpengllighting();
 	afx_msg void OnSelectAll();
 	afx_msg void OnViewShowcaulk();
-  afx_msg void OnCurveFreeze();
-  afx_msg void OnCurveUnFreeze();
-  afx_msg void OnCurveUnFreezeAll();
-  afx_msg void OnSelectReselect();
+	afx_msg void OnCurveFreeze();
+	afx_msg void OnCurveUnFreeze();
+	afx_msg void OnCurveUnFreezeAll();
+	afx_msg void OnSelectReselect();
 	afx_msg void OnViewShowangles();
 	afx_msg void OnEditSaveprefab();
 	afx_msg void OnCurveMoreendcapsbevelsSquarebevel();
@@ -483,22 +432,11 @@ public:
 	afx_msg void OnPopupNewcameraInterpolated();
 	afx_msg void OnPopupNewcameraSpline();
 	afx_msg void OnPopupNewcameraFixed();
-	//}}AFX_MSG
-  afx_msg void OnMru(unsigned int nID);
-  afx_msg void OnViewNearest(unsigned int nID);
-  afx_msg void OnTextureWad(unsigned int nID);
-  afx_msg void OnBspCommand(unsigned int nID);
-  afx_msg void OnGrid1(unsigned int nID);
-  afx_msg LRESULT OnDisplayChange(WPARAM wp, LPARAM lp);
-  void CheckTextureScale(int id);
-  afx_msg void OnPlugIn(unsigned int nID);
-
-	DECLARE_MESSAGE_MAP()
+	afx_msg void OnMru(unsigned int nID);
+	afx_msg void OnViewNearest(unsigned int nID);
+	afx_msg void OnTextureWad(unsigned int nID);
+	afx_msg void OnBspCommand(unsigned int nID);
+	afx_msg void OnGrid1(unsigned int nID);
+	afx_msg LRESULT OnDisplayChange(WPARAM wp, LPARAM lp);
+	afx_msg void OnPlugIn(unsigned int nID);
 };
-
-/////////////////////////////////////////////////////////////////////////////
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Developer Studio will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_MAINFRM_H__330BBF0A_731C_11D1_B539_00AA00A410FC__INCLUDED_)
