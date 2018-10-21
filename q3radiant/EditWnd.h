@@ -65,8 +65,6 @@ class CTexWnd : public CWnd { public:
 	void FocusEdit();
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual ~CTexWnd();
-	CTexEdit m_wndFilter;
-	CButton  m_wndShaders;
 	bool m_bNeedRange;
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
