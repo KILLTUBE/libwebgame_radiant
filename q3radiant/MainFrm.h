@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "LstToolBar.h"
 #include "XYWnd.h"
-#include "TexWnd.h"
 #include "ZWnd.h"
 #include "CamWnd.h"
 #include "EditWnd.h"

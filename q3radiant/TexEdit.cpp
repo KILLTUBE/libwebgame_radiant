@@ -24,40 +24,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "stdafx.h"
 #include "Radiant.h"
-#include "TexEdit.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
-/////////////////////////////////////////////////////////////////////////////
-// CTexEdit
-
-CTexEdit::CTexEdit()
-{
+CTexEdit::CTexEdit() {
   m_pTexWnd = NULL;
 }
 
-CTexEdit::~CTexEdit()
-{
+CTexEdit::~CTexEdit() {
 }
 
-
 BEGIN_MESSAGE_MAP(CTexEdit, CEdit)
-	//{{AFX_MSG_MAP(CTexEdit)
 	ON_WM_CTLCOLOR_REFLECT()
 	ON_CONTROL_REFLECT(EN_CHANGE, OnChange)
 	ON_WM_CREATE()
-	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
-/////////////////////////////////////////////////////////////////////////////
-// CTexEdit message handlers
 
-HBRUSH CTexEdit::CtlColor(CDC* pDC, UINT nCtlColor) 
-{
+HBRUSH CTexEdit::CtlColor(CDC* pDC, UINT nCtlColor) {
   if (nCtlColor == CTLCOLOR_EDIT)
   {
     pDC->SetBkColor(RGB(192,192,192));
