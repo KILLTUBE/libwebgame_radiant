@@ -1058,8 +1058,22 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
   return 0;
 }
 
-void CMainFrame::LoadCommandMap()
-{
+void CMainFrame::HandleKey(UINT nChar, UINT nRepCnt, UINT nFlags, bool bDown) {
+	if (bDown)
+		OnKeyDown(nChar, nRepCnt, nFlags);
+	else
+		OnKeyUp(nChar, nRepCnt, nFlags);
+}
+
+void CMainFrame::SetActiveXY(CXYWnd* p) {
+	if (m_pActiveXY)
+		m_pActiveXY->SetActive(false);
+	m_pActiveXY = p;
+	if (m_pActiveXY)
+		m_pActiveXY->SetActive(true);
+}
+
+void CMainFrame::LoadCommandMap() {
   CString strINI;
   char* pBuff = new char[1024];
   if (g_PrefsDlg.m_strUserPath.GetLength() > 0)
