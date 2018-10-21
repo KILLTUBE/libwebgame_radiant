@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "pakstuff.h"
 #include "str.h"
 #include "PrefsDlg.h"
+#include "../imgui/imgui_main.h"
 
 Str m_gStr;
 
@@ -2346,9 +2347,6 @@ DRAWING
 int imax(int iFloor, int i) { if (i>iFloor) return iFloor; return i; }
 HFONT ghFont = NULL;
 
-#include "ccall.h"
-CCALL void imgui_init();
-CCALL void imgui_step();
 
 /*
 ============
@@ -2490,6 +2488,7 @@ void Texture_Draw2 (int width, int height)
 	static int first = 1;
 	if (first) {
 		first = 0;
+		imgui_set_hwnd(g_qeglobals.d_hwndTexture);
 		imgui_init();
 	}
 	imgui_step();
