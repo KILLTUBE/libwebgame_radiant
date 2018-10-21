@@ -94,8 +94,8 @@ class CMainFrame : public CFrameWnd {
 	CLstToolBar m_wndScaleBar;
 	CDialogBar m_wndHelpBar;
 	CTextureBar m_wndTextureBar;
-	CSplitterWnd m_wndSplit;
-	CSplitterWnd m_wndSplit2;
+	CSplitterWnd dockTopBottom;
+	CSplitterWnd dockTopThree;
 	CSplitterWnd m_wndSplit3;
 	CSplitterWnd dockConsoleREPL;
 	CXYWnd* m_pXYWnd;
