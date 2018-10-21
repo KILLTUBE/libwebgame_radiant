@@ -62,6 +62,7 @@ static char THIS_FILE[] = __FILE__;
 // globals
 CString g_strAppPath;                   // holds the full path of the executable
 CEdit* g_pEdit = NULL;                  // used originally to make qe4 work with mfc.. still used
+CEdit* g_pREPL = NULL;                  // kung: will replace Edit and REPL at some point with "real" docks
 CMainFrame* g_pParentWnd = NULL;        // used to precast to CMainFrame
 CPrefsDlg g_Preferences;                // global prefs instance
 CPrefsDlg& g_PrefsDlg = g_Preferences;  // reference used throughout

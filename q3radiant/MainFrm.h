@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TexWnd.h"
 #include "ZWnd.h"
 #include "CamWnd.h"
-#include "RADEditWnd.h"
+#include "EditWnd.h"
 #include "TextureBar.h"
 #include "PlugInManager.h"
 #include "PlugIn.h"

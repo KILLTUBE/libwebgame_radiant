@@ -417,7 +417,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="EditWnd.cpp">
+    <ClCompile Include="dock_edit.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -673,7 +673,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="RADEditWnd.cpp">
+    <ClCompile Include="dock_RADEdit.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>

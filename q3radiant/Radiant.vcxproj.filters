@@ -31,6 +31,9 @@
     <Filter Include="Source Files\docks">
       <UniqueIdentifier>{d03c9639-4d4a-4f7a-966c-16dd7b2153b2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\docks">
+      <UniqueIdentifier>{cd5520e9-f534-44d8-9eb2-7471271ec4ab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BrushScript.cpp">
@@ -64,9 +67,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DlgEvent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EditWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EntityListDlg.cpp">
@@ -115,9 +115,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="radbsp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RADEditWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Radiant.cpp">
@@ -258,6 +255,12 @@
     <ClCompile Include="dock_Z.cpp">
       <Filter>Source Files\docks</Filter>
     </ClCompile>
+    <ClCompile Include="dock_edit.cpp">
+      <Filter>Source Files\docks</Filter>
+    </ClCompile>
+    <ClCompile Include="dock_RADEdit.cpp">
+      <Filter>Source Files\docks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Radiant.rc">
@@ -272,9 +275,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cameratargetdlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CamWnd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CapDialog.h">
@@ -299,9 +299,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DlgEvent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EditWnd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EntityListDlg.h">
@@ -361,9 +358,6 @@
     <ClInclude Include="QFILES.H">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RADEditWnd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Radiant.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -397,9 +391,6 @@
     <ClInclude Include="SurfaceDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TexEdit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TextureBar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -410,12 +401,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WaveOpen.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="XYWnd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ZWnd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IEpairs.h">
@@ -447,6 +432,24 @@
     </ClInclude>
     <ClInclude Include="ccall.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CamWnd.h">
+      <Filter>Header Files\docks</Filter>
+    </ClInclude>
+    <ClInclude Include="EditWnd.h">
+      <Filter>Header Files\docks</Filter>
+    </ClInclude>
+    <ClInclude Include="RADEditWnd.h">
+      <Filter>Header Files\docks</Filter>
+    </ClInclude>
+    <ClInclude Include="XYWnd.h">
+      <Filter>Header Files\docks</Filter>
+    </ClInclude>
+    <ClInclude Include="ZWnd.h">
+      <Filter>Header Files\docks</Filter>
+    </ClInclude>
+    <ClInclude Include="TexEdit.h">
+      <Filter>Header Files\docks</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
