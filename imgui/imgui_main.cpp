@@ -62,6 +62,9 @@ void imgui_init() {
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsClassic();
 
+	// some default value to overwrite later, so it doesnt assert on width/height being 0
+	io.DisplaySize = ImVec2(640,480);
+
     // Load Fonts
     // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them. 
     // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple. 
@@ -87,7 +90,7 @@ void imgui_step() {
     //{
 	ImGuiIO& io = ImGui::GetIO();
 
-	io.DisplaySize = ImVec2(640,480);
+	
 
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL2_NewFrame();
@@ -106,7 +109,7 @@ void imgui_step() {
 
             ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
-            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+            ImGui::Text("mouse %f %f", io.MousePos.x, io.MousePos.y);               // Display some text (you can use a format strings too)
             ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
             ImGui::Checkbox("Another Window", &show_another_window);
 
