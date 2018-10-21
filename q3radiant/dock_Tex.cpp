@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "str.h"
 #include "PrefsDlg.h"
 #include "../imgui/imgui_main.h"
+#include "../imgui/imgui.h"
 
 Str m_gStr;
 
@@ -2347,115 +2348,106 @@ DRAWING
 int imax(int iFloor, int i) { if (i>iFloor) return iFloor; return i; }
 HFONT ghFont = NULL;
 
+void texwnd_imgui() {
+	qtexture_t *q = NULL;
+	int x, y;
 
-/*
-============
-Texture_Draw2
-============
-*/
-void Texture_Draw2 (int width, int height)
-{
-	qtexture_t	*q;
-	int			x, y;
-	char		*name;
 
-	qglClearColor (
-		g_qeglobals.d_savedinfo.colors[COLOR_TEXTUREBACK][0],
-		g_qeglobals.d_savedinfo.colors[COLOR_TEXTUREBACK][1],
-		g_qeglobals.d_savedinfo.colors[COLOR_TEXTUREBACK][2],
-		0);
-	qglViewport (0,0,width,height);
-	qglMatrixMode(GL_PROJECTION);
-	qglLoadIdentity ();
+	float fullwidth = ImGui::GetWindowWidth();
+		
+	float margin = 16;
+	float marginall = 5 * margin;
+	float spaceleft = fullwidth - marginall;
+	float spaceProImg = spaceleft / 4;
+	
+	//ImGui::Text("bla");
+	//ImGui::Text("bla");
+	//ImGui::Text("screenpos %d, %d", (int)dock_tex->screenpos.x, (int)dock_tex->screenpos.y);
+	//ImVec2 scrolling = ImVec2( ImGui::GetScrollX(), ImGui::GetScrollY() );
+	//ImGui::Text("scrolling %d, %d", (int)scrolling.x, (int)scrolling.y);
 
-	qglClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	qglDisable (GL_DEPTH_TEST);
-	qglDisable(GL_BLEND);
-	qglOrtho (0, width, g_qeglobals.d_texturewin.originy-height, g_qeglobals.d_texturewin.originy, -100, 100);
-	qglEnable (GL_TEXTURE_2D);
+	// _ == margin
+	// _IMG_IMG_IMG_IMG_
+	// [   e.g. 800px  ]
+	// 
 
-	qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-	g_qeglobals.d_texturewin.width = width;
-	g_qeglobals.d_texturewin.height = height;
-	Texture_StartPos ();
+	//for (int i=0; i<sizeof(textures); i++) {
+	//	pCurrentShader = shaders[i];
 
+	int i=0;
 	while (1)
 	{
 		q = Texture_NextPos (&x, &y);
 		if (!q)
 			break;
 
-    int nWidth = (g_PrefsDlg.m_bHiColorTextures == TRUE) ? q->width * ((float)g_PrefsDlg.m_nTextureScale / 100) : q->width;
-    int nHeight = (g_PrefsDlg.m_bHiColorTextures == TRUE) ? q->height * ((float)g_PrefsDlg.m_nTextureScale / 100) : q->height;
-		// Is this texture visible?
-		if ( (y-nHeight-FONT_HEIGHT < g_qeglobals.d_texturewin.originy)
-			&& (y > g_qeglobals.d_texturewin.originy - height) )
-		{
+		//current_texture = pCurrentShader->getTexture();
+		//current_texture  = textures[i];
+		//if (current_texture == NULL)
+		//	break;
+
+		int w = q->width;
+		int h = q->height;
+		//ImGui::Text("tex %s %d %d", current_texture->name, w, h);
+			
+		int pos = i % 4;
+		int whichline = i / 4;
+		float posy = whichline * spaceProImg;
+
+		posy += 25; // some offset from top, otherwise its in title bar
+		posy += margin * whichline; // add margin for every line
+
+
+		if (pos == 0) {
+			ImGui::SetCursorPos(ImVec2(margin, posy));
+			ImGui::Image((ImTextureID)q->texture_number, ImVec2(spaceProImg,spaceProImg));
+
+		}
+		if (pos == 1) {
+	
+			ImGui::SetCursorPos(ImVec2(margin + 1 * (spaceProImg+margin), posy));
+			ImGui::Image((ImTextureID)q->texture_number, ImVec2(spaceProImg,spaceProImg));
+		}
+		if (pos == 2) {
+			
+			ImGui::SetCursorPos(ImVec2(margin + 2 * (spaceProImg+margin), posy));
+			ImGui::Image((ImTextureID)q->texture_number, ImVec2(spaceProImg,spaceProImg));
+		}
+		if (pos == 3) {
+			
+			ImGui::SetCursorPos(ImVec2(margin + 3 * (spaceProImg+margin), posy));
+			ImGui::Image((ImTextureID)q->texture_number, ImVec2(spaceProImg,spaceProImg));
+				
+		}
+		if (ImGui::IsItemClicked()) {
+			//assign_shader_to_selection(pCurrentShader);
+		}
+
+		i++;
+	}
+}
+
+
+
+void Texture_Draw2 (int width, int height)
+{
+	qtexture_t	*q;
+	int			x, y;
+	char		*name;
+
+	g_qeglobals.d_texturewin.width = width;
+	g_qeglobals.d_texturewin.height = height;
+	Texture_StartPos ();
+
+#if 0
 
 			// if in use, draw a background
 			if ((q->inuse && !texture_showinuse) || q->bFromShader)
 			{
-				qglLineWidth (1);
-
-        if (q->bFromShader)
-        {
-				  qglColor3f (1,1,1);
-        }
-        else
-        {
-				  qglColor3f (0.5,1,0.5);
-        }
-				qglDisable (GL_TEXTURE_2D);
-
-				qglBegin (GL_LINE_LOOP);
-				qglVertex2f (x-1,y+1-FONT_HEIGHT);
-				qglVertex2f (x-1,y-nHeight-1-FONT_HEIGHT);
-				qglVertex2f (x+1+nWidth,y-nHeight-1-FONT_HEIGHT);
-				qglVertex2f (x+1+nWidth,y+1-FONT_HEIGHT);
-				qglEnd ();
-
-				qglEnable (GL_TEXTURE_2D);
-			}
-
-			// Draw the texture
-      float fScale = (g_PrefsDlg.m_bHiColorTextures == TRUE) ? ((float)g_PrefsDlg.m_nTextureScale / 100) : 1.0;
-
-			qglBindTexture( GL_TEXTURE_2D, q->texture_number );
-      QE_CheckOpenGLForErrors();
-			qglColor3f (1,1,1);
-			qglBegin (GL_QUADS);
-			qglTexCoord2f (0,0);
-			qglVertex2f (x,y-FONT_HEIGHT);
-			qglTexCoord2f (1,0);
-			qglVertex2f (x+nWidth,y-FONT_HEIGHT);
-			qglTexCoord2f (1,1);
-			qglVertex2f (x+nWidth,y-FONT_HEIGHT-nHeight);
-			qglTexCoord2f (0,1);
-			qglVertex2f (x,y-FONT_HEIGHT-nHeight);
-			qglEnd ();
-
+		
 			// draw the selection border
 			if (!strcmpi(g_qeglobals.d_texturewin.texdef.name, q->name))
-			{
-				qglLineWidth (3);
-				qglColor3f (1,0,0);
-				qglDisable (GL_TEXTURE_2D);
 
-				qglBegin (GL_LINE_LOOP);
-				qglVertex2f (x-4,y-FONT_HEIGHT+4);
-				qglVertex2f (x-4,y-FONT_HEIGHT-nHeight-4);
-				qglVertex2f (x+4+nWidth,y-FONT_HEIGHT-nHeight-4);
-				qglVertex2f (x+4+nWidth,y-FONT_HEIGHT+4);
-				qglEnd ();
-
-				qglEnable (GL_TEXTURE_2D);
-				qglLineWidth (1);
-			}
-
-			// draw the texture name
-  	  qglColor3f (0,0,0);
-			
-      qglRasterPos2f (x, y-FONT_HEIGHT+2);
 
 			// don't draw the directory name
 			for (name = q->name ; *name && *name != '/' && *name != '\\' ; name++)
@@ -2465,26 +2457,9 @@ void Texture_Draw2 (int width, int height)
 			else
 				name++;
 
-      if (g_PrefsDlg.m_bHiColorTextures && q->shadername[0] != 0)
-      {
-        // slow as shit
-        CString s = "[";
-        s += name;
-        s += "]";
-			  qglCallLists (s.GetLength(), GL_UNSIGNED_BYTE, s.GetBuffer(0));
-      }
-      else
-      {
 			  qglCallLists (strlen(name), GL_UNSIGNED_BYTE, name);
-      }
-		}
-	}
 
-	g_qeglobals.d_texturewin.m_nTotalHeight = abs(y) + 100;
-	// reset the current texture
-	qglBindTexture( GL_TEXTURE_2D, 0 );
-	qglFinish();
-
+#endif 
 	static int first = 1;
 	if (first) {
 		first = 0;
@@ -2493,6 +2468,9 @@ void Texture_Draw2 (int width, int height)
 	}
 	imgui_newframe();
 	imgui_step();
+	ImGui::Begin("tex");
+	texwnd_imgui();
+	ImGui::End();
 	imgui_endframe();
 }
 
