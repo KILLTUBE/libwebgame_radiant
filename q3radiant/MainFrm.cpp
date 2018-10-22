@@ -307,6 +307,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_CLOSE()
 	ON_WM_KEYDOWN()
 	ON_WM_SIZE()
+	ON_WM_SIZING()
+	ON_WM_SYSKEYDOWN()
 	ON_COMMAND(ID_VIEW_CAMERATOGGLE, ToggleCamera)
 	ON_COMMAND(ID_FILE_CLOSE, OnFileClose)
 	ON_COMMAND(ID_FILE_EXIT, OnFileExit)
@@ -400,7 +402,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND(ID_VIEW_CAMERAUPDATE, OnViewCameraupdate)
 	ON_COMMAND(ID_TERRAIN_RAISELOWERTERRAIN, OnRaiseLowerTerrain)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_CAMERAUPDATE, OnUpdateViewCameraupdate)
-	ON_WM_SIZING()
 	ON_COMMAND(ID_HELP_ABOUT, OnHelpAbout)
 	ON_COMMAND(ID_VIEW_CLIPPER, OnViewClipper)
 	ON_COMMAND(ID_CAMERA_ANGLEDOWN, OnCameraAngledown)
@@ -503,7 +504,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND(ID_SELECTION_SELECT_NUDGELEFT, OnSelectionSelectNudgeleft)
 	ON_COMMAND(ID_SELECTION_SELECT_NUDGERIGHT, OnSelectionSelectNudgeright)
 	ON_COMMAND(ID_SELECTION_SELECT_NUDGEUP, OnSelectionSelectNudgeup)
-	ON_WM_SYSKEYDOWN()
 	ON_COMMAND(ID_TEXTURES_LOADLIST, OnTexturesLoadlist)
 	ON_COMMAND(ID_DONTSELECTCURVE, OnDontselectcurve)
 	ON_COMMAND(ID_CONVERTCURVES, OnConvertcurves)
@@ -1223,7 +1223,7 @@ void CMainFrame::CreateQEChildren() {
 	QE_Init();
 	Sys_Printf ("Entering message loop\n");
 	m_bDoLoop = true;
-	SetTimer(QE_TIMER0, 1000, NULL);
+	SetTimer(QE_TIMER0, /*1000.0f / 60.0f*/16, NULL);
 }
 
 BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam) {
@@ -1232,6 +1232,11 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam) {
 
 LRESULT CMainFrame::DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam) {
 	RoutineProcessing();
+	//if (message == WM_KEYDOWN)
+	{
+		//Sys_Printf("CMainFrame::DefWindowProc WM_KEYDOWN\n");
+		//ImGui_ImplWin32_WndProcHandler(this->m_hWnd, message, wParam, lParam);
+	}
 	return CFrameWnd::DefWindowProc(message, wParam, lParam);
 }
 
@@ -1261,6 +1266,16 @@ void CMainFrame::RoutineProcessing() {
 }
 
 LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam) {
+	switch (message) {
+		case WM_KEYDOWN:
+		case WM_KEYUP:
+		case WM_SYSKEYDOWN:
+		case WM_SYSKEYUP:
+		case WM_CHAR:
+			ImGui_ImplWin32_WndProcHandler(this->m_hWnd, message, wParam, lParam);
+			return 0;
+	}
+	
 	return CFrameWnd::WindowProc(message, wParam, lParam);
 }
 
