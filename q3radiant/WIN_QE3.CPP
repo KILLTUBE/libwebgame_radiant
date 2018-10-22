@@ -135,43 +135,16 @@ void Sys_ClearPrintf (void)
 #define SCROLLBACK_MAX_LINES	600
 #define SCROLLBACK_DEL_CHARS	500
 
-void Sys_Printf (char *text, ...)
-{
+#include "../imgui/imgui_dock_console.h"
+
+void Sys_Printf(char *text, ...) {
 	va_list argptr;
 	char	buf[32768];
 	char	*out;
-	LRESULT	result;				// PGM
-	DWORD	oldPosS, oldPosE;	// PGM
-
 	va_start (argptr,text);
 	vsprintf (buf, text,argptr);
 	va_end (argptr);
-
-	out = TranslateString (buf);
-
-#ifdef LATER
-	Sys_Status(out);
-#else
-//PGM
-	result = SendMessage (g_qeglobals.d_hwndEdit, EM_GETLINECOUNT, 0, 0);
-	if(result > SCROLLBACK_MAX_LINES)
-	{
-		char	replaceText[5];
-		
-		replaceText[0] = '\0';
-
-		SendMessage (g_qeglobals.d_hwndEdit, WM_SETREDRAW, (WPARAM)0, (LPARAM)0);
-		SendMessage (g_qeglobals.d_hwndEdit, EM_GETSEL, (WPARAM)&oldPosS, (LPARAM)&oldPosE);
-		SendMessage (g_qeglobals.d_hwndEdit, EM_SETSEL, 0, SCROLLBACK_DEL_CHARS);
-		SendMessage (g_qeglobals.d_hwndEdit, EM_REPLACESEL, (WPARAM)0, (LPARAM)replaceText);
-		SendMessage (g_qeglobals.d_hwndEdit, EM_SETSEL, oldPosS, oldPosE);
-		SendMessage (g_qeglobals.d_hwndEdit, WM_SETREDRAW, (WPARAM)1, (LPARAM)0);
-	}
-//PGM
-
-	SendMessage (g_qeglobals.d_hwndEdit, EM_REPLACESEL, 0, (LPARAM)out);
-#endif
-
+	imgui_log("%s", buf);
 }
 
 

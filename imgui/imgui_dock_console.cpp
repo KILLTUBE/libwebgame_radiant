@@ -28,8 +28,8 @@ double lasttime;
 
 // fix later so it works with sdl only and emscripten
 double glfwGetTime() {
-	return ImGui::GetTime();
-	//return 0.00;
+	//return ImGui::GetTime();
+	return 0.00;
 }
 
 //int log(char *format, ...);
@@ -94,13 +94,12 @@ int imgui_log(char *format, ...) {
 			char c = cstr[i];
 			if (c == '\n') {
 				char *to = cstr + (i); // - 1, so we dont add the newline into the "new line"
-				
 				std::string tmp(from, to);
+#if 0
 				char time[128];
 				sprintf(time, "Delta=%f ", deltatime);
-
 				tmp = time + tmp;
-
+#endif
 				//printf("newline part: \"%s\"\n", tmp.c_str());
 				if (imgui_log_to_browser_console)
 					puts(tmp.c_str());
