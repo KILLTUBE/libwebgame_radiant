@@ -99,23 +99,21 @@ extern	int		argc;
 extern	char	*argv[MAX_NUM_ARGVS];
 
 
-typedef struct
-{
+typedef struct {
 	int		p1, p2;
 	face_t	*f1, *f2;
 } pedge_t;
 
-typedef struct
-{
+typedef struct {
 	int		  iSize;
 	int		  iTexMenu;		// nearest, linear, etc
 	float	  fGamma;			// gamma for textures
 	char	  szProject[256];	// last project loaded
-	vec3_t	colors[COLOR_LAST];
-	qboolean  show_names;
-  qboolean  show_coordinates;
-	int       exclude;
-  int     m_nTextureTweak;
+	vec3_t colors[COLOR_LAST];
+	qboolean show_names;
+	qboolean show_coordinates;
+	int exclude;
+	int m_nTextureTweak;
 } SavedInfo_t;
 
 //
