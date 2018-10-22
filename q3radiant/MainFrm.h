@@ -103,7 +103,6 @@ class CMainFrame : public CFrameWnd {
 	CCamWnd* m_pCamWnd;
 	CTexWnd* m_pTexWnd;
 	CZWnd* m_pZWnd;
-	CRADEditWnd* m_pEditWnd;
 	int m_nCurrentStyle;
 	CString m_strStatus[15];
 	CXYWnd* m_pActiveXY;

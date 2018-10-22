@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../imgui/imgui_main.h"
 #include "../imgui/imgui.h"
 #include "../imgui/imgui_docks_radiant.h"
+#include "../imgui/imgui_dock_console.h"
 
 Str m_gStr;
 
@@ -2504,6 +2505,7 @@ BEGIN_MESSAGE_MAP(CTexWnd, CWnd)
 	ON_WM_KEYUP()
 	ON_WM_PAINT()
 	ON_WM_VSCROLL()
+	ON_WM_CHAR()
 	ON_COMMAND(ID_TEXTURES_FLUSH, OnTexturesFlush)
   ON_BN_CLICKED(1200, OnShaderClick)
 	//}}AFX_MSG_MAP
@@ -2523,7 +2525,12 @@ LONG WINAPI TexWndProc(HWND    hWnd, UINT    uMsg, WPARAM  wParam, LPARAM  lPara
 		int height = size.bottom - size.top;
 		imgui_set_widthheight(width, height);
 		//Sys_Printf("left=%d top=%d right=%d bottom=%d\n", size.left, size.top, size.right, size.bottom);
+		//Sys_Printf("wndproc: %d %d %d %d\n", hWnd, uMsg, wParam, lParam);
 		ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
+	}
+
+	if (uMsg == WM_KEYDOWN) {
+		Sys_Printf("WM_KEYDOWN");
 	}
 
     switch (uMsg) {
@@ -2597,12 +2604,74 @@ LONG WINAPI TexWndProc(HWND    hWnd, UINT    uMsg, WPARAM  wParam, LPARAM  lPara
 		
 		Texture_MouseMoved (xPos, yPos - g_nTextureOffset, wParam);
 		return 0;
+
+#if 1
+    case WM_KEYDOWN:
+    case WM_SYSKEYDOWN:
+		if (imgui_ready) {
+			ImGuiIO& io = ImGui::GetIO();
+			if (wParam < 256)
+				io.KeysDown[wParam] = 1;
+		}
+        return 0;
+    case WM_KEYUP:
+    case WM_SYSKEYUP:
+        if (imgui_ready) {
+			ImGuiIO& io = ImGui::GetIO();
+			if (wParam < 256)
+			  io.KeysDown[wParam] = 0;
+		}
+        return 0;
+    case WM_CHAR:
+        // You can also use ToAscii()+GetKeyboardState() to retrieve characters.
+        if (imgui_ready) {
+			ImGuiIO& io = ImGui::GetIO();
+			if (wParam > 0 && wParam < 0x10000)
+				io.AddInputCharacter((unsigned short)wParam);
+		}
+        return 0;
+#endif
     }
     return DefWindowProc (hWnd, uMsg, wParam, lParam);
 }
 
+BOOL CTexWnd::PreTranslateMessage(MSG *pMsg) {
+#if 0
+	if (pMsg->message == WM_KEYDOWN) {
+		imgui_log("Got WM_KEYDOWN: %d\n", pMsg->message);
+		if (pMsg->wParam == VK_DOWN)
+			AfxMessageBox("down");
+		else if (pMsg->wParam == VK_RIGHT)
+			AfxMessageBox("right");
+		else if (pMsg->wParam == VK_LEFT)
+			AfxMessageBox("left");
+		else if (pMsg->wParam == VK_UP)
+			AfxMessageBox("up");
+	}
+	return 1;
+#else
+	return CWnd::PreTranslateMessage(pMsg);
+#endif
+}
+
+LRESULT CTexWnd::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	//ImGui_ImplWin32_WndProcHandler(NULL, uMsg, wParam, lParam);
+	//Sys_Printf("CTexWnd::WindowProc: %d %d %d\n", uMsg, wParam, lParam);
+    switch (uMsg)
+    {
+    //case WM_COMMAND:
+    //    if (HIWORD(wParam) == ID_EXPCATXML)
+    //    {
+    //        Plugin::OnExportCatalogXML();
+    //        return TRUE;
+    //    }
+    }
+    return CWnd::WindowProc(uMsg, wParam, lParam);
+}
+
 BOOL CTexWnd::PreCreateWindow(CREATESTRUCT& cs) {
-	WNDCLASS wc;
+		WNDCLASS wc;
 	HINSTANCE hInstance = AfxGetInstanceHandle();
 	if (::GetClassInfo(hInstance, TEXTURE_WINDOW_CLASS, &wc) == FALSE) {
 		// Register a new class
@@ -2704,7 +2773,11 @@ void CTexWnd::OnTimer(UINT nIDEvent) {
 }
 
 void CTexWnd::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	g_pParentWnd->HandleKey(nChar, nRepCnt, nFlags);
+		
+	Sys_Printf("CTexWnd::OnKeyDown\n");
+	
+	//g_pParentWnd->HandleKey(nChar, nRepCnt, nFlags);
+
 }
 
 void CTexWnd::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) 

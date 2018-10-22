@@ -22,18 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-class CEditWnd;
 class CTexEdit;
-class CRADEditWnd;
 class CTexWnd;
-
-class CEditWnd : public CEdit { public:
-	CEditWnd();
-	virtual ~CEditWnd();
-	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-	DECLARE_DYNCREATE(CEditWnd);
-	DECLARE_MESSAGE_MAP()
-};
 
 class CTexEdit : public CEdit { public:
 	CTexEdit();
@@ -47,16 +37,6 @@ class CTexEdit : public CEdit { public:
 	DECLARE_MESSAGE_MAP()
 };
 
-class CRADEditWnd : public CWnd { public:
-	CRADEditWnd();
-	CEdit* GetEditWnd() {return dynamic_cast<CEdit*>(&m_wndEdit); };
-	CEditWnd m_wndEdit;
-	virtual ~CRADEditWnd();
-	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-	afx_msg void OnSize(UINT nType, int cx, int cy);
-	DECLARE_MESSAGE_MAP()
-};
-
 class CTexWnd : public CWnd { public:
 	DECLARE_DYNCREATE(CTexWnd);
 	CTexWnd();
@@ -64,17 +44,19 @@ class CTexWnd : public CWnd { public:
 	void UpdatePrefs();
 	void FocusEdit();
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+	virtual LRESULT CTexWnd::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	virtual BOOL CTexWnd::PreTranslateMessage(MSG *pMsg);
 	virtual ~CTexWnd();
 	bool m_bNeedRange;
-	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-	afx_msg void OnSize(UINT nType, int cx, int cy);
-	afx_msg void OnParentNotify(UINT message, LPARAM lParam);
-	afx_msg void OnTimer(UINT nIDEvent);
-	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
-	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
-	afx_msg void OnPaint();
-	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
-	afx_msg void OnTexturesFlush();
-	afx_msg void OnShaderClick();
+	virtual int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	virtual void OnSize(UINT nType, int cx, int cy);
+	virtual void OnParentNotify(UINT message, LPARAM lParam);
+	virtual void OnTimer(UINT nIDEvent);
+	virtual void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	virtual void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
+	virtual void OnPaint();
+	virtual void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	virtual void OnTexturesFlush();
+	virtual void OnShaderClick();
 	DECLARE_MESSAGE_MAP()
 };
