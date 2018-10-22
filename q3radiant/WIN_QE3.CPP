@@ -122,16 +122,6 @@ char	*TranslateString (char *buf)
 	return buf2;
 }
 
-
-void Sys_ClearPrintf (void)
-{
-	char	text[4];
-	text[0] = 0;
-
-  SendMessage (g_qeglobals.d_hwndEdit, WM_SETTEXT, 0,	(LPARAM)text);
-}
-
-
 #define SCROLLBACK_MAX_LINES	600
 #define SCROLLBACK_DEL_CHARS	500
 

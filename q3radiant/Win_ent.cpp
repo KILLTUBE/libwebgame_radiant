@@ -268,11 +268,6 @@ void GetEntityControls(HWND ghwndEntity)
 
   if (g_pParentWnd->CurrentStyle() > 0 && g_pParentWnd->CurrentStyle() < 3)
   {
-	  g_qeglobals.d_hwndEdit = CreateWindow ("edit", NULL, ES_MULTILINE | ES_READONLY | WS_VSCROLL | WS_CHILD | WS_VISIBLE | WS_BORDER,
-		                                       5, 100, 180, 99, g_qeglobals.d_hwndEntity, (HMENU)IDC_E_STATUS,
-		                                       g_qeglobals.d_hInstance, NULL);
-	  if (!g_qeglobals.d_hwndEdit)
-		  Error ("CreateWindow failed");
     g_wndTabs.InsertItem(0, "Console");
     g_wndTabs.InsertItem(0, "Textures");
   }
@@ -299,9 +294,6 @@ void GetEntityControls(HWND ghwndEntity)
 	SendMessage(hwndEnt[EntKeyField], WM_SETFONT, (WPARAM)GetStockObject(DEFAULT_GUI_FONT), (LPARAM)TRUE);
 	SendMessage(hwndEnt[EntValueField], WM_SETFONT, (WPARAM)GetStockObject(DEFAULT_GUI_FONT), (LPARAM)TRUE);
 	SendMessage(hwndEnt[EntTab], WM_SETFONT, (WPARAM)GetStockObject(DEFAULT_GUI_FONT), (LPARAM)TRUE);
-
-	if (g_pParentWnd->CurrentStyle() > 0 && g_pParentWnd->CurrentStyle() < 3)
-		SendMessage(g_qeglobals.d_hwndEdit, WM_SETFONT, (WPARAM)GetStockObject(DEFAULT_GUI_FONT), (LPARAM)TRUE);
 }
 
 
@@ -932,14 +924,6 @@ void SizeEntityDlg(int iWidth, int iHeight)
     col = iWidth;
   }
 
-  if (g_pParentWnd->CurrentStyle() > 0 && g_pParentWnd->CurrentStyle() < 3)
-	  MOVE(g_qeglobals.d_hwndEdit,	DlgXBorder, DlgYBorder, iWidth - (2 * DlgXBorder), iHeight - (2 * DlgYBorder) );
-
-	//==========================================
-
-	//
-	// texture controls
-	//
   if (inspector_mode == W_TEXTURE)
   {
     col = 0;

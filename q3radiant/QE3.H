@@ -125,7 +125,6 @@ typedef struct
 void    Sys_UpdateStatusBar( void );
 void    WINAPI Sys_UpdateWindows (int bits);
 void    Sys_Beep (void);
-void    Sys_ClearPrintf (void);
 void    Sys_Printf (char *text, ...);
 double	Sys_DoubleTime (void);
 void    Sys_GetCursorPos (int *x, int *y);
@@ -138,8 +137,7 @@ void    Sys_Status(const char *psz, int part);
 /*
 ** most of the QE globals are stored in this structure
 */
-typedef struct
-{
+typedef struct QEGlobals_s {
 	qboolean d_showgrid;
 	int      d_gridsize;
 	
@@ -157,7 +155,6 @@ typedef struct
 	
 	HWND      d_hwndMain;
 	HWND      d_hwndCamera;
-	HWND      d_hwndEdit;
 	HWND      d_hwndEntity;
 	HWND      d_hwndTexture;
 	HWND      d_hwndXY;

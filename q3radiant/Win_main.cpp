@@ -317,7 +317,6 @@ void RunBsp (char *command)
   }
   else
   {
-	  Sys_ClearPrintf ();
 	  Sys_Printf ("==================\nRunning bsp command...\n");
 	  Sys_Printf ("\n%s\n", sys);
 
