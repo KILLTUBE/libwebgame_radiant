@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PrefsDlg.h"
 #include "../imgui/imgui_main.h"
 #include "../imgui/imgui.h"
+#include "../imgui/imgui_docks_radiant.h"
 
 Str m_gStr;
 
@@ -2352,6 +2353,7 @@ void Texture_Draw2 (int width, int height)
 	ImGui::Begin("tex");
 	texwnd_imgui();
 	ImGui::End();
+	imgui_docks_radiant_show();
 	imgui_endframe();
 }
 
