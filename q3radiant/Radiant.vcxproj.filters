@@ -282,6 +282,12 @@
     <ClCompile Include="..\imgui\imgui_impl_win32.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="..\imgui\imgui_dock_console.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\imgui\imgui_dock.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Radiant.rc">
@@ -497,6 +503,12 @@
       <Filter>Source Files\imgui</Filter>
     </ClInclude>
     <ClInclude Include="..\imgui\imgui_impl_win32.h">
+      <Filter>Source Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\imgui\imgui_dock_console.h">
+      <Filter>Source Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\imgui\imgui_dock.h">
       <Filter>Source Files\imgui</Filter>
     </ClInclude>
   </ItemGroup>
