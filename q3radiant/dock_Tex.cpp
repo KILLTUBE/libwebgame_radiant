@@ -2785,6 +2785,17 @@ void CTexWnd::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
   g_pParentWnd->HandleKey(nChar, nRepCnt, nFlags, false);
 }
 
+LRESULT CTexWnd::DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam) {
+	//RoutineProcessing();
+	//if (message == WM_KEYDOWN)
+	{
+		//Sys_Printf("CMainFrame::DefWindowProc WM_KEYDOWN\n");
+		//ImGui_ImplWin32_WndProcHandler(GetSafeHwnd(), message, wParam, lParam);
+	}
+	return CWnd::DefWindowProc(message, wParam, lParam);
+}
+
+
 void CTexWnd::OnPaint() 
 {
 	CPaintDC dc(this); // device context for painting

@@ -44,7 +44,8 @@ class CTexWnd : public CWnd { public:
 	void UpdatePrefs();
 	void FocusEdit();
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-	virtual LRESULT CTexWnd::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	virtual LRESULT CTexWnd::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam); // shit doesnt work
+	virtual LRESULT DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam); // this should work
 	virtual BOOL CTexWnd::PreTranslateMessage(MSG *pMsg);
 	virtual ~CTexWnd();
 	bool m_bNeedRange;
