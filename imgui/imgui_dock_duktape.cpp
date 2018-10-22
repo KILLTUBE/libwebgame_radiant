@@ -1,13 +1,17 @@
 #include "stdafx.h"
-#include "imgui_dock_duktape.h"
 #include "imgui.h"
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include "imgui_internal.h"
+#include "imgui_main.h"
+#include "imgui_dock_duktape.h"
 #include "imgui_dock_console.h"
 #include "../duktape-2-3-0/duktape.h"
+#include "../duktape/duktapestuff.h"
 #include <string>
 
-bool IsKeyPressedMap(ImGuiKey key, bool repeat = true);
-void SaveIniSettingsToDisk(const char* ini_filename); // was a static function in ImGui
-void ImStrncpy(char* dst, const char* src, int count);
+//bool IsKeyPressedMap(ImGuiKey key, bool repeat = true);
+//void SaveIniSettingsToDisk(const char* ini_filename); // was a static function in ImGui
+//void ImStrncpy(char* dst, const char* src, int count);
 
 DockDuktape::DockDuktape() {
 }
@@ -29,13 +33,23 @@ static int repl_callback(ImGuiTextEditCallbackData *data) {
 }
 
 void DockDuktape::imgui() {
-	//ImGui::InputTextMultiline("", replbuffer, sizeof replbuffer, ImGui::GetWindowSize() + ImVec2(-15, -35 - 20), ImGuiInputTextFlags_CallbackAlways | ImGuiInputTextFlags_AllowTabInput, repl_callback, (void *)this);
+	
+	if ( ! imgui_ready)
+		return;
+
+	ImGui::InputTextMultiline("", replbuffer, sizeof replbuffer, ImGui::GetWindowSize() + ImVec2(-15, -35 - 20), ImGuiInputTextFlags_CallbackAlways | ImGuiInputTextFlags_AllowTabInput, repl_callback, (void *)this);
+
+	static int first = 1;
+	if (first) {
+		first = 0;
+		js_init();
+	}
 
 	if (ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed('r', false)) {
 		//js_call(ctx, "reload", "");
 	}
 	
-#if 0
+#if 1
 	if (ImGui::IsItemActive()) {
 		//log("active\n");
 		/*
@@ -47,12 +61,13 @@ void DockDuktape::imgui() {
             //enter_pressed = true;
         }
 		*/
-
-		if (ImGui::GetIO().KeyCtrl && IsKeyPressedMap(ImGuiKey_Enter, 0)) {
+		
+		if (ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressedMap(ImGuiKey_Enter, 0)) {
 			ImGuiContext *g = ImGui::GetCurrentContext();
 			int select_start = g->InputTextState.StbState.select_start;
 			int select_end = g->InputTextState.StbState.select_end;
-			//js_call(ctx, "shittyconsole", "sii", replbuffer, select_start, select_end);
+			imgui_log("ctrl+enter\n");
+			js_call(ctx, "shittyconsole", "sii", replbuffer, select_start, select_end);
 		}
 
 	}

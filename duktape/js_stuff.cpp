@@ -236,8 +236,13 @@ int duk_func_get_global(duk_context *ctx) {
 
 int js_register_function(duk_context *ctx, char *name, int (*func)(duk_context *ctx)) {
 	duk_push_c_function(ctx, func, DUK_VARARGS);
+#if 0
+	// i used this to force a name to anonymous functions in Duktape 1.4.0
+	// 2.3.0: it throws a fatal error "setter undefined"
+	// last time I patched my duktape.c but cba right now
 	duk_push_string(ctx, name);
 	duk_put_prop_string(ctx, -2, "name");
+#endif
 	duk_put_global_string(ctx, name);
 	return 1;
 }
@@ -256,8 +261,15 @@ int duk_func_reload(duk_context *ctx) {
 	return 0;
 }
 
+void js_fatal(void *udata, const char *msg) {
+    (void) udata;  /* ignored in this case, silence warning */
+
+    /* Note that 'msg' may be NULL. */
+    imgui_log("*** DUKTAPE ERROR: %s\n", (msg ? msg : "no message"));
+}
+
 int js_init() {
-	ctx = duk_create_heap_default();
+	ctx = duk_create_heap(NULL, NULL, NULL, NULL, js_fatal);
 	
 	//init_bullet_bindings(ctx);
 	//init_imgui_bindings(ctx);
