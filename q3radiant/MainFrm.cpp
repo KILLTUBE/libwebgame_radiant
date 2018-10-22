@@ -647,7 +647,6 @@ CMainFrame::CMainFrame() {
 	m_pCamWnd = NULL;
 	m_pTexWnd = NULL;
 	m_pZWnd = NULL;
-	m_pEditWnd = NULL;
 	m_pYZWnd = NULL;
 	m_pXZWnd = NULL;
 	m_pActiveXY = NULL;
@@ -1034,7 +1033,16 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	return 0;
 }
 
+LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 void CMainFrame::HandleKey(UINT nChar, UINT nRepCnt, UINT nFlags, bool bDown) {
+	//Sys_Printf("CMainFrame::HandleKey %d %d %d %d\n", nChar, nRepCnt, nFlags, bDown);
+	
+	if (bDown)
+		ImGui_ImplWin32_WndProcHandler(NULL, WM_KEYDOWN, nChar, 0);
+	else
+		ImGui_ImplWin32_WndProcHandler(NULL, WM_KEYUP, nChar, 0);
+
 	if (bDown)
 		OnKeyDown(nChar, nRepCnt, nFlags);
 	else
@@ -1331,7 +1339,6 @@ void CMainFrame::OnDestroy() {
 		SaveWindowPlacement(m_pCamWnd->GetSafeHwnd(), "camerawindow");
 		SaveWindowPlacement(m_pZWnd->GetSafeHwnd(), "zwindow");
 		SaveWindowState(m_pTexWnd->GetSafeHwnd(), "texwindow");
-		SaveWindowState(m_pEditWnd->GetSafeHwnd(), "editwindow");
 	}
 
 	if (m_pXYWnd->GetSafeHwnd())
@@ -1354,10 +1361,6 @@ void CMainFrame::OnDestroy() {
 		m_pTexWnd->SendMessage(WM_DESTROY, 0, 0);
 	delete m_pTexWnd; m_pTexWnd = NULL;
 	
-	if (m_pEditWnd->GetSafeHwnd())
-		m_pEditWnd->SendMessage(WM_DESTROY, 0, 0);
-	delete m_pEditWnd; m_pEditWnd = NULL;
-
 	if (m_pCamWnd->GetSafeHwnd())
 		m_pCamWnd->SendMessage(WM_DESTROY, 0, 0);
 	delete m_pCamWnd;m_pCamWnd = NULL;
@@ -2865,19 +2868,7 @@ void CMainFrame::OnTogglecamera()
 	}
 }
 
-void CMainFrame::OnToggleconsole() 
-{
-	if (m_nCurrentStyle > 0 && m_nCurrentStyle < 3) // QE4 style
-	{
-		if (m_pEditWnd && m_pEditWnd->GetSafeHwnd())
-		{
-			if (m_pEditWnd->IsWindowVisible())
-				m_pEditWnd->ShowWindow(SW_HIDE);
-			else
-				m_pEditWnd->ShowWindow(SW_SHOW);
-		}
-	}
-}
+void CMainFrame::OnToggleconsole() {}
 
 void CMainFrame::OnToggleview() 
 {
