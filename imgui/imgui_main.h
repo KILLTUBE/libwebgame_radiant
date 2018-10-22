@@ -7,6 +7,8 @@
 #include <Windows.h>
 #include "../ccall.h"
 
+EXTERNC int imgui_ready;
+
 CCALL void imgui_init();
 CCALL void imgui_step();
 CCALL void imgui_newframe();

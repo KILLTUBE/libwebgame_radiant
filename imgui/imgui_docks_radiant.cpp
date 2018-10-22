@@ -6,6 +6,7 @@
 
 // custom docks
 #include "imgui_dock_console.h"
+#include "imgui_dock_duktape.h"
 //#include "imgui_dock_all.h"
 //#include "imgui_dock_textures.h"
 //#include "imgui_dock_xy.h"
@@ -61,6 +62,7 @@ CCALL int imgui_docks_radiant_show() {
 		//imgui_quake_docks.push_back(new DockMapInfo());
 		//imgui_quake_docks.push_back(new DockPerf());
 		imgui_docks_radiant.push_back(new DockConsole());
+		imgui_docks_radiant.push_back(new DockDuktape());
 		//imgui_quake_docks.push_back(new DockAll());
 		//imgui_quake_docks.push_back(new DockTextures());
 		//dock_xy = new DockXY(); // just temporally, so i can test the OnLeftMouseDown etc. methods on this dock
