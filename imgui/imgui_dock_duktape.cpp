@@ -37,6 +37,7 @@ void DockDuktape::imgui() {
 	if ( ! imgui_ready)
 		return;
 
+	ImGui::PushID("lol");
 	ImGui::InputTextMultiline("", replbuffer, sizeof replbuffer, ImGui::GetWindowSize() + ImVec2(-15, -35 - 20), ImGuiInputTextFlags_CallbackAlways | ImGuiInputTextFlags_AllowTabInput, repl_callback, (void *)this);
 
 	static int first = 1;
@@ -60,6 +61,12 @@ void DockDuktape::imgui() {
             //SetActiveID(0);
             //enter_pressed = true;
         }
+
+		in new imgui/tree/docks, comment this in imgui_widgets.cpp:
+		    if (!is_multiline || (ctrl_enter_for_new_line && !io.KeyCtrl) || (!ctrl_enter_for_new_line && io.KeyCtrl))
+            {
+                //enter_pressed = clear_active_id = true;
+            }
 		*/
 		
 		if (ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressedMap(ImGuiKey_Enter, 0)) {
@@ -67,12 +74,12 @@ void DockDuktape::imgui() {
 			int select_start = g->InputTextState.StbState.select_start;
 			int select_end = g->InputTextState.StbState.select_end;
 			imgui_log("ctrl+enter\n");
-			js_call(ctx, "shittyconsole", "sii", replbuffer, select_start, select_end);
+			//js_call(ctx, "shittyconsole", "sii", replbuffer, select_start, select_end);
 		}
 
 	}
 #endif
-
+	ImGui::PopID();
 	//ImGui::InputText("Filename", repl_filename, sizeof repl_filename);
 	//ImGui::SameLine(0, 5);
 	//if (ImGui::Button("Save")) {
