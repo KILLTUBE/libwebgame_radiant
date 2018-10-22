@@ -269,6 +269,15 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\duktape-2-3-0\duktape.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
+    </ClCompile>
+    <ClCompile Include="..\duktape\bind_imgui.cpp" />
+    <ClCompile Include="..\duktape\bind_memory.cpp" />
+    <ClCompile Include="..\duktape\bind_utils2.cpp" />
+    <ClCompile Include="..\duktape\dukhelpers.cpp" />
+    <ClCompile Include="..\duktape\js_stuff.cpp" />
     <ClCompile Include="..\imgui\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">WIN32;_DEBUG;_WINDOWS;QUAKE3;Q3RADIANT;%(PreprocessorDefinitions);</PreprocessorDefinitions>
@@ -280,6 +289,7 @@
     <ClCompile Include="..\imgui\imgui_dock.cpp" />
     <ClCompile Include="..\imgui\imgui_docks_radiant.cpp" />
     <ClCompile Include="..\imgui\imgui_dock_console.cpp" />
+    <ClCompile Include="..\imgui\imgui_dock_duktape.cpp" />
     <ClCompile Include="..\imgui\imgui_draw.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">WIN32;_DEBUG;_WINDOWS;QUAKE3;Q3RADIANT;%(PreprocessorDefinitions);</PreprocessorDefinitions>
@@ -912,11 +922,21 @@
     <ResourceCompile Include="Radiant.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\duktape-2-3-0\duktape.h" />
+    <ClInclude Include="..\duktape-2-3-0\duk_config.h" />
+    <ClInclude Include="..\duktape\bind_imgui.h" />
+    <ClInclude Include="..\duktape\bind_memory.h" />
+    <ClInclude Include="..\duktape\bind_utils.h" />
+    <ClInclude Include="..\duktape\dukdebugheaders.h" />
+    <ClInclude Include="..\duktape\dukhelpers.h" />
+    <ClInclude Include="..\duktape\duktapestuff.h" />
+    <ClInclude Include="..\duktape\duk_internal_stuff.h" />
     <ClInclude Include="..\imgui\imconfig.h" />
     <ClInclude Include="..\imgui\imgui.h" />
     <ClInclude Include="..\imgui\imgui_dock.h" />
     <ClInclude Include="..\imgui\imgui_docks_radiant.h" />
     <ClInclude Include="..\imgui\imgui_dock_console.h" />
+    <ClInclude Include="..\imgui\imgui_dock_duktape.h" />
     <ClInclude Include="..\imgui\imgui_impl_opengl2.h" />
     <ClInclude Include="..\imgui\imgui_impl_win32.h" />
     <ClInclude Include="..\imgui\imgui_internal.h" />
@@ -1012,6 +1032,7 @@
     <Image Include="toolbar1.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\duktape-2-3-0\duk_source_meta.json" />
     <None Include="res\Radiant.rc2" />
   </ItemGroup>
   <ItemGroup>
