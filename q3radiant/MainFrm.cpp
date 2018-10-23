@@ -2168,10 +2168,7 @@ void CMainFrame::OnTexturesInspector()
 	DoSurface ();
 }
 
-void CMainFrame::OnMiscBenchmark() 
-{
-	m_pCamWnd->BenchMark();
-}
+void CMainFrame::OnMiscBenchmark() {}
 
 void CMainFrame::OnMiscFindbrush() 
 {
