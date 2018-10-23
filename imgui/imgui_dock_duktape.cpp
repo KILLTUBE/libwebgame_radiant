@@ -73,8 +73,8 @@ void DockDuktape::imgui() {
 			ImGuiContext *g = ImGui::GetCurrentContext();
 			int select_start = g->InputTextState.StbState.select_start;
 			int select_end = g->InputTextState.StbState.select_end;
-			imgui_log("ctrl+enter\n");
-			//js_call(ctx, "shittyconsole", "sii", replbuffer, select_start, select_end);
+			//imgui_log("ctrl+enter\n");
+			js_call(ctx, "shittyconsole", "sii", replbuffer, select_start, select_end);
 		}
 
 	}

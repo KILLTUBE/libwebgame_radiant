@@ -197,8 +197,8 @@ int duk_func_file_get_contents(duk_context *ctx) {
 	fclose(f);
 	f = NULL;
 	// convert the fixed buffer to string
-	char *ret = (char *) duk_to_string(ctx, -1);
-	//printf("ret=%s\n", ret); // would print the file contents
+	char *ret = (char *) duk_buffer_to_string(ctx, -1);
+	imgui_log("ret=%s\n", ret); // would print the file contents
 	return 1;
 	
 	error:
@@ -250,9 +250,9 @@ int js_register_function(duk_context *ctx, char *name, int (*func)(duk_context *
 CCALL duk_context *js_get_ctx() { return ctx; }
 
 CCALL void js_reload() {
-	js_eval_file_safe(ctx, "assets\\javascript\\pre_create.js");
-	js_eval_file_safe(ctx, "assets\\javascript\\lib.js");
-	js_eval_file_safe(ctx, "assets\\javascript\\lib_quake.js");
+	js_eval_file_safe(ctx, "javascript\\pre_create.js");
+	js_eval_file_safe(ctx, "javascript\\lib.js");
+	js_eval_file_safe(ctx, "javascript\\lib_quake.js");
 	//js_call(ctx, "PostReload", "");
 }
 
@@ -307,7 +307,7 @@ int js_init() {
 	duk_pop(ctx);
 
 	
-	//js_call(ctx, "reload", "");
+	js_call(ctx, "reload", "");
 
 	return 1;
 }
