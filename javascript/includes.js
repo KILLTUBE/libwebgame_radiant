@@ -35,10 +35,12 @@ require = function(filename) {
 
 includes = function() {
 	var files = [
-		//"javascript/pre_create.js",
+		"javascript/pre_create.js",
 		"javascript/lib.js",
-		//"javascript/lib_quake.js",
-		//"javascript/html5_console.js"
+		"javascript/lib_quake.js",
+		"javascript/html5.js",
+		"javascript/html5_console.js",
+		"javascript/html5_gl.js",
 	];
 	for (var i=0; i<files.length; i++) {
 		var file = files[i];

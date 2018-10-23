@@ -199,7 +199,7 @@ int duk_func_file_get_contents(duk_context *ctx) {
 	f = NULL;
 	// convert the fixed buffer to string
 	char *ret = (char *) duk_buffer_to_string(ctx, -1);
-	imgui_log("ret=%s\n", ret); // would print the file contents
+	//imgui_log("ret=%s\n", ret); // would print the file contents
 	return 1;
 	
 	error:
@@ -252,6 +252,7 @@ CCALL duk_context *js_get_ctx() { return ctx; }
 
 CCALL void js_reload() {
 	js_eval_file_safe(ctx, "javascript/includes.js");
+	js_call(ctx, "includes", ""); // execute the includes() function defined in it
 	//js_call(ctx, "PostReload", "");
 }
 
@@ -305,9 +306,7 @@ int js_init() {
 	duk_peval_string(ctx, "handle_input = function(code) { try { ret = eval(code); log(ret) } catch (e) {log(\"error: \" + e + \"\\n\")} return \"not needed\"; }");
 	duk_pop(ctx);
 
-	
 	js_call(ctx, "reload", ""); // loads includes.js
-	js_call(ctx, "includes", ""); // execute the includes() function defined in it
 
 	return 1;
 }
