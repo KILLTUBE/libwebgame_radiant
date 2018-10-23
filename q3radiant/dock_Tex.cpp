@@ -64,7 +64,7 @@ int g_nCurrentTextureMenuName;
 
 int g_nTextureOffset = 0;
 
-// current active texture directory.  if empty, show textures in use
+// current active texture directory.	if empty, show textures in use
 char		texture_directory[128];	// use if texture_showinuse is false
 qboolean	texture_showinuse;
 
@@ -91,100 +91,78 @@ void	Texture_MouseMoved (int x, int y, int buttons);
 CPtrArray g_lstShaders;
 CPtrArray g_lstSkinCache;
 
-struct SkinInfo
-{
-  CString m_strName;
-  int m_nTextureBind;
-  SkinInfo(const char *pName, int n)
-  {
-    m_strName = pName;
-    m_nTextureBind = n;
-  };
-  SkinInfo(){};
+struct SkinInfo {
+	CString m_strName;
+	int m_nTextureBind;
+	SkinInfo(const char *pName, int n) {
+		m_strName = pName;
+		m_nTextureBind = n;
+	};
+	SkinInfo(){};
 };
 
 // checks wether a qtexture_t exists for a given name
 //++timo FIXME: is this really any use? redundant.
-bool ShaderQTextureExists(const char *pName)
-{
-  for (qtexture_t *q=g_qeglobals.d_qtextures ; q ; q=q->next)
-  {
-    if (!strcmp(q->name,  pName))
-    {
-      return true;
-    }
-  }
-  return false;
-
+bool ShaderQTextureExists(const char *pName) {
+	for (qtexture_t *q=g_qeglobals.d_qtextures ; q ; q=q->next) {
+		if (!strcmp(q->name,	pName)) {
+			return true;
+		}
+	}
+	return false;
 }
 
-CShaderInfo* hasShader(const char *pName)
-{
-  int nSize = g_lstShaders.GetSize();
-  for (int i = 0; i < nSize; i++)
-  {
-    CShaderInfo *pInfo = reinterpret_cast<CShaderInfo*>(g_lstShaders.ElementAt(i));
-    if (pInfo != NULL)
-    {
-      if (pInfo->m_strName.CompareNoCase(pName) == 0)
-      {
-        return pInfo;
-      }
-    }
-  }
-  return NULL;
+CShaderInfo* hasShader(const char *pName) {
+	int nSize = g_lstShaders.GetSize();
+	for (int i = 0; i < nSize; i++) {
+		CShaderInfo *pInfo = reinterpret_cast<CShaderInfo*>(g_lstShaders.ElementAt(i));
+		if (pInfo != NULL) {
+			if (pInfo->m_strName.CompareNoCase(pName) == 0) {
+				return pInfo;
+			}
+		}
+	}
+	return NULL;
 }
 
 // gets active texture extension
 // 
 // FIXME: fix this to be generic from project file
 //
-int GetTextureExtensionCount()
-{
-  return 2;
+int GetTextureExtensionCount() {
+	return 2;
 }
 
-const char* GetTextureExtension(int nIndex)
-{
-  if ( nIndex == 0)
-  {
-    _QERTextureInfo *pInfo = g_pParentWnd->GetPlugInMgr().GetTextureInfo();
-    const char *pTex = (pInfo != NULL) ? pInfo->m_TextureExtension : NULL;
-    return (pTex == NULL) ? (g_PrefsDlg.m_bHiColorTextures == FALSE) ? "wal" : "tga" : pTex;
-  }
-  // return jpg for 2nd extension
-  return "jpg";
+const char* GetTextureExtension(int nIndex) {
+	if ( nIndex == 0) {
+		_QERTextureInfo *pInfo = g_pParentWnd->GetPlugInMgr().GetTextureInfo();
+		const char *pTex = (pInfo != NULL) ? pInfo->m_TextureExtension : NULL;
+		return (pTex == NULL) ? (g_PrefsDlg.m_bHiColorTextures == FALSE) ? "wal" : "tga" : pTex;
+	}
+	// return jpg for 2nd extension
+	return "jpg";
 }
 
-void SortTextures(void)
-{	
+void SortTextures() {
 	qtexture_t	*q, *qtemp, *qhead, *qcur, *qprev;
-
 	// standard insertion sort
 	// Take the first texture from the list and
 	// add it to our new list
 	if ( g_qeglobals.d_qtextures == NULL)
-		return;	
-
+		return;
 	qhead = g_qeglobals.d_qtextures;
 	q = g_qeglobals.d_qtextures->next;
 	qhead->next = NULL;
-	
 	// while there are still things on the old
 	// list, keep adding them to the new list
-	while (q)
-	{
+	while (q) {
 		qtemp = q;
 		q = q->next;
-		
 		qprev = NULL;
 		qcur = qhead;
-
-		while (qcur)
-		{
+		while (qcur) {
 			// Insert it here?
-			if (strcmp(qtemp->name, qcur->name) < 0)
-			{
+			if (strcmp(qtemp->name, qcur->name) < 0) {
 				qtemp->next = qcur;
 				if (qprev)
 					qprev->next = qtemp;
@@ -192,34 +170,22 @@ void SortTextures(void)
 					qhead = qtemp;
 				break;
 			}
-			
 			// Move on
-
 			qprev = qcur;
 			qcur = qcur->next;
-
-
 			// is this one at the end?
-
-			if (qcur == NULL)
-			{
+			if (qcur == NULL) {
 				qprev->next = qtemp;
 				qtemp->next = NULL;
 			}
 		}
-
-
 	}
-
 	g_qeglobals.d_qtextures = qhead;
 }
 
-void SetTexParameters (void)
-{
+void SetTexParameters() {
 	qglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texture_mode );
-	
-	switch ( texture_mode )
-	{
+	switch (texture_mode) {
 	case GL_NEAREST:
 	case GL_NEAREST_MIPMAP_NEAREST:
 	case GL_NEAREST_MIPMAP_LINEAR:
@@ -233,51 +199,21 @@ void SetTexParameters (void)
 	}
 }
 
-/*
-============
-Texture_SetMode
-============
-*/
-void Texture_SetMode(int iMenu)
-{
+void Texture_SetMode(int iMenu) {
 	int	i, iMode;
 	HMENU hMenu;
 	qboolean texturing = true;
-
 	hMenu = GetMenu(g_qeglobals.d_hwndMain);
-
 	switch(iMenu) {
-	case ID_VIEW_NEAREST:					
-		iMode = GL_NEAREST;
-		break;
-	case ID_VIEW_NEARESTMIPMAP:
-		iMode = GL_NEAREST_MIPMAP_NEAREST;
-		break;
-	case ID_VIEW_LINEAR:
-		iMode = GL_NEAREST_MIPMAP_LINEAR;
-		break;
-	case ID_VIEW_BILINEAR:
-		iMode = GL_LINEAR;
-		break;
-	case ID_VIEW_BILINEARMIPMAP:
-		iMode = GL_LINEAR_MIPMAP_NEAREST;
-		break;
-	case ID_VIEW_TRILINEAR:
-		iMode = GL_LINEAR_MIPMAP_LINEAR;
-		break;
-
-	case ID_TEXTURES_WIREFRAME:
-		iMode = 0;
-		texturing = false;
-		break;
-
-	case ID_TEXTURES_FLATSHADE:
-		iMode = 0;
-		texturing = false;
-		break;
-
+		case ID_VIEW_NEAREST       : iMode = GL_NEAREST;                break;
+		case ID_VIEW_NEARESTMIPMAP : iMode = GL_NEAREST_MIPMAP_NEAREST; break;
+		case ID_VIEW_LINEAR        : iMode = GL_NEAREST_MIPMAP_LINEAR;  break;
+		case ID_VIEW_BILINEAR      : iMode = GL_LINEAR;                 break;
+		case ID_VIEW_BILINEARMIPMAP: iMode = GL_LINEAR_MIPMAP_NEAREST;  break;
+		case ID_VIEW_TRILINEAR     : iMode = GL_LINEAR_MIPMAP_LINEAR;   break;
+		case ID_TEXTURES_WIREFRAME : iMode = 0; texturing = false;      break;
+		case ID_TEXTURES_FLATSHADE : iMode = 0; texturing = false;      break;
 	}
-
 	CheckMenuItem(hMenu, ID_VIEW_NEAREST, MF_BYCOMMAND | MF_UNCHECKED);
 	CheckMenuItem(hMenu, ID_VIEW_NEARESTMIPMAP, MF_BYCOMMAND | MF_UNCHECKED);
 	CheckMenuItem(hMenu, ID_VIEW_LINEAR, MF_BYCOMMAND | MF_UNCHECKED);
@@ -286,83 +222,56 @@ void Texture_SetMode(int iMenu)
 	CheckMenuItem(hMenu, ID_VIEW_TRILINEAR, MF_BYCOMMAND | MF_UNCHECKED);
 	CheckMenuItem(hMenu, ID_TEXTURES_WIREFRAME, MF_BYCOMMAND | MF_UNCHECKED);
 	CheckMenuItem(hMenu, ID_TEXTURES_FLATSHADE, MF_BYCOMMAND | MF_UNCHECKED);
-
 	CheckMenuItem(hMenu, iMenu, MF_BYCOMMAND | MF_CHECKED);
-
 	g_qeglobals.d_savedinfo.iTexMenu = iMenu;
 	texture_mode = iMode;
-
-  if (g_PrefsDlg.m_bSGIOpenGL)
-  {
-    if (s_hdcTexture && s_hglrcTexture)
-    {
-      //if (!qwglMakeCurrent(g_qeglobals.d_hdcBase, g_qeglobals.d_hglrcBase))
-      if (!qwglMakeCurrent(s_hdcTexture, s_hglrcTexture))
-		    Error ("wglMakeCurrent in LoadTexture failed");
-    }
-    else
-      return;
-  }
-
+	if (g_PrefsDlg.m_bSGIOpenGL) {
+		if (s_hdcTexture && s_hglrcTexture) {
+			//if (!qwglMakeCurrent(g_qeglobals.d_hdcBase, g_qeglobals.d_hglrcBase))
+			if (!qwglMakeCurrent(s_hdcTexture, s_hglrcTexture))
+				Error ("wglMakeCurrent in LoadTexture failed");
+		} else {
+			return;
+		}
+	}
 	if ( texturing )
 		SetTexParameters ();
-
-	if ( !texturing && iMenu == ID_TEXTURES_WIREFRAME)
-	{
+	if ( !texturing && iMenu == ID_TEXTURES_WIREFRAME) {
 		g_pParentWnd->GetCamera()->Camera().draw_mode = cd_wire;
 		Map_BuildBrushData();
 		Sys_UpdateWindows (W_ALL);
 		return;
-
 	} else if ( !texturing && iMenu == ID_TEXTURES_FLATSHADE) {
-
 		g_pParentWnd->GetCamera()->Camera().draw_mode = cd_solid;
 		Map_BuildBrushData();
 		Sys_UpdateWindows (W_ALL);
 		return;
 	}
-
-	for (i=1 ; i<texture_extension_number ; i++)
-	{
+	for (i=1 ; i<texture_extension_number ; i++) {
 		qglBindTexture( GL_TEXTURE_2D, i );
 		SetTexParameters ();
 	}
-
 	// select the default texture
 	qglBindTexture( GL_TEXTURE_2D, 0 );
-
 	qglFinish();
-
-	if (g_pParentWnd->GetCamera()->Camera().draw_mode != cd_texture)
-	{
+	if (g_pParentWnd->GetCamera()->Camera().draw_mode != cd_texture) {
 		g_pParentWnd->GetCamera()->Camera().draw_mode = cd_texture;
 		Map_BuildBrushData();
 	}
-
 	Sys_UpdateWindows (W_ALL);
 }
 
-/*
-================
-R_MipMap
-
-Operates in place, quartering the size of the texture
-================
-*/
-void R_MipMap (byte *in, int &width, int &height)
-{
+// Operates in place, quartering the size of the texture
+void R_MipMap(byte *in, int &width, int &height) {
 	int		i, j;
 	byte	*out;
 	int		row;
-	
 	row = width * 4;
 	width >>= 1;
 	height >>= 1;
 	out = in;
-	for (i=0 ; i<height ; i++, in+=row)
-	{
-		for (j=0 ; j<width ; j++, out+=4, in+=8)
-		{
+	for (i=0 ; i<height ; i++, in+=row) {
+		for (j=0 ; j<width ; j++, out+=4, in+=8) {
 			out[0] = (in[0] + in[4] + in[row+0] + in[row+4])>>2;
 			out[1] = (in[1] + in[5] + in[row+1] + in[row+5])>>2;
 			out[2] = (in[2] + in[6] + in[row+2] + in[row+6])>>2;
@@ -371,142 +280,110 @@ void R_MipMap (byte *in, int &width, int &height)
 	}
 }
 
-/*
-=================
-Texture_LoadTexture
-=================
-*/
 //++timo NOTE: miptex_t is used only for .WAL format .. a bit outdated
-qtexture_t *Texture_LoadTexture (miptex_t *qtex)
-{
-  byte		*source;
-  unsigned	char *dest;
-  int			width, height, i, count;
+qtexture_t *Texture_LoadTexture (miptex_t *qtex) {
+	byte		*source;
+	unsigned	char *dest;
+	int			width, height, i, count;
 	int			total[3];
-  qtexture_t	*q;
-      
-  width = LittleLong(qtex->width);
-  height = LittleLong(qtex->height);
-
-  q = (qtexture_t*)qmalloc(sizeof(*q));
-
-  q->width = width;
-  q->height = height;
-
+	qtexture_t	*q;
+	width = LittleLong(qtex->width);
+	height = LittleLong(qtex->height);
+	q = (qtexture_t*)qmalloc(sizeof(*q));
+	q->width = width;
+	q->height = height;
 	q->flags = qtex->flags;
 	q->value = qtex->value;
 	q->contents = qtex->contents;
-
 	dest = (unsigned char*)qmalloc (width*height*4);
-
-  count = width*height;
-  source = (byte *)qtex + LittleLong(qtex->offsets[0]);
-
+	count = width*height;
+	source = (byte *)qtex + LittleLong(qtex->offsets[0]);
 	// The dib is upside down so we want to copy it into 
 	// the buffer bottom up.
-
 	total[0] = total[1] = total[2] = 0;
-  for (i=0 ; i<count ; i++)
-	{
+	for (i=0; i<count; i++) {
 		dest[i] = tex_palette[source[i]];
-
 		total[0] += ((byte *)(dest+i))[0];
 		total[1] += ((byte *)(dest+i))[1];
 		total[2] += ((byte *)(dest+i))[2];
 	}
-
 	q->color[0] = (float)total[0]/(count*255);
 	q->color[1] = (float)total[1]/(count*255);
 	q->color[2] = (float)total[2]/(count*255);
+	q->texture_number = texture_extension_number++;
+	if (g_qeglobals.bSurfacePropertiesPlugin) {
+		// Timo
+		// Surface properties plugins can store their own data in an IPluginQTexture
+		q->pData = g_SurfaceTable.m_pfnQTextureAlloc( q );
+		GETPLUGINTEXDEF(q)->InitForMiptex( qtex );
+	}
+	//++timo is the m_bSGIOpenGL parameter still taken into account?
+	if (g_PrefsDlg.m_bSGIOpenGL)
+	{
+		//if (!qwglMakeCurrent(g_qeglobals.d_hdcBase, g_qeglobals.d_hglrcBase))
+		if (!qwglMakeCurrent(s_hdcTexture, s_hglrcTexture))
+			Error ("wglMakeCurrent in LoadTexture failed");
+	}
 
-  q->texture_number = texture_extension_number++;
+	qglBindTexture( GL_TEXTURE_2D, q->texture_number );
 
-  if (g_qeglobals.bSurfacePropertiesPlugin)
-  {
-	  // Timo
-	  // Surface properties plugins can store their own data in an IPluginQTexture
-	  q->pData = g_SurfaceTable.m_pfnQTextureAlloc( q );
-	  GETPLUGINTEXDEF(q)->InitForMiptex( qtex );
-  }
+	//Handle3DfxTexturing(q, width, height, dest);
 
-  //++timo is the m_bSGIOpenGL parameter still taken into account?
-  if (g_PrefsDlg.m_bSGIOpenGL)
-  {
-    //if (!qwglMakeCurrent(g_qeglobals.d_hdcBase, g_qeglobals.d_hglrcBase))
-    if (!qwglMakeCurrent(s_hdcTexture, s_hglrcTexture))
-		  Error ("wglMakeCurrent in LoadTexture failed");
-  }
+	SetTexParameters ();
 
-  qglBindTexture( GL_TEXTURE_2D, q->texture_number );
+	int nCount = MAX_TEXTURE_QUALITY - g_PrefsDlg.m_nTextureQuality;
+	while (nCount-- > 0)
+	{
+		if (width > 16 && height > 16)
+		{
+			R_MipMap(dest, width, height);
+		}
+		else
+		{
+			break;
+		}
+	}
 
-  //Handle3DfxTexturing(q, width, height, dest);
-
-  SetTexParameters ();
-
-  int nCount = MAX_TEXTURE_QUALITY - g_PrefsDlg.m_nTextureQuality;
-  while (nCount-- > 0)
-  {
-    if (width > 16 && height > 16)
-    {
-      R_MipMap(dest, width, height);
-    }
-    else
-    {
-      break;
-    }
-  }
-
-  if (g_PrefsDlg.m_bSGIOpenGL)
-  {
-	  if (nomips)
-    {
-		  qglTexImage2D(GL_TEXTURE_2D, 0, 3, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, dest);
-    }
-	  else
-		  qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height,GL_RGBA, GL_UNSIGNED_BYTE, dest);
-  }
-  else
-  {
-	  if (nomips)
-		  qglTexImage2D(GL_TEXTURE_2D, 0, 3, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, dest);
-	  else
-		  qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height,GL_RGBA, GL_UNSIGNED_BYTE, dest);
-  }
+	if (g_PrefsDlg.m_bSGIOpenGL)
+	{
+		if (nomips)
+		{
+			qglTexImage2D(GL_TEXTURE_2D, 0, 3, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, dest);
+		}
+		else
+			qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height,GL_RGBA, GL_UNSIGNED_BYTE, dest);
+	}
+	else
+	{
+		if (nomips)
+			qglTexImage2D(GL_TEXTURE_2D, 0, 3, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, dest);
+		else
+			qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height,GL_RGBA, GL_UNSIGNED_BYTE, dest);
+	}
 
 	free (dest);
 
 	qglBindTexture( GL_TEXTURE_2D, 0 );
 
-  return q;
+	return q;
 }
 
-
-
-
-/*
-=================
-Texture_LoadTexture
-=================
-*/
-qtexture_t *Texture_LoadTGATexture (unsigned char* pPixels, int nWidth, int nHeight, char* pPath, int nFlags, int nContents, int nValue )
+qtexture_t *Texture_LoadTGATexture(unsigned char* pPixels, int nWidth, int nHeight, char* pPath, int nFlags, int nContents, int nValue )
 {
-  int i, j, inf;
+	int i, j, inf;
 	byte	gammatable[256];
 	float fGamma = g_qeglobals.d_savedinfo.fGamma;
-
-
-  qtexture_t* q = (qtexture_t*)qmalloc(sizeof(*q));
-  q->width = nWidth;
-  q->height = nHeight;
+	qtexture_t* q = (qtexture_t*)qmalloc(sizeof(*q));
+	q->width = nWidth;
+	q->height = nHeight;
 	q->flags = nFlags;
 	q->value = nValue;
 	q->contents = nContents;
+	int nCount = nWidth * nHeight;
+	float total[3];
+	total[0] = total[1] = total[2] = 0.0f;
 
-  int nCount = nWidth * nHeight;
-  float total[3];
-  total[0] = total[1] = total[2] = 0.0f;
-
-  //++timo FIXME: move gamma table initialization somewhere else!
+	//++timo FIXME: move gamma table initialization somewhere else!
 	if (fGamma == 1.0)
 	{
 		for (i=0 ; i<256 ; i++)
@@ -526,220 +403,189 @@ qtexture_t *Texture_LoadTGATexture (unsigned char* pPixels, int nWidth, int nHei
 	}
 
 
-  // all targas are stored internally as 32bit so rgba = 4 bytes
-  for (i = 0 ; i < (nCount * 4) ; i += 4)
+	// all targas are stored internally as 32bit so rgba = 4 bytes
+	for (i = 0 ; i < (nCount * 4) ; i += 4)
 	{
-    for (j = 0; j < 3; j++)
-    {
-	    total[j] += (pPixels+i)[j];
-      byte b = (pPixels+i)[j];
-      (pPixels+i)[j] = gammatable[b];
-              
-    }
+		for (j = 0; j < 3; j++)
+		{
+			total[j] += (pPixels+i)[j];
+			byte b = (pPixels+i)[j];
+			(pPixels+i)[j] = gammatable[b];
+							
+		}
 	}
 
 	q->color[0] = total[0] / (nCount * 255);
 	q->color[1] = total[1] / (nCount * 255);
 	q->color[2] = total[2] / (nCount * 255);
 
+	q->texture_number = texture_extension_number++;
 
-  q->texture_number = texture_extension_number++;
+	if (g_qeglobals.bSurfacePropertiesPlugin)
+	{
+		// Timo
+		// Surface properties plugins can store their own data in an IPluginQTexture
+		q->pData = g_SurfaceTable.m_pfnQTextureAlloc( q );
+		GETPLUGINTEXDEF(q)->SetDefaultTexdef();
+	}
 
-  if (g_qeglobals.bSurfacePropertiesPlugin)
-  {
-	  // Timo
-	  // Surface properties plugins can store their own data in an IPluginQTexture
-	  q->pData = g_SurfaceTable.m_pfnQTextureAlloc( q );
-	  GETPLUGINTEXDEF(q)->SetDefaultTexdef();
-  }
+	if (g_PrefsDlg.m_bSGIOpenGL)
+	{
+		//if (!qwglMakeCurrent(g_qeglobals.d_hdcBase, g_qeglobals.d_hglrcBase))
+		if (!qwglMakeCurrent(s_hdcTexture, s_hglrcTexture))
+			Error ("wglMakeCurrent in LoadTexture failed");
+	}
 
-  if (g_PrefsDlg.m_bSGIOpenGL)
-  {
-    //if (!qwglMakeCurrent(g_qeglobals.d_hdcBase, g_qeglobals.d_hglrcBase))
-    if (!qwglMakeCurrent(s_hdcTexture, s_hglrcTexture))
-		  Error ("wglMakeCurrent in LoadTexture failed");
-  }
-
-  qglBindTexture( GL_TEXTURE_2D, q->texture_number );
-
-  //Handle3DfxTexturing(q, width, height, dest);
-
-  SetTexParameters();
-
-  nCount = MAX_TEXTURE_QUALITY - g_PrefsDlg.m_nTextureQuality;
-  while (nCount-- > 0)
-  {
-    if (nWidth > 16 && nHeight > 16)
-    {
-      R_MipMap(pPixels, nWidth, nHeight);
-    }
-    else
-    {
-      break;
-    }
-  }
-
-  if (g_PrefsDlg.m_bSGIOpenGL)
-  {
-	  if (nomips)
-    {
-		  qglTexImage2D(GL_TEXTURE_2D, 0, 4, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pPixels);
-    }
-	  else
-		  qgluBuild2DMipmaps(GL_TEXTURE_2D, 4, nWidth, nHeight,GL_RGBA, GL_UNSIGNED_BYTE, pPixels);
-  }
-  else
-  {
-	  if (nomips)
-		  qglTexImage2D(GL_TEXTURE_2D, 0, 4, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pPixels);
-	  else
-		  qgluBuild2DMipmaps(GL_TEXTURE_2D, 4, nWidth, nHeight,GL_RGBA, GL_UNSIGNED_BYTE, pPixels);
-  }
-
-	qglBindTexture( GL_TEXTURE_2D, 0 );
-
-  return q;
-}
-
-
-qtexture_t *Texture_LoadTGATexture (unsigned char* pPixels, int nWidth, int nHeight, char *pPath)
-{
-  CString strName;
-  CString strPath;
-  ExtractPath_and_Filename(pPath, strPath, strName);
-  AddSlash(strPath);
-  strPath += "textureinfo.ini";
-  strName.MakeLower();
-  StripExtension (strName.GetBuffer(0));
-  strName.ReleaseBuffer();
-  
-  int nFlags = GetPrivateProfileInt(strName, "Flags", 0, strPath);
-  int nValue = GetPrivateProfileInt(strName, "Value", 0, strPath);
-  int nContents = GetPrivateProfileInt(strName, "Contents", 0, strPath);
-  return Texture_LoadTGATexture(pPixels, nWidth, nHeight, pPath, nFlags, nValue, nContents);
-}
-
-
-void Texture_LoadFromPlugIn(LPVOID vp)
-{
-  g_pluginTexture = notexture;
-  _QERTextureLoad *pLoad = reinterpret_cast<_QERTextureLoad*>(vp);
-  if (pLoad != NULL)
-  {
-	  qtexture_t	*q;
-    q = Texture_LoadTGATexture(pLoad->m_pRGBA, pLoad->m_nWidth, pLoad->m_nHeight, NULL, pLoad->m_nFlags, pLoad->m_nContents, pLoad->m_nValue);
-    if (q != NULL)
-    {
-		// to save duplicate code (since one always ends up getting forgotten and out of sync) this is now done later by caller
-//		  strcpy (q->name, pLoad->m_pName);
-//		  StripExtension (q->name);
-//		  if (!g_dontuse)
-//			q->inuse = true;
-//	    q->next = g_qeglobals.d_qtextures;
-//	    g_qeglobals.d_qtextures = q;
-      g_pluginTexture = q;
-    }
-  }
-}
-
-
-/*
-===============
-Texture_CreateSolid
-
-Create a single pixel texture of the apropriate color
-===============
-*/
-qtexture_t *Texture_CreateSolid (const char *name)
-{
-	byte	data[4];
-	qtexture_t	*q;
-
-  q = (qtexture_t*)qmalloc(sizeof(*q));
-
-  if (g_qeglobals.bSurfacePropertiesPlugin)
-  {
-	  // Timo
-	  // Surface properties plugins can store their own data in an IPluginQTexture
-	  q->pData = g_SurfaceTable.m_pfnQTextureAlloc( q );
-	  GETPLUGINTEXDEF(q)->SetDefaultTexdef();
-  }
-	
-	sscanf (name, "(%f %f %f)", &q->color[0], &q->color[1], &q->color[2]);
-
-	data[0] = q->color[0]*255;
-	data[1] = q->color[1]*255;
-	data[2] = q->color[2]*255;
-	data[3] = 255;
-
-	q->width = q->height = 1;
-	//q->width = q->height = 2;
-  q->texture_number = texture_extension_number++;
 	qglBindTexture( GL_TEXTURE_2D, q->texture_number );
-	SetTexParameters ();
 
-  if (g_PrefsDlg.m_bSGIOpenGL)
-  {
-		qglTexImage2D(GL_TEXTURE_2D, 0, 3, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-  }
-  else
-  {
-	  if (nomips)
-		  qglTexImage2D(GL_TEXTURE_2D, 0, 3, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	  else
-		  qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, 1, 1,GL_RGBA, GL_UNSIGNED_BYTE, data);
-  }
+	//Handle3DfxTexturing(q, width, height, dest);
+
+	SetTexParameters();
+
+	nCount = MAX_TEXTURE_QUALITY - g_PrefsDlg.m_nTextureQuality;
+	while (nCount-- > 0)
+	{
+		if (nWidth > 16 && nHeight > 16)
+		{
+			R_MipMap(pPixels, nWidth, nHeight);
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	if (g_PrefsDlg.m_bSGIOpenGL)
+	{
+		if (nomips)
+		{
+			qglTexImage2D(GL_TEXTURE_2D, 0, 4, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pPixels);
+		}
+		else
+			qgluBuild2DMipmaps(GL_TEXTURE_2D, 4, nWidth, nHeight,GL_RGBA, GL_UNSIGNED_BYTE, pPixels);
+	}
+	else
+	{
+		if (nomips)
+			qglTexImage2D(GL_TEXTURE_2D, 0, 4, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pPixels);
+		else
+			qgluBuild2DMipmaps(GL_TEXTURE_2D, 4, nWidth, nHeight,GL_RGBA, GL_UNSIGNED_BYTE, pPixels);
+	}
+
 	qglBindTexture( GL_TEXTURE_2D, 0 );
 
 	return q;
 }
 
+qtexture_t *Texture_LoadTGATexture (unsigned char* pPixels, int nWidth, int nHeight, char *pPath) {
+	CString strName;
+	CString strPath;
+	ExtractPath_and_Filename(pPath, strPath, strName);
+	AddSlash(strPath);
+	strPath += "textureinfo.ini";
+	strName.MakeLower();
+	StripExtension (strName.GetBuffer(0));
+	strName.ReleaseBuffer();
+	int nFlags = GetPrivateProfileInt(strName, "Flags", 0, strPath);
+	int nValue = GetPrivateProfileInt(strName, "Value", 0, strPath);
+	int nContents = GetPrivateProfileInt(strName, "Contents", 0, strPath);
+	return Texture_LoadTGATexture(pPixels, nWidth, nHeight, pPath, nFlags, nValue, nContents);
+}
 
-/*
-=================
-Texture_MakeDefault
-=================
-*/
+void Texture_LoadFromPlugIn(LPVOID vp) {
+	g_pluginTexture = notexture;
+	_QERTextureLoad *pLoad = reinterpret_cast<_QERTextureLoad*>(vp);
+	if (pLoad != NULL)
+	{
+		qtexture_t	*q;
+		q = Texture_LoadTGATexture(pLoad->m_pRGBA, pLoad->m_nWidth, pLoad->m_nHeight, NULL, pLoad->m_nFlags, pLoad->m_nContents, pLoad->m_nValue);
+		if (q != NULL)
+		{
+		// to save duplicate code (since one always ends up getting forgotten and out of sync) this is now done later by caller
+//			strcpy (q->name, pLoad->m_pName);
+//			StripExtension (q->name);
+//			if (!g_dontuse)
+//			q->inuse = true;
+//			q->next = g_qeglobals.d_qtextures;
+//			g_qeglobals.d_qtextures = q;
+			g_pluginTexture = q;
+		}
+	}
+}
+
+// Create a single pixel texture of the apropriate color
+qtexture_t *Texture_CreateSolid (const char *name) {
+	byte	data[4];
+	qtexture_t	*q;
+	q = (qtexture_t*)qmalloc(sizeof(*q));
+	if (g_qeglobals.bSurfacePropertiesPlugin) {
+		// Timo
+		// Surface properties plugins can store their own data in an IPluginQTexture
+		q->pData = g_SurfaceTable.m_pfnQTextureAlloc( q );
+		GETPLUGINTEXDEF(q)->SetDefaultTexdef();
+	}
+	sscanf (name, "(%f %f %f)", &q->color[0], &q->color[1], &q->color[2]);
+	data[0] = q->color[0]*255;
+	data[1] = q->color[1]*255;
+	data[2] = q->color[2]*255;
+	data[3] = 255;
+	q->width = q->height = 1;
+	//q->width = q->height = 2;
+	q->texture_number = texture_extension_number++;
+	qglBindTexture( GL_TEXTURE_2D, q->texture_number );
+	SetTexParameters ();
+	if (g_PrefsDlg.m_bSGIOpenGL) {
+		qglTexImage2D(GL_TEXTURE_2D, 0, 3, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	} else {
+		if (nomips)
+			qglTexImage2D(GL_TEXTURE_2D, 0, 3, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		else
+			qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, 1, 1,GL_RGBA, GL_UNSIGNED_BYTE, data);
+	}
+	qglBindTexture( GL_TEXTURE_2D, 0 );
+	return q;
+}
+
 qtexture_t* Texture_MakeDefault (void)
 {
-  qtexture_t	*q;
-  byte		data[4][4];
+	qtexture_t	*q;
+	byte		data[4][4];
 
-  if (g_PrefsDlg.m_bSGIOpenGL)
-  {
-    if (s_hdcTexture && s_hglrcTexture)
-    { 
-       //if (!qwglMakeCurrent(g_qeglobals.d_hdcBase, g_qeglobals.d_hglrcBase))
-       if (!qwglMakeCurrent(s_hdcTexture, s_hglrcTexture))
-		     Error ("wglMakeCurrent in LoadTexture failed");
-    }
-    else
-      return NULL;
-  }
+	if (g_PrefsDlg.m_bSGIOpenGL)
+	{
+		if (s_hdcTexture && s_hglrcTexture)
+		{ 
+			 //if (!qwglMakeCurrent(g_qeglobals.d_hdcBase, g_qeglobals.d_hglrcBase))
+			 if (!qwglMakeCurrent(s_hdcTexture, s_hglrcTexture))
+				 Error ("wglMakeCurrent in LoadTexture failed");
+		}
+		else
+			return NULL;
+	}
 
-  q = (qtexture_t*)qmalloc(sizeof(*q));
-  
-  strcpy (q->name, "notexture");
-  q->width = q->height = 64;
-  
-  memset (data, 0, sizeof(data));
-  data[0][2] = data[3][2] = 255;
-  
-  q->color[0] = 0;
-  q->color[1] = 0;
-  q->color[2] = 0.5;
+	q = (qtexture_t*)qmalloc(sizeof(*q));
+	
+	strcpy (q->name, "notexture");
+	q->width = q->height = 64;
+	
+	memset (data, 0, sizeof(data));
+	data[0][2] = data[3][2] = 255;
+	
+	q->color[0] = 0;
+	q->color[1] = 0;
+	q->color[2] = 0.5;
 
-  q->texture_number = texture_extension_number++;
-  qglBindTexture( GL_TEXTURE_2D, q->texture_number );
-  SetTexParameters ();
+	q->texture_number = texture_extension_number++;
+	qglBindTexture( GL_TEXTURE_2D, q->texture_number );
+	SetTexParameters ();
 
 	if (nomips)
 		qglTexImage2D(GL_TEXTURE_2D, 0, 3, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	else
 		VERIFY(qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, 2, 2,GL_RGBA, GL_UNSIGNED_BYTE, data) == 0);
 
-  qglBindTexture( GL_TEXTURE_2D, 0 );
-  return q;
+	qglBindTexture( GL_TEXTURE_2D, 0 );
+	return q;
 }
 
 
@@ -750,235 +596,235 @@ Texture_MakeNotexture
 */
 void Texture_MakeNotexture (void)
 {
-  notexture = Texture_MakeDefault();
-  // Timo
-  // Surface properties plugins can store their own data in an IPluginQTexture
-  if (g_qeglobals.bSurfacePropertiesPlugin)
-  {
-	  notexture->pData = g_SurfaceTable.m_pfnQTextureAlloc( notexture );
-	  GETPLUGINTEXDEF(notexture)->SetDefaultTexdef();
-  }
+	notexture = Texture_MakeDefault();
+	// Timo
+	// Surface properties plugins can store their own data in an IPluginQTexture
+	if (g_qeglobals.bSurfacePropertiesPlugin)
+	{
+		notexture->pData = g_SurfaceTable.m_pfnQTextureAlloc( notexture );
+		GETPLUGINTEXDEF(notexture)->SetDefaultTexdef();
+	}
 }
 
 
 void DemandLoadShaderTexture(qtexture_t *q, CShaderInfo *pShader)
 {
-  char cWork[1024];
-  char cWork2[1024];
-  strcpy(cWork, (pShader->m_strTextureName.GetLength() > 0) ? pShader->m_strTextureName  : pShader->m_strName);
-  StripExtension(cWork);
-  // TTimo: if the shader has a m_fTransValue != 1.0f, ignore the alpha channel when loading the texture
-  // in some cases (common/weapclip) the 32bit .tga has an empty alpha channel,
-  // causing a display bug in the camera view (brush does not seemed drawn since alpha==0 for the texture)
-  // NOTE: the workaround is not perfect, the same texture may have been loaded earlier with it's alpha channel
-  q = Texture_ForName (cWork, false, true, pShader->m_fTransValue != 1.0f, true, false);
+	char cWork[1024];
+	char cWork2[1024];
+	strcpy(cWork, (pShader->m_strTextureName.GetLength() > 0) ? pShader->m_strTextureName	: pShader->m_strName);
+	StripExtension(cWork);
+	// TTimo: if the shader has a m_fTransValue != 1.0f, ignore the alpha channel when loading the texture
+	// in some cases (common/weapclip) the 32bit .tga has an empty alpha channel,
+	// causing a display bug in the camera view (brush does not seemed drawn since alpha==0 for the texture)
+	// NOTE: the workaround is not perfect, the same texture may have been loaded earlier with it's alpha channel
+	q = Texture_ForName (cWork, false, true, pShader->m_fTransValue != 1.0f, true, false);
 
-  if (q == NULL || q == notexture) {
-    sprintf(cWork2, "%s/%s",ValueForKey(g_qeglobals.d_project_entity, "basepath"), cWork);
-    q = Texture_ForNamePath( cWork, cWork2);
+	if (q == NULL || q == notexture) {
+		sprintf(cWork2, "%s/%s",ValueForKey(g_qeglobals.d_project_entity, "basepath"), cWork);
+		q = Texture_ForNamePath( cWork, cWork2);
 
-    if (q == NULL || q == notexture) {
-      q = Texture_ForName (cWork, false, true, pShader->m_fTransValue != 1.0f, true, true);
-    }
-  }
+		if (q == NULL || q == notexture) {
+			q = Texture_ForName (cWork, false, true, pShader->m_fTransValue != 1.0f, true, true);
+		}
+	}
 
-  if (q != NULL && q != notexture)
-  {
-    pShader->m_pQTexture = q;
-    strcpy(q->shadername, pShader->m_strShaderName);
-    q->bFromShader = true;
-    q->fTrans = pShader->m_fTransValue;
-    q->nShaderFlags = pShader->m_nFlags;
-    strcpy(q->name, pShader->m_strName );
-  }
-  else
-  {
-    Sys_Printf("Could not load shader editor image %s\n", cWork);
-  }
+	if (q != NULL && q != notexture)
+	{
+		pShader->m_pQTexture = q;
+		strcpy(q->shadername, pShader->m_strShaderName);
+		q->bFromShader = true;
+		q->fTrans = pShader->m_fTransValue;
+		q->nShaderFlags = pShader->m_nFlags;
+		strcpy(q->name, pShader->m_strName );
+	}
+	else
+	{
+		Sys_Printf("Could not load shader editor image %s\n", cWork);
+	}
 }
 
 
 void LoadShader(char* pFilename, qtexture_t *q)
 {
-  char* pBuff = NULL;
-  CString strTexture;
-  int nSize = LoadFile(pFilename, reinterpret_cast<void**>(&pBuff));
-  if (nSize == -1)
-  {
-    nSize = PakLoadAnyFile(pFilename, reinterpret_cast<void**>(&pBuff));
-  }
-  if (nSize > 0)
-  {
-    StartTokenParsing(pBuff);
-    while (GetToken(true))
-    {
-      // first token should be the path + name.. (from base)
-      CShaderInfo *pShader = new CShaderInfo();
-      pShader->setName(token);
-      pShader->m_strShaderName = pFilename;
-      strTexture = token;
-      bool bGood = true;
-      float fTrans = 1.0;
-      GetToken(true);
-      if (strcmp(token, "{"))
-      {
-        bGood = false;
-        break;
-      }
-      else
-      {
-        // we need to read until we hit a balanced }
-        int nMatch = 1;
-        while (nMatch > 0 && GetToken(true))
-        {
-          if (strcmp(token, "{") == 0)
-          {
-            nMatch++;
-          }
-          else if (strcmp(token, "}") == 0)
-          {
-            nMatch--;
-          }
-          else if (strcmpi(token, "qer_nocarve") == 0)
-          {
-            pShader->m_nFlags |= QER_NOCARVE;
-          }
-          else if (strcmpi(token, "qer_trans") == 0)
-          {
-            if (GetToken(true))
-            {
-              fTrans = atof(token);
-            }
-            pShader->m_nFlags |= QER_TRANS;
-          }
-          else if (strcmpi(token, "qer_editorimage") == 0)
-          {
-            if (GetToken(true))
-            {
-              char* pTex = copystring(token);
-          		QE_ConvertDOSToUnixName( pTex, pTex );
-              CString str = pTex;
-              free (pTex);
-              FindReplace(str, "textures/", "");
-              FindReplace(str, ".tga", "");
-              int nPos = str.Find('/');
-              if (nPos == -1)
-              {
-                nPos = str.Find('\\');
-              }
-              if (nPos >= 0)
-              {
-                pShader->m_strTextureName = str;
-		 					  pShader->m_strTextureName.MakeLower();	//avoid problems with case
+	char* pBuff = NULL;
+	CString strTexture;
+	int nSize = LoadFile(pFilename, reinterpret_cast<void**>(&pBuff));
+	if (nSize == -1)
+	{
+		nSize = PakLoadAnyFile(pFilename, reinterpret_cast<void**>(&pBuff));
+	}
+	if (nSize > 0)
+	{
+		StartTokenParsing(pBuff);
+		while (GetToken(true))
+		{
+			// first token should be the path + name.. (from base)
+			CShaderInfo *pShader = new CShaderInfo();
+			pShader->setName(token);
+			pShader->m_strShaderName = pFilename;
+			strTexture = token;
+			bool bGood = true;
+			float fTrans = 1.0;
+			GetToken(true);
+			if (strcmp(token, "{"))
+			{
+				bGood = false;
+				break;
+			}
+			else
+			{
+				// we need to read until we hit a balanced }
+				int nMatch = 1;
+				while (nMatch > 0 && GetToken(true))
+				{
+					if (strcmp(token, "{") == 0)
+					{
+						nMatch++;
+					}
+					else if (strcmp(token, "}") == 0)
+					{
+						nMatch--;
+					}
+					else if (strcmpi(token, "qer_nocarve") == 0)
+					{
+						pShader->m_nFlags |= QER_NOCARVE;
+					}
+					else if (strcmpi(token, "qer_trans") == 0)
+					{
+						if (GetToken(true))
+						{
+							fTrans = atof(token);
+						}
+						pShader->m_nFlags |= QER_TRANS;
+					}
+					else if (strcmpi(token, "qer_editorimage") == 0)
+					{
+						if (GetToken(true))
+						{
+							char* pTex = copystring(token);
+							QE_ConvertDOSToUnixName( pTex, pTex );
+							CString str = pTex;
+							free (pTex);
+							FindReplace(str, "textures/", "");
+							FindReplace(str, ".tga", "");
+							int nPos = str.Find('/');
+							if (nPos == -1)
+							{
+								nPos = str.Find('\\');
+							}
+							if (nPos >= 0)
+							{
+								pShader->m_strTextureName = str;
+		 						pShader->m_strTextureName.MakeLower();	//avoid problems with case
 /*
-                else
-                {
-                  CString strPath = str.Left(nPos+1);
-                  DeferredShaderLoad *deferred = new DeferredShaderLoad(str, pShader->m_strName, strPath); 
-                  g_lstDeferred.Add(deferred);
-                }
+								else
+								{
+									CString strPath = str.Left(nPos+1);
+									DeferredShaderLoad *deferred = new DeferredShaderLoad(str, pShader->m_strName, strPath); 
+									g_lstDeferred.Add(deferred);
+								}
 */
-              }
-            }
-          }
-          else if (strcmpi(token, "surfaceparm") == 0)
-          {
-            //--while (GetToken(false))
-            //--{
-            //--
-            //--}
-            if (GetToken(true))
-            {
-              // next token should be a surface parm
-              //--if (strcmpi(token, "trans") == 0)
-              //--{
-              //--  fTrans = 0.33;
-              //--}
-              if (strcmpi(token, "fog") == 0)
-              {
-                if (fTrans == 1.0) // has not been explicitly set by qer_trans
-                {
-                  fTrans = 0.35;
-                }
-              }
-            }
-          }
-        }
-        if (nMatch != 0)
-        {
-          bGood = false;
-          break;
-        }
-      }
-      //--if (bGood && q)
-      if (bGood)
-      {
-        pShader->m_fTransValue = fTrans;
-        g_lstShaders.Add(pShader);
+							}
+						}
+					}
+					else if (strcmpi(token, "surfaceparm") == 0)
+					{
+						//--while (GetToken(false))
+						//--{
+						//--
+						//--}
+						if (GetToken(true))
+						{
+							// next token should be a surface parm
+							//--if (strcmpi(token, "trans") == 0)
+							//--{
+							//--	fTrans = 0.33;
+							//--}
+							if (strcmpi(token, "fog") == 0)
+							{
+								if (fTrans == 1.0) // has not been explicitly set by qer_trans
+								{
+									fTrans = 0.35;
+								}
+							}
+						}
+					}
+				}
+				if (nMatch != 0)
+				{
+					bGood = false;
+					break;
+				}
+			}
+			//--if (bGood && q)
+			if (bGood)
+			{
+				pShader->m_fTransValue = fTrans;
+				g_lstShaders.Add(pShader);
 
-        int n = g_PrefsDlg.m_nShader;
-        if (g_PrefsDlg.m_nShader == CPrefsDlg::SHADER_ALL || (g_PrefsDlg.m_nShader == CPrefsDlg::SHADER_COMMON && strstr(pShader->m_strName, "common" )))
-        {
+				int n = g_PrefsDlg.m_nShader;
+				if (g_PrefsDlg.m_nShader == CPrefsDlg::SHADER_ALL || (g_PrefsDlg.m_nShader == CPrefsDlg::SHADER_COMMON && strstr(pShader->m_strName, "common" )))
+				{
 // new 
-          if (pShader->m_strTextureName.GetLength() > 0)
-          {
-            if (!ShaderQTextureExists(pShader->m_strName))
-            {
-              DemandLoadShaderTexture(q, pShader);
-            }
-          }
-        }
+					if (pShader->m_strTextureName.GetLength() > 0)
+					{
+						if (!ShaderQTextureExists(pShader->m_strName))
+						{
+							DemandLoadShaderTexture(q, pShader);
+						}
+					}
+				}
 // end new 
-        //--q->bFromShader = true;
-        //--q->fTrans = fTrans;
+				//--q->bFromShader = true;
+				//--q->fTrans = fTrans;
 
-        //--// good texture here
-        //--//Sys_Printf("Test load texture %s\n", strTexture);
-        //--// FIXME.. this is a load of crap
-        //--strcpy(dirstring, strTexture);
-        //--QE_ConvertDOSToUnixName(dirstring, dirstring);
-        //--strTexture = dirstring;
-        //--FindReplace(strTexture, "textures/", "");
-		    //--qtexture_t *q = Texture_ForName (strTexture.GetBuffer(0));
-        //--if (q != NULL)
-        //--{
-        //--  q->bFromShader = true;
-        //--  q->fTrans = fTrans;
-        //--}
-      }
-      else
-      {
-        Sys_Printf("Error parsing shader at texture %s\n", strTexture);
-      }
+				//--// good texture here
+				//--//Sys_Printf("Test load texture %s\n", strTexture);
+				//--// FIXME.. this is a load of crap
+				//--strcpy(dirstring, strTexture);
+				//--QE_ConvertDOSToUnixName(dirstring, dirstring);
+				//--strTexture = dirstring;
+				//--FindReplace(strTexture, "textures/", "");
+				//--qtexture_t *q = Texture_ForName (strTexture.GetBuffer(0));
+				//--if (q != NULL)
+				//--{
+				//--	q->bFromShader = true;
+				//--	q->fTrans = fTrans;
+				//--}
+			}
+			else
+			{
+				Sys_Printf("Error parsing shader at texture %s\n", strTexture);
+			}
 
-    }
-    free (pBuff);
-  }
-  else
-  {
-    Sys_Printf("Unabled to read shader %s\n", pFilename);
-  }
+		}
+		free (pBuff);
+	}
+	else
+	{
+		Sys_Printf("Unabled to read shader %s\n", pFilename);
+	}
 }
 
 
 extern bool DoesFileExist(const char* pBuff, long& lSize);
 CShaderInfo* SetNameShaderInfo(qtexture_t* q, const char* pPath, const char* pName)
 {
-  CShaderInfo *pInfo = hasShader(pName);
-  if (pInfo)
-  {
-    strcpy(q->shadername, pInfo->m_strShaderName);
-    q->bFromShader = true;
-    q->fTrans = pInfo->m_fTransValue;
-    q->nShaderFlags = pInfo->m_nFlags;
-  }
-  else
-  {
-    q->shadername[0] = 0;
-  }
-  strncpy (q->name, pName, sizeof(q->name) - 1);
+	CShaderInfo *pInfo = hasShader(pName);
+	if (pInfo)
+	{
+		strcpy(q->shadername, pInfo->m_strShaderName);
+		q->bFromShader = true;
+		q->fTrans = pInfo->m_fTransValue;
+		q->nShaderFlags = pInfo->m_nFlags;
+	}
+	else
+	{
+		q->shadername[0] = 0;
+	}
+	strncpy (q->name, pName, sizeof(q->name) - 1);
 	StripExtension (q->name);
-  return pInfo;
+	return pInfo;
 }
 
 void ReplaceQTexture(qtexture_t *pOld, qtexture_t *pNew, brush_t *pList)
@@ -1009,41 +855,41 @@ void ReplaceQTexture(qtexture_t *pOld, qtexture_t *pNew, brush_t *pList)
 
 void Texture_Remove(qtexture_t *q)
 {
-  qtexture_t* pTex = g_qeglobals.d_qtextures->next;
-  if (q == g_qeglobals.d_qtextures)   // it is the head
-  {
-    g_qeglobals.d_qtextures->next = q->next->next;
-    g_qeglobals.d_qtextures = q->next;
-  }
-  else
-  {
-    qtexture_t* pLast = g_qeglobals.d_qtextures;
-    while (pTex != NULL && pTex != g_qeglobals.d_qtextures)
-    {
-      if (pTex == q)
-      {
-        pLast->next = q->next;
-        break;
-      }
-      pLast = pTex;
-      pTex = pTex->next;
-    }
-  }
-  qglDeleteTextures(1, reinterpret_cast<const unsigned int*>(&q->texture_number));
+	qtexture_t* pTex = g_qeglobals.d_qtextures->next;
+	if (q == g_qeglobals.d_qtextures)	 // it is the head
+	{
+		g_qeglobals.d_qtextures->next = q->next->next;
+		g_qeglobals.d_qtextures = q->next;
+	}
+	else
+	{
+		qtexture_t* pLast = g_qeglobals.d_qtextures;
+		while (pTex != NULL && pTex != g_qeglobals.d_qtextures)
+		{
+			if (pTex == q)
+			{
+				pLast->next = q->next;
+				break;
+			}
+			pLast = pTex;
+			pTex = pTex->next;
+		}
+	}
+	qglDeleteTextures(1, reinterpret_cast<const unsigned int*>(&q->texture_number));
 
-  if (g_qeglobals.bSurfacePropertiesPlugin)
-  {
-	  // Timo
-	  // Surface properties plugin
+	if (g_qeglobals.bSurfacePropertiesPlugin)
+	{
+		// Timo
+		// Surface properties plugin
 #ifdef _DEBUG
-	  if ( !q->pData )
-		  Sys_Printf("WARNING: found a qtexture_t* with no IPluginQTexture\n");
+		if ( !q->pData )
+			Sys_Printf("WARNING: found a qtexture_t* with no IPluginQTexture\n");
 #endif
-	  if ( q->pData )
-		  GETPLUGINTEXDEF(q)->DecRef();
-  }
+		if ( q->pData )
+			GETPLUGINTEXDEF(q)->DecRef();
+	}
 
-  free(q);
+	free(q);
 
 }
 
@@ -1064,7 +910,7 @@ qtexture_t * Texture_MakeNoshadertexture( const char *name )
 	q->fTrans = 1;
 
 	q = (qtexture_t*)qmalloc(sizeof(*q));
-  strcpy (q->name, name);
+	strcpy (q->name, name);
 
 	q->width = q->height = 64;
 	q->fTrans = 1;
@@ -1101,11 +947,11 @@ Texture_ForName
 //an already loaded texture
 qtexture_t *Texture_ForName (const char *name, bool bReplace, bool bShader, bool bNoAlpha, bool bReload, bool makeShader)
 {
-  byte    *lump;
+	byte		*lump;
 	qtexture_t	*q = NULL;
 	char	filename[1024];
 	
-  if (name == NULL || strlen(name) == 0)
+	if (name == NULL || strlen(name) == 0)
 		return notexture;
 	
 	qtexture_t *pRemove = NULL;
@@ -1114,7 +960,7 @@ qtexture_t *Texture_ForName (const char *name, bool bReplace, bool bShader, bool
 	{
 		for (q=g_qeglobals.d_qtextures ; q ; q=q->next)
 		{
-			if (!strcmp(name,  q->name))
+			if (!strcmp(name,	q->name))
 			{
 				if (bReplace)
 				{
@@ -1139,25 +985,25 @@ qtexture_t *Texture_ForName (const char *name, bool bReplace, bool bShader, bool
 		}
 	}
 
-  // did not find it in the standard list
-  // skip entity names (
-  if (!bShader && name[0] != '(')
-  {
-    CShaderInfo* pShader = hasShader(name);
-    if (pShader)
-    {
-      if (pShader->m_pQTexture == NULL)
-      {
-        DemandLoadShaderTexture(q, pShader);
-      }
-      q = pShader->m_pQTexture;
-      //Sys_Printf ("used Shader %s.\n", pShader->m_strName);
-    }
-    if ( q != NULL)
-    {
-      return q;
-    }
-  }
+	// did not find it in the standard list
+	// skip entity names (
+	if (!bShader && name[0] != '(')
+	{
+		CShaderInfo* pShader = hasShader(name);
+		if (pShader)
+		{
+			if (pShader->m_pQTexture == NULL)
+			{
+				DemandLoadShaderTexture(q, pShader);
+			}
+			q = pShader->m_pQTexture;
+			//Sys_Printf ("used Shader %s.\n", pShader->m_strName);
+		}
+		if ( q != NULL)
+		{
+			return q;
+		}
+	}
 
 	
 	if (name[0] == '(')
@@ -1172,7 +1018,7 @@ qtexture_t *Texture_ForName (const char *name, bool bReplace, bool bShader, bool
 		// 
 		// if plugins have a texture loader
 		// {
-		//   
+		//	 
 		// }
 		// else
 		// 
@@ -1185,8 +1031,8 @@ qtexture_t *Texture_ForName (const char *name, bool bReplace, bool bShader, bool
 			CString strTex = GetTextureExtension(0);
 			sprintf (filename, "%s\\%s.%s", ValueForKey (g_qeglobals.d_project_entity, "texturepath"), name, strTex);
 			if (!g_pParentWnd->GetPlugInMgr().GetTextureInfo()->m_bWadStyle)
-      {   
-				g_pParentWnd->GetPlugInMgr().LoadTexture(filename);        
+			{	 
+				g_pParentWnd->GetPlugInMgr().LoadTexture(filename);				
 				if (g_pluginTexture)
 					q = g_pluginTexture;
 			}
@@ -1197,28 +1043,28 @@ qtexture_t *Texture_ForName (const char *name, bool bReplace, bool bShader, bool
 			}
 		}
 		else
-      // we need to try several formats here, or would it be better if we are given a complete name
+			// we need to try several formats here, or would it be better if we are given a complete name
 			if (g_PrefsDlg.m_bHiColorTextures == TRUE)
 			{
-		    char cWork[1024];
-		  	sprintf (filename, "%s/%s.tga", ValueForKey (g_qeglobals.d_project_entity, "texturepath"), name);
-    		QE_ConvertDOSToUnixName( cWork, filename );
-		    strcpy(filename, cWork);
+				char cWork[1024];
+				sprintf (filename, "%s/%s.tga", ValueForKey (g_qeglobals.d_project_entity, "texturepath"), name);
+				QE_ConvertDOSToUnixName( cWork, filename );
+				strcpy(filename, cWork);
 				Sys_Printf ("Loading %s...", name);
 				unsigned char* pPixels = NULL;
 				int nWidth;
 				int nHeight;
 				LoadImage(filename, &pPixels, &nWidth, &nHeight);
-        if (pPixels == NULL)
-        {
-          // try jpg
-          // blatant assumption of .tga should be fine since we sprintf'd it above
-          int nLen = strlen(filename);
-          filename[nLen-3] = 'j';
-          filename[nLen-2] = 'p';
-          filename[nLen-1] = 'g';
-				  LoadImage(filename, &pPixels, &nWidth, &nHeight);
-        }
+				if (pPixels == NULL)
+				{
+					// try jpg
+					// blatant assumption of .tga should be fine since we sprintf'd it above
+					int nLen = strlen(filename);
+					filename[nLen-3] = 'j';
+					filename[nLen-2] = 'p';
+					filename[nLen-1] = 'g';
+					LoadImage(filename, &pPixels, &nWidth, &nHeight);
+				}
 				if (pPixels)
 				{
 					// if we were asked to ignore alpha channel, do it now (.TGA is the only supported file type with alpha channel)
@@ -1230,20 +1076,20 @@ qtexture_t *Texture_ForName (const char *name, bool bReplace, bool bShader, bool
 						for(iPix=pPixels+3; iPix-pPixels < nCount*4; iPix+=4)
 							*iPix = 255;
 					}
-          // we'll be binding the GL texture now
-          // need to check we are using a right GL context
-          // with GL plugins that have their own window, the GL context may be the plugin's, in which case loading textures will bug
-	        HDC currentHDC = qwglGetCurrentDC();
-	        HGLRC currentHGLRC = qwglGetCurrentContext();
-          //++timo FIXME: this may duplicate with qtexture_t* WINAPI QERApp_Texture_ForName (const char *name)
-          //++timo FIXME: we need a list of lawfull GL contexts or something?
-          // I'd rather always use the same GL context for binding...
-          if (currentHDC != g_qeglobals.d_hdcBase || currentHGLRC != g_qeglobals.d_hglrcBase)
-	          qwglMakeCurrent( g_qeglobals.d_hdcBase, g_qeglobals.d_hglrcBase );
+					// we'll be binding the GL texture now
+					// need to check we are using a right GL context
+					// with GL plugins that have their own window, the GL context may be the plugin's, in which case loading textures will bug
+					HDC currentHDC = qwglGetCurrentDC();
+					HGLRC currentHGLRC = qwglGetCurrentContext();
+					//++timo FIXME: this may duplicate with qtexture_t* WINAPI QERApp_Texture_ForName (const char *name)
+					//++timo FIXME: we need a list of lawfull GL contexts or something?
+					// I'd rather always use the same GL context for binding...
+					if (currentHDC != g_qeglobals.d_hdcBase || currentHGLRC != g_qeglobals.d_hglrcBase)
+						qwglMakeCurrent( g_qeglobals.d_hdcBase, g_qeglobals.d_hglrcBase );
 					q = Texture_LoadTGATexture(pPixels, nWidth, nHeight, NULL, 0, 0, 0);
-          //++timo I don't set back the GL context .. I don't know how safe it is
-          //qwglMakeCurrent( currentHDC, currentHGLRC );
-    	//++timo storing the filename .. will be removed by shader code cleanup
+					//++timo I don't set back the GL context .. I don't know how safe it is
+					//qwglMakeCurrent( currentHDC, currentHGLRC );
+			//++timo storing the filename .. will be removed by shader code cleanup
 		// this is dirty, and we sure miss some places were we should fill the filename info
 		strcpy( q->filename, name );
 					SetNameShaderInfo(q, filename, name);
@@ -1282,28 +1128,28 @@ qtexture_t *Texture_ForName (const char *name, bool bReplace, bool bShader, bool
 	}// name[0] != '('
 	
 	if(!q)	// safety
-  {
-    if (bShader && !makeShader) {
-      return q;
-    }
-  
-    if (bShader)
-    {
-      q = Texture_MakeNoshadertexture( name );
-	    Sys_Printf("failed, using default shader\n");
-    }
-    else
-    {
-      q = Texture_MakeDefault();
-	    Sys_Printf("failed, using default\n");
-    }
-  }
+	{
+		if (bShader && !makeShader) {
+			return q;
+		}
 	
-  strncpy (q->name, name, sizeof(q->name)-1);
-  if (name[0] != '(')
-  {
-    StripExtension (q->name);
-  }
+		if (bShader)
+		{
+			q = Texture_MakeNoshadertexture( name );
+			Sys_Printf("failed, using default shader\n");
+		}
+		else
+		{
+			q = Texture_MakeDefault();
+			Sys_Printf("failed, using default\n");
+		}
+	}
+	
+	strncpy (q->name, name, sizeof(q->name)-1);
+	if (name[0] != '(')
+	{
+		StripExtension (q->name);
+	}
 
 	if (!g_dontuse)
 		q->inuse = true;
@@ -1327,22 +1173,22 @@ Texture_ForNamePath
 */
 qtexture_t *Texture_ForNamePath(char* name, char* pFullPath)
 {
-  byte    *lump;
+	byte		*lump;
 	qtexture_t	*q;
 	char	filename[1024];
 
-  if (strlen(name) == 0)
-    return notexture;
+	if (strlen(name) == 0)
+		return notexture;
 
 	for (q=g_qeglobals.d_qtextures ; q ; q=q->next)
-  {
-	  if (!strcmp(name,  q->name))
+	{
+		if (!strcmp(name,	q->name))
 		{
 			if (!g_dontuse)
 				q->inuse = true;
-		    return q;
+				return q;
 		}
-  }
+	}
 
 	if (name[0] == '(')
 	{
@@ -1352,64 +1198,64 @@ qtexture_t *Texture_ForNamePath(char* name, char* pFullPath)
 	else
 	{
 		// load the file
-    if (g_PrefsDlg.m_bHiColorTextures == TRUE)
-    {
-      char cWork[1024];
-      if (strstr(pFullPath, ".tga") == NULL) {
-        sprintf(filename, "%s%s", pFullPath, ".tga");
-      } else {
-        strcpy(filename, pFullPath);
-      }
-  		QE_ConvertDOSToUnixName( cWork, filename );
-	    strcpy(filename, cWork);
-		  Sys_Printf ("Loading %s...", name);
-      unsigned char* pPixels = NULL;
-      int nWidth;
-      int nHeight;
-      LoadImage(filename, &pPixels, &nWidth, &nHeight);
-      if (!pPixels)
-      {
-        // try jpg
-        // blatant assumption of .tga should be fine since we sprintf'd it above
-        int nLen = strlen(filename);
-        filename[nLen-3] = 'j';
-        filename[nLen-2] = 'p';
-        filename[nLen-1] = 'g';
+		if (g_PrefsDlg.m_bHiColorTextures == TRUE)
+		{
+			char cWork[1024];
+			if (strstr(pFullPath, ".tga") == NULL) {
+				sprintf(filename, "%s%s", pFullPath, ".tga");
+			} else {
+				strcpy(filename, pFullPath);
+			}
+			QE_ConvertDOSToUnixName( cWork, filename );
+			strcpy(filename, cWork);
+			Sys_Printf ("Loading %s...", name);
+			unsigned char* pPixels = NULL;
+			int nWidth;
+			int nHeight;
+			LoadImage(filename, &pPixels, &nWidth, &nHeight);
+			if (!pPixels)
+			{
+				// try jpg
+				// blatant assumption of .tga should be fine since we sprintf'd it above
+				int nLen = strlen(filename);
+				filename[nLen-3] = 'j';
+				filename[nLen-2] = 'p';
+				filename[nLen-1] = 'g';
 				LoadImage(filename, &pPixels, &nWidth, &nHeight);
-      }
-      if (pPixels)
-      {
-        q = Texture_LoadTGATexture(pPixels, nWidth, nHeight, NULL, 0, 0, 0);
-    	//++timo storing the filename .. will be removed by shader code cleanup
+			}
+			if (pPixels)
+			{
+				q = Texture_LoadTGATexture(pPixels, nWidth, nHeight, NULL, 0, 0, 0);
+			//++timo storing the filename .. will be removed by shader code cleanup
 		// this is dirty, and we sure miss some places were we should fill the filename info
 		// NOTE: we store relative path, need to extract it
 		strcpy( q->filename, name );
 
-      }
-      else
-      {
-        return notexture;
-      }
-      free(pPixels);
-    }
-    else
-    {
-      sprintf(filename, "%s%s", pFullPath, ".wal");
-		  Sys_Printf ("Loading %s...", name);
-		  if (LoadFile (filename, (void**)&lump) == -1)
-      {
-			  Sys_Printf (" load failed!\n");
-			  return notexture;
-      }
-      Sys_Printf("successful.\n");
-		  q = Texture_LoadTexture ((miptex_t *)lump);
-		  free (lump);
-    }
-    if (g_PrefsDlg.m_bSGIOpenGL)
-    {
-		  if(!q)
-			  return notexture;
-    }
+			}
+			else
+			{
+				return notexture;
+			}
+			free(pPixels);
+		}
+		else
+		{
+			sprintf(filename, "%s%s", pFullPath, ".wal");
+			Sys_Printf ("Loading %s...", name);
+			if (LoadFile (filename, (void**)&lump) == -1)
+			{
+				Sys_Printf (" load failed!\n");
+				return notexture;
+			}
+			Sys_Printf("successful.\n");
+			q = Texture_LoadTexture ((miptex_t *)lump);
+			free (lump);
+		}
+		if (g_PrefsDlg.m_bSGIOpenGL)
+		{
+			if(!q)
+				return notexture;
+		}
 		strncpy (q->name, name, sizeof(q->name)-1);
 		StripExtension (q->name);
 	}
@@ -1419,7 +1265,7 @@ qtexture_t *Texture_ForNamePath(char* name, char* pFullPath)
 	q->next = g_qeglobals.d_qtextures;
 	g_qeglobals.d_qtextures = q;
 
-  return q;
+	return q;
 }
 
 
@@ -1440,11 +1286,11 @@ void FillTextureMenu (CStringArray* pArray)
 	char	*path;
 	DIRLIST	*list = NULL, *temp;
 
-  if (g_pParentWnd->GetPlugInMgr().GetTextureInfo() != NULL)
-  {
-    if (g_pParentWnd->GetPlugInMgr().GetTextureInfo()->m_bWadStyle)
-      return;
-  }
+	if (g_pParentWnd->GetPlugInMgr().GetTextureInfo() != NULL)
+	{
+		if (g_pParentWnd->GetPlugInMgr().GetTextureInfo()->m_bWadStyle)
+			return;
+	}
 
 	hmenu = GetSubMenu (GetMenu(g_qeglobals.d_hwndMain), MENU_TEXTURE);
 
@@ -1452,68 +1298,68 @@ void FillTextureMenu (CStringArray* pArray)
 	for (i=0 ; i<texture_nummenus ; i++)
 		DeleteMenu (hmenu, CMD_TEXTUREWAD+i, MF_BYCOMMAND);
 
-  texture_nummenus = 0;
+	texture_nummenus = 0;
 
 	// add everything
-  if (g_qeglobals.d_project_entity)
-  {
-    //--if (g_PrefsDlg.m_bUseShaders)
-    //--{
-	  //--  path = ValueForKey (g_qeglobals.d_project_entity, "basepath");
-	  //--  sprintf (dirstring, "%s/scripts/*.shader", path);
-    //--
-    //--}
-    //--else
-    //--{
-	    path = ValueForKey (g_qeglobals.d_project_entity, "texturepath");
-	    sprintf (dirstring, "%s/*.*", path);
-    //--}
+	if (g_qeglobals.d_project_entity)
+	{
+		//--if (g_PrefsDlg.m_bUseShaders)
+		//--{
+		//--	path = ValueForKey (g_qeglobals.d_project_entity, "basepath");
+		//--	sprintf (dirstring, "%s/scripts/*.shader", path);
+		//--
+		//--}
+		//--else
+		//--{
+			path = ValueForKey (g_qeglobals.d_project_entity, "texturepath");
+			sprintf (dirstring, "%s/*.*", path);
+		//--}
 
-	  handle = _findfirst (dirstring, &fileinfo);
-	  if (handle != -1)
-    {
-	    do
-	    {
-        //--if (g_PrefsDlg.m_bUseShaders)
-        //--{
-		    //--  if ((fileinfo.attrib & _A_SUBDIR))
-        //--    continue;
-        //--}
-        //--else
-        //--{
-		      if (!(fileinfo.attrib & _A_SUBDIR))
-		        continue;
-		      if (fileinfo.name[0] == '.')
-		        continue;
-        //--}
-        // add this directory to the menu
-	      AddToDirListAlphabetized(&list, fileinfo.name, FROMDISK);
-	    } while (_findnext( handle, &fileinfo ) != -1);
+		handle = _findfirst (dirstring, &fileinfo);
+		if (handle != -1)
+		{
+			do
+			{
+				//--if (g_PrefsDlg.m_bUseShaders)
+				//--{
+				//--	if ((fileinfo.attrib & _A_SUBDIR))
+				//--		continue;
+				//--}
+				//--else
+				//--{
+					if (!(fileinfo.attrib & _A_SUBDIR))
+						continue;
+					if (fileinfo.name[0] == '.')
+						continue;
+				//--}
+				// add this directory to the menu
+				AddToDirListAlphabetized(&list, fileinfo.name, FROMDISK);
+			} while (_findnext( handle, &fileinfo ) != -1);
 
-	    _findclose (handle);
-    }
+			_findclose (handle);
+		}
 
-    //--if (!g_PrefsDlg.m_bUseShaders)
-    //--{
-      GetPackTextureDirs(&list);
-    //--}
+		//--if (!g_PrefsDlg.m_bUseShaders)
+		//--{
+			GetPackTextureDirs(&list);
+		//--}
 
-	  for(temp = list; temp; temp = temp->next)
-	  {
-		  AppendMenu (hmenu, MF_ENABLED|MF_STRING, CMD_TEXTUREWAD+texture_nummenus, (LPCTSTR)temp->dirname);
-		  strcpy (texture_menunames[texture_nummenus], temp->dirname);
-      //--if (!g_PrefsDlg.m_bUseShaders)
-      //--{
-		    strcat (texture_menunames[texture_nummenus], "/");
-      //--}
-      if (pArray)
-        pArray->Add(temp->dirname);
-		  if (++texture_nummenus == MAX_TEXTUREDIRS)
-		   break;
-	  }
+		for(temp = list; temp; temp = temp->next)
+		{
+			AppendMenu (hmenu, MF_ENABLED|MF_STRING, CMD_TEXTUREWAD+texture_nummenus, (LPCTSTR)temp->dirname);
+			strcpy (texture_menunames[texture_nummenus], temp->dirname);
+			//--if (!g_PrefsDlg.m_bUseShaders)
+			//--{
+				strcat (texture_menunames[texture_nummenus], "/");
+			//--}
+			if (pArray)
+				pArray->Add(temp->dirname);
+			if (++texture_nummenus == MAX_TEXTUREDIRS)
+			 break;
+		}
 
-	  ClearDirList(&list);
-  }
+		ClearDirList(&list);
+	}
 
 
 }
@@ -1531,7 +1377,7 @@ void Texture_ClearInuse (void)
 	qtexture_t	*q;
 
 	for (q=g_qeglobals.d_qtextures ; q ; q=q->next)
-    {
+		{
 		q->inuse = false;
 	}
 }
@@ -1541,19 +1387,19 @@ void Texture_ClearInuse (void)
 
 void LoadShadersFromDir(const char *pPath)
 {
-  int nSize = g_lstShaders.GetSize();
-  for (int i = 0; i < nSize; i++)
-  {
-    CShaderInfo *pInfo = reinterpret_cast<CShaderInfo*>(g_lstShaders.ElementAt(i));
-    if (pInfo != NULL)
-    {
-      if (strstr(pInfo->m_strName, pPath) && pInfo->m_pQTexture == NULL && strstr(pInfo->m_strName, "models/player") == NULL)
-      {
-        qtexture_t *q = NULL;
-        DemandLoadShaderTexture(q, pInfo);
-      }
-    }
-  }
+	int nSize = g_lstShaders.GetSize();
+	for (int i = 0; i < nSize; i++)
+	{
+		CShaderInfo *pInfo = reinterpret_cast<CShaderInfo*>(g_lstShaders.ElementAt(i));
+		if (pInfo != NULL)
+		{
+			if (strstr(pInfo->m_strName, pPath) && pInfo->m_pQTexture == NULL && strstr(pInfo->m_strName, "models/player") == NULL)
+			{
+				qtexture_t *q = NULL;
+				DemandLoadShaderTexture(q, pInfo);
+			}
+		}
+	}
 }
 
 
@@ -1570,129 +1416,129 @@ void	Texture_ShowDirectory (int menunum, bool bLinked)
 	char	dirstring[1024];
 	char	linkstring[1024];
 	FILELIST			*list = NULL, *temp;
-  CString strTemp;
+	CString strTemp;
 
-  //Texture_Flush(false);
+	//Texture_Flush(false);
 	//Select_Deselect();
 	Texture_ClearInuse();
 	texture_showinuse = false;
 	strcpy (texture_directory, texture_menunames[menunum-CMD_TEXTUREWAD]);
 
-  if (g_pParentWnd->GetPlugInMgr().GetTextureInfo() != NULL)
-  {
-    if (g_pParentWnd->GetPlugInMgr().GetTextureInfo()->m_bWadStyle)
-      return;
-  }
+	if (g_pParentWnd->GetPlugInMgr().GetTextureInfo() != NULL)
+	{
+		if (g_pParentWnd->GetPlugInMgr().GetTextureInfo()->m_bWadStyle)
+			return;
+	}
 
-  // new
+	// new
 /*
-  if (!g_PrefsDlg.m_bShaderTest)
-  {
+	if (!g_PrefsDlg.m_bShaderTest)
+	{
 	g_dontuse = true;	// needed because this next piece of code calls Texture_ForName() internally! -slc
-    LoadDeferred(texture_directory);
-    g_dontuse = false;
-  }
+		LoadDeferred(texture_directory);
+		g_dontuse = false;
+	}
 */
-  if (g_PrefsDlg.m_bHiColorTextures == FALSE)
-  {
-  }
+	if (g_PrefsDlg.m_bHiColorTextures == FALSE)
+	{
+	}
 
 	g_qeglobals.d_texturewin.originy = 0;
 
-  //--if (g_PrefsDlg.m_bUseShaders)
-  //--{
-  //--  sprintf (dirstring, "%s/scripts/%s", ValueForKey (g_qeglobals.d_project_entity, "basepath"), texture_directory);
-	//--  Sys_Printf("loading textures from shader %s\n", dirstring);
-  //--  LoadShader(dirstring);
-  //--}
-  //--else
-  //--{
-	  Sys_Status("Loading textures\n", 0);
+	//--if (g_PrefsDlg.m_bUseShaders)
+	//--{
+	//--	sprintf (dirstring, "%s/scripts/%s", ValueForKey (g_qeglobals.d_project_entity, "basepath"), texture_directory);
+	//--	Sys_Printf("loading textures from shader %s\n", dirstring);
+	//--	LoadShader(dirstring);
+	//--}
+	//--else
+	//--{
+		Sys_Status("Loading textures\n", 0);
 
-	  // load all image files
-                                          
-    sprintf (linkstring, "%s/textures/%stextureinfo.ini", ValueForKey (g_qeglobals.d_project_entity, "basepath"), texture_menunames[menunum-CMD_TEXTUREWAD]);
+		// load all image files
+																					
+		sprintf (linkstring, "%s/textures/%stextureinfo.ini", ValueForKey (g_qeglobals.d_project_entity, "basepath"), texture_menunames[menunum-CMD_TEXTUREWAD]);
 
-    for (int nExt = 0; nExt < GetTextureExtensionCount(); nExt++)
-    {
-      sprintf (dirstring, "%s/textures/%s*.%s", ValueForKey (g_qeglobals.d_project_entity, "basepath"), texture_menunames[menunum-CMD_TEXTUREWAD],GetTextureExtension(nExt));
-      Sys_Printf ("Scanning %s\n", dirstring);
-	    handle = _findfirst (dirstring, &fileinfo);
+		for (int nExt = 0; nExt < GetTextureExtensionCount(); nExt++)
+		{
+			sprintf (dirstring, "%s/textures/%s*.%s", ValueForKey (g_qeglobals.d_project_entity, "basepath"), texture_menunames[menunum-CMD_TEXTUREWAD],GetTextureExtension(nExt));
+			Sys_Printf ("Scanning %s\n", dirstring);
+			handle = _findfirst (dirstring, &fileinfo);
 
-      if (handle == -1)
-      {
-        sprintf(dirstring, "%s/%s*.%s", ValueForKey (g_qeglobals.d_project_entity, "texturepath"), texture_menunames[menunum-CMD_TEXTUREWAD],GetTextureExtension(nExt));
-        handle = _findfirst (dirstring, &fileinfo);
-      }
-      if (handle != -1)
-	    {
-		    do
-  		  {
-	  		  sprintf (name, "%s%s", texture_directory, fileinfo.name);
-		  	  AddToFileListAlphabetized(&list, name, FROMDISK, 0, false);
-  		  } while (_findnext( handle, &fileinfo ) != -1);
-	  	  _findclose (handle);
-  	  }
-	    else
-	    {
-	      sprintf (dirstring, "%s*.%s", texture_menunames[menunum-CMD_TEXTUREWAD],GetTextureExtension(nExt));
-  		  GetPackFileList(&list, dirstring);
-	    }
-    }
+			if (handle == -1)
+			{
+				sprintf(dirstring, "%s/%s*.%s", ValueForKey (g_qeglobals.d_project_entity, "texturepath"), texture_menunames[menunum-CMD_TEXTUREWAD],GetTextureExtension(nExt));
+				handle = _findfirst (dirstring, &fileinfo);
+			}
+			if (handle != -1)
+			{
+				do
+				{
+					sprintf (name, "%s%s", texture_directory, fileinfo.name);
+					AddToFileListAlphabetized(&list, name, FROMDISK, 0, false);
+				} while (_findnext( handle, &fileinfo ) != -1);
+				_findclose (handle);
+			}
+			else
+			{
+				sprintf (dirstring, "%s*.%s", texture_menunames[menunum-CMD_TEXTUREWAD],GetTextureExtension(nExt));
+				GetPackFileList(&list, dirstring);
+			}
+		}
 
-	  g_dontuse = true;
-	  for(temp = list; temp; temp = temp->next)
-	  {
-		  if(temp->offset == -1)
-			  sprintf(name, "%s", temp->filename);
-		  else
-			  sprintf(name, "%s%s", texture_menunames[menunum-CMD_TEXTUREWAD], temp->filename);
-		  StripExtension (name);
-      strTemp = name;
-      strTemp.MakeLower();
-      if ( strTemp.Find(".specular") >= 0 ||
-           strTemp.Find(".glow") >= 0 ||
-           strTemp.Find(".bump") >= 0 ||
-           strTemp.Find(".diffuse") >= 0 ||
-           strTemp.Find(".blend") >= 0 ||
-           strTemp.Find(".alpha") >= 0
-         )
-        continue;
-      else
-      {
-		    Texture_ForName (name, true);
-      }
-	  }
+		g_dontuse = true;
+		for(temp = list; temp; temp = temp->next)
+		{
+			if(temp->offset == -1)
+				sprintf(name, "%s", temp->filename);
+			else
+				sprintf(name, "%s%s", texture_menunames[menunum-CMD_TEXTUREWAD], temp->filename);
+			StripExtension (name);
+			strTemp = name;
+			strTemp.MakeLower();
+			if ( strTemp.Find(".specular") >= 0 ||
+					 strTemp.Find(".glow") >= 0 ||
+					 strTemp.Find(".bump") >= 0 ||
+					 strTemp.Find(".diffuse") >= 0 ||
+					 strTemp.Find(".blend") >= 0 ||
+					 strTemp.Find(".alpha") >= 0
+				 )
+				continue;
+			else
+			{
+				Texture_ForName (name, true);
+			}
+		}
 
-	  ClearFileList(&list);
-  //--}
+		ClearFileList(&list);
+	//--}
 
 
 	g_dontuse = false;
 
-  if (!bLinked)
-  {
+	if (!bLinked)
+	{
 
-    for (int k = 0; k < 10; k++)
-    {
-      sprintf(name, "Path%d", k);
-      if (GetPrivateProfileString("Include", name, "", dirstring, 1024, linkstring) > 0)
-      {
-        Texture_ShowDirectory(dirstring, true);
-      }
-    }
+		for (int k = 0; k < 10; k++)
+		{
+			sprintf(name, "Path%d", k);
+			if (GetPrivateProfileString("Include", name, "", dirstring, 1024, linkstring) > 0)
+			{
+				Texture_ShowDirectory(dirstring, true);
+			}
+		}
 
-    LoadShadersFromDir(texture_directory);
+		LoadShadersFromDir(texture_directory);
 
-    SortTextures();
-	  
-    sprintf (name, "Textures: %s", texture_directory);
-	  SetWindowText(g_qeglobals.d_hwndEntity, name);
+		SortTextures();
+		
+		sprintf (name, "Textures: %s", texture_directory);
+		SetWindowText(g_qeglobals.d_hwndEntity, name);
 
-	  // select the first texture in the list
-	  if (!g_qeglobals.d_texturewin.texdef.name[0])
-		  SelectTexture (16, g_qeglobals.d_texturewin.height -16, false);
-  }
+		// select the first texture in the list
+		if (!g_qeglobals.d_texturewin.texdef.name[0])
+			SelectTexture (16, g_qeglobals.d_texturewin.height -16, false);
+	}
 }
 
 
@@ -1707,44 +1553,44 @@ void	Texture_ShowDirectory (char* pPath, bool bLinked)
 	char	linkstring[1024];
 	FILELIST			*list = NULL, *temp;
 
-  //Texture_Flush(false);
+	//Texture_Flush(false);
 
 	texture_showinuse = false;
 	Texture_ClearInuse();
 	strcpy (texture_directory, pPath);
 
-  if (g_PrefsDlg.m_bHiColorTextures == FALSE)
-  {
-  }
+	if (g_PrefsDlg.m_bHiColorTextures == FALSE)
+	{
+	}
 
 	g_qeglobals.d_texturewin.originy = 0;
 	Sys_Status("loading all textures\n", 0);
 
 	// load all .wal files
-  for (int nExt = 0; nExt < GetTextureExtensionCount(); nExt++)
-  {
-    sprintf(dirstring, "%s*.%s", pPath,GetTextureExtension(nExt));
-                                          
-	  Sys_Printf ("Scanning %s\n", dirstring);
+	for (int nExt = 0; nExt < GetTextureExtensionCount(); nExt++)
+	{
+		sprintf(dirstring, "%s*.%s", pPath,GetTextureExtension(nExt));
+																					
+		Sys_Printf ("Scanning %s\n", dirstring);
 
-	  handle = _findfirst (dirstring, &fileinfo);
+		handle = _findfirst (dirstring, &fileinfo);
 
-    if (handle != -1)
-	  {
-		  do
-		  {
-			  sprintf (name, "%s%s", texture_directory, fileinfo.name);
-			  AddToFileListAlphabetized(&list, name, FROMDISK, 0, false);
-		  } while (_findnext( handle, &fileinfo ) != -1);
-		  _findclose (handle);
-	  }
-	  else
-	  {
-		  //sprintf (dirstring, "%s*.wal", texture_menunames[menunum-CMD_TEXTUREWAD]);
-		  //if(!GetPackFileList(&list, dirstring))
-			  return;
-	  }
-  }
+		if (handle != -1)
+		{
+			do
+			{
+				sprintf (name, "%s%s", texture_directory, fileinfo.name);
+				AddToFileListAlphabetized(&list, name, FROMDISK, 0, false);
+			} while (_findnext( handle, &fileinfo ) != -1);
+			_findclose (handle);
+		}
+		else
+		{
+			//sprintf (dirstring, "%s*.wal", texture_menunames[menunum-CMD_TEXTUREWAD]);
+			//if(!GetPackFileList(&list, dirstring))
+				return;
+		}
+	}
 
 	g_dontuse = true;
 	for(temp = list; temp; temp = temp->next)
@@ -1752,21 +1598,21 @@ void	Texture_ShowDirectory (char* pPath, bool bLinked)
 		if(temp->offset == -1)
 			sprintf(name, "%s", temp->filename);
 		else
-		  sprintf(name, "%s%s", pPath, temp->filename);
+			sprintf(name, "%s%s", pPath, temp->filename);
 		StripExtension (name);
 
-    int nLen = strlen(name)-1;
-    ASSERT(nLen > 0);
-    while (name[nLen] != '\\')
-      nLen--;
-    // found first one
-    nLen--;
-    ASSERT(nLen > 0);
-    while (name[nLen] != '\\')
-      nLen--;
-    ASSERT(nLen >= 0);
-    QE_ConvertDOSToUnixName(name, name);
-    Texture_ForName(&name[nLen+1]);
+		int nLen = strlen(name)-1;
+		ASSERT(nLen > 0);
+		while (name[nLen] != '\\')
+			nLen--;
+		// found first one
+		nLen--;
+		ASSERT(nLen > 0);
+		while (name[nLen] != '\\')
+			nLen--;
+		ASSERT(nLen >= 0);
+		QE_ConvertDOSToUnixName(name, name);
+		Texture_ForName(&name[nLen+1]);
 
 	}
 
@@ -1774,36 +1620,36 @@ void	Texture_ShowDirectory (char* pPath, bool bLinked)
 
 	g_dontuse = false;
 
-  SortTextures();
+	SortTextures();
 
-  if (!bLinked)
-  {
+	if (!bLinked)
+	{
 
-    for (int k = 0; k < 10; k++)
-    {
-      sprintf(name, "Path%d", k);
-      if (GetPrivateProfileString("Include", name, "", dirstring, 1024, linkstring) > 0)
-      {
-        Texture_ShowDirectory(dirstring, true);
-      }
-    }
+		for (int k = 0; k < 10; k++)
+		{
+			sprintf(name, "Path%d", k);
+			if (GetPrivateProfileString("Include", name, "", dirstring, 1024, linkstring) > 0)
+			{
+				Texture_ShowDirectory(dirstring, true);
+			}
+		}
 
 
-	  sprintf (name, "Textures: %s", texture_directory);
-	  SetWindowText(g_qeglobals.d_hwndEntity, name);
+		sprintf (name, "Textures: %s", texture_directory);
+		SetWindowText(g_qeglobals.d_hwndEntity, name);
 
-	  // select the first texture in the list
-	  if (!g_qeglobals.d_texturewin.texdef.name[0])
-		  SelectTexture (16, g_qeglobals.d_texturewin.height -16 ,false);
-  }
+		// select the first texture in the list
+		if (!g_qeglobals.d_texturewin.texdef.name[0])
+			SelectTexture (16, g_qeglobals.d_texturewin.height -16 ,false);
+	}
 }
 
 
 
 void Texture_ResetPosition()
 {
-  SelectTexture (16, g_qeglobals.d_texturewin.height -16 ,false);
-  g_qeglobals.d_texturewin.originy = 0;
+	SelectTexture (16, g_qeglobals.d_texturewin.height -16 ,false);
+	g_qeglobals.d_texturewin.originy = 0;
 }
 
 
@@ -1819,7 +1665,7 @@ void Texture_SetInuse (void)
 	qtexture_t	*q;
 
 	for (q=g_qeglobals.d_qtextures ; q ; q=q->next)
-  {
+	{
 		q->inuse = true;
 	}
 }
@@ -1832,7 +1678,7 @@ Texture_ShowAll
 */
 void	Texture_ShowAll()
 {
-  Texture_SetInuse();
+	Texture_SetInuse();
 	Sys_Printf("Showing all textures...\n");
 	Sys_UpdateWindows (W_TEXTURE);
 }
@@ -1857,34 +1703,34 @@ void	Texture_ShowInuse (void)
 	Sys_Status("Selecting active textures\n", 0);
 
 	for (b=active_brushes.next ; b != NULL && b != &active_brushes ; b=b->next)
-  {
-    if (b->patchBrush)
-    {
-      Texture_ForName(b->pPatch->d_texture->name);
-    }
-    else
-    {
-		  for (f=b->brush_faces ; f ; f=f->next)
-      {
-			  Texture_ForName (f->texdef.name);
-      }
-    }
-  }
+	{
+		if (b->patchBrush)
+		{
+			Texture_ForName(b->pPatch->d_texture->name);
+		}
+		else
+		{
+			for (f=b->brush_faces ; f ; f=f->next)
+			{
+				Texture_ForName (f->texdef.name);
+			}
+		}
+	}
 
 	for (b=selected_brushes.next ; b != NULL && b != &selected_brushes ; b=b->next)
-  {
-    if (b->patchBrush)
-    {
-      Texture_ForName(b->pPatch->d_texture->name);
-    }
-    else
-    {
-		  for (f=b->brush_faces ; f ; f=f->next)
-      {
-			  Texture_ForName (f->texdef.name);
-      }
-    }
-  }
+	{
+		if (b->patchBrush)
+		{
+			Texture_ForName(b->pPatch->d_texture->name);
+		}
+		else
+		{
+			for (f=b->brush_faces ; f ; f=f->next)
+			{
+				Texture_ForName (f->texdef.name);
+			}
+		}
+	}
 
 	SortTextures();
 	//SetInspectorMode(W_TEXTURE);
@@ -1895,9 +1741,9 @@ void	Texture_ShowInuse (void)
 
 	// select the first texture in the list
 	if (!g_qeglobals.d_texturewin.texdef.name[0])
-  {
+	{
 		SelectTexture (16, g_qeglobals.d_texturewin.height -16, false);
-  }
+	}
 }
 
 /*
@@ -1929,35 +1775,35 @@ qtexture_t *Texture_NextPos (int *x, int *y)
 		if (q->name[0] == '(')	// fake color texture
 			continue;
 
-    if (g_bFilterEnabled)
-    {
-      CString strName = q->name;
-      int nPos = strName.Find('\\');
-      if (nPos == -1)
-        nPos = strName.Find('/');
-      if (nPos >= 0)
-        strName = strName.Right(strName.GetLength() - nPos - 1);
-      if (strnicmp(g_strFilter.GetBuffer(0), strName, g_strFilter.GetLength()) == 0)
-        break;
-      else
-        continue;
-    }
+		if (g_bFilterEnabled)
+		{
+			CString strName = q->name;
+			int nPos = strName.Find('\\');
+			if (nPos == -1)
+				nPos = strName.Find('/');
+			if (nPos >= 0)
+				strName = strName.Right(strName.GetLength() - nPos - 1);
+			if (strnicmp(g_strFilter.GetBuffer(0), strName, g_strFilter.GetLength()) == 0)
+				break;
+			else
+				continue;
+		}
 
-    if (q->bFromShader && g_PrefsDlg.m_bShowShaders == FALSE)
-    {
-      continue;
-    }
+		if (q->bFromShader && g_PrefsDlg.m_bShowShaders == FALSE)
+		{
+			continue;
+		}
 
 		if (q->inuse)
 			break;			// always show in use
-    
-    if (!texture_showinuse && !strnicmp (q->name, texture_directory, strlen(texture_directory)))
+		
+		if (!texture_showinuse && !strnicmp (q->name, texture_directory, strlen(texture_directory)))
 			break;
 		continue;
 	}
 
-  int nWidth = (g_PrefsDlg.m_bHiColorTextures == TRUE) ? q->width * ((float)g_PrefsDlg.m_nTextureScale / 100) : q->width;
-  int nHeight = (g_PrefsDlg.m_bHiColorTextures == TRUE) ? q->height * ((float)g_PrefsDlg.m_nTextureScale / 100) : q->height;
+	int nWidth = (g_PrefsDlg.m_bHiColorTextures == TRUE) ? q->width * ((float)g_PrefsDlg.m_nTextureScale / 100) : q->width;
+	int nHeight = (g_PrefsDlg.m_bHiColorTextures == TRUE) ? q->height * ((float)g_PrefsDlg.m_nTextureScale / 100) : q->height;
 	if (current_x + nWidth > g_qeglobals.d_texturewin.width-8 && current_row)
 	{	// go to the next row unless the texture is the first on the row
 		current_x = 8;
@@ -1971,8 +1817,8 @@ qtexture_t *Texture_NextPos (int *x, int *y)
 	// Is our texture larger than the row? If so, grow the 
 	// row height to match it
 
-    if (current_row < nHeight)
-		  current_row = nHeight;
+		if (current_row < nHeight)
+			current_row = nHeight;
 
 	// never go less than 64, or the names get all crunched up
 	current_x += nWidth < 64 ? 64 : nWidth;
@@ -1984,7 +1830,7 @@ qtexture_t *Texture_NextPos (int *x, int *y)
 /*
 ============================================================================
 
-  MOUSE ACTIONS
+	MOUSE ACTIONS
 
 ============================================================================
 */
@@ -2035,12 +1881,12 @@ void Texture_SetTexture (texdef_t *texdef, brushprimit_texdef_t *brushprimit_tex
 
 	Sys_UpdateWindows (W_TEXTURE);
 
-  g_dlgFind.updateTextures(texdef->name);
+	g_dlgFind.updateTextures(texdef->name);
 
-  if (!g_dlgFind.isOpen() && bSetSelection)
-  {
-    Select_SetTexture(texdef,brushprimit_texdef,bFitScale);
-  }
+	if (!g_dlgFind.isOpen() && bSetSelection)
+	{
+		Select_SetTexture(texdef,brushprimit_texdef,bFitScale);
+	}
 
 
 	//plugins: send a message telling that the selected texture may have changed
@@ -2054,8 +1900,8 @@ void Texture_SetTexture (texdef_t *texdef, brushprimit_texdef_t *brushprimit_tex
 		if (!q)
 			break;
 
-    int nWidth = (g_PrefsDlg.m_bHiColorTextures == TRUE) ? q->width * ((float)g_PrefsDlg.m_nTextureScale / 100) : q->width;
-    int nHeight = (g_PrefsDlg.m_bHiColorTextures == TRUE) ? q->height * ((float)g_PrefsDlg.m_nTextureScale / 100) : q->height;
+		int nWidth = (g_PrefsDlg.m_bHiColorTextures == TRUE) ? q->width * ((float)g_PrefsDlg.m_nTextureScale / 100) : q->width;
+		int nHeight = (g_PrefsDlg.m_bHiColorTextures == TRUE) ? q->height * ((float)g_PrefsDlg.m_nTextureScale / 100) : q->height;
 		if (!strcmpi(texdef->name, q->name))
 		{
 			if (y > g_qeglobals.d_texturewin.originy)
@@ -2080,32 +1926,32 @@ void Texture_SetTexture (texdef_t *texdef, brushprimit_texdef_t *brushprimit_tex
 
 HWND FindEditWindow()
 {
-  HWND hwnd = FindWindow("TEditPadForm", NULL);
-  HWND hwndEdit = NULL;
-  if (hwnd != NULL)
-  {
-    HWND hwndTab = FindWindowEx(hwnd, NULL, "TTabControl", NULL);
-    if (hwndTab != NULL)
-    {
-      hwndEdit = FindWindowEx(hwndTab, NULL, "TRicherEdit", NULL);
-    }
-  }
-  return hwndEdit;
+	HWND hwnd = FindWindow("TEditPadForm", NULL);
+	HWND hwndEdit = NULL;
+	if (hwnd != NULL)
+	{
+		HWND hwndTab = FindWindowEx(hwnd, NULL, "TTabControl", NULL);
+		if (hwndTab != NULL)
+		{
+			hwndEdit = FindWindowEx(hwndTab, NULL, "TRicherEdit", NULL);
+		}
+	}
+	return hwndEdit;
 }
 
 void Delay(float fSeconds)
 {
-  DWORD dw = ::GetTickCount();
-  DWORD dwTil = dw + (fSeconds * 1000);
-  while (::GetTickCount() < dwTil)
-  {
-    MSG msg;
-    if (::PeekMessage( &msg, NULL, 0, 0, PM_REMOVE )) 
-    { 
-      TranslateMessage(&msg);
-      DispatchMessage(&msg);
-    }
-  }
+	DWORD dw = ::GetTickCount();
+	DWORD dwTil = dw + (fSeconds * 1000);
+	while (::GetTickCount() < dwTil)
+	{
+		MSG msg;
+		if (::PeekMessage( &msg, NULL, 0, 0, PM_REMOVE )) 
+		{ 
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
 }
 
 
@@ -2118,7 +1964,7 @@ void ViewShader(const char *pFile, const char *pName)
 ==============
 SelectTexture
 
-  By mouse click
+	By mouse click
 ==============
 */
 void SelectTexture (int mx, int my, bool bShift, bool bFitScale)
@@ -2164,9 +2010,9 @@ void SelectTexture (int mx, int my, bool bShift, bool bFitScale)
 			CString strName = q->name;
 			//int nPos = strName.Find('\\');
 			//if (nPos == -1)
-			//  nPos = strName.Find('/');
+			//	nPos = strName.Find('/');
 			//if (nPos >= 0)
-			//  strName = strName.Right(strName.GetLength() - nPos - 1);
+			//	strName = strName.Right(strName.GetLength() - nPos - 1);
 			strTex.Format("%s W: %i H: %i", strName.GetBuffer(0), q->width, q->height);
 			g_pParentWnd->SetStatusText(3, strTex);
 			return;
@@ -2247,7 +2093,7 @@ void texwnd_imgui() {
 
 	// _ == margin
 	// _IMG_IMG_IMG_IMG_
-	// [   e.g. 800px  ]
+	// [	 e.g. 800px	]
 	// 
 
 	//for (int i=0; i<sizeof(textures); i++) {
@@ -2261,7 +2107,7 @@ void texwnd_imgui() {
 			break;
 
 		//current_texture = pCurrentShader->getTexture();
-		//current_texture  = textures[i];
+		//current_texture	= textures[i];
 		//if (current_texture == NULL)
 		//	break;
 
@@ -2340,7 +2186,7 @@ void Texture_Draw2 (int width, int height)
 			else
 				name++;
 
-			  qglCallLists (strlen(name), GL_UNSIGNED_BYTE, name);
+				qglCallLists (strlen(name), GL_UNSIGNED_BYTE, name);
 
 #endif 
 	static int first = 1;
@@ -2370,81 +2216,81 @@ void Texture_Init (bool bHardInit) {
 
 void Texture_FlushUnused()
 {
-  CWaitCursor cursor;
-  Texture_ShowInuse();
-  if (g_qeglobals.d_qtextures)
-  {
-	  qtexture_t* pTex = g_qeglobals.d_qtextures->next;
-    qtexture_t *pPrev = g_qeglobals.d_qtextures;
-    while (pTex != NULL && pTex != g_qeglobals.d_qtextures)
-    {
-      qtexture_t* pNextTex = pTex->next;
-  	  if (g_qeglobals.bSurfacePropertiesPlugin)
-	    {
-		    // Timo
-		    // Surface properties plugin
+	CWaitCursor cursor;
+	Texture_ShowInuse();
+	if (g_qeglobals.d_qtextures)
+	{
+		qtexture_t* pTex = g_qeglobals.d_qtextures->next;
+		qtexture_t *pPrev = g_qeglobals.d_qtextures;
+		while (pTex != NULL && pTex != g_qeglobals.d_qtextures)
+		{
+			qtexture_t* pNextTex = pTex->next;
+			if (g_qeglobals.bSurfacePropertiesPlugin)
+			{
+				// Timo
+				// Surface properties plugin
 #ifdef _DEBUG
-  		  if ( !pTex->pData )
-	  		  Sys_Printf("WARNING: found a qtexture_t* with no IPluginQTexture\n");
+				if ( !pTex->pData )
+					Sys_Printf("WARNING: found a qtexture_t* with no IPluginQTexture\n");
 #endif
-  		  if ( pTex->pData && pTex->inuse )
-	  		  GETPLUGINTEXDEF(pTex)->DecRef();
-  	  }
+				if ( pTex->pData && pTex->inuse )
+					GETPLUGINTEXDEF(pTex)->DecRef();
+			}
 
-      if (!pTex->inuse)
-      {
-        unsigned int nTexture = pTex->texture_number;
-        qglDeleteTextures(1, &nTexture);
-        pPrev->next = pNextTex;
-	      free(pTex);
-      }
-      else
-      {
-        pPrev = pTex;
-      }
-      pTex = pNextTex;
-    }
-  }
+			if (!pTex->inuse)
+			{
+				unsigned int nTexture = pTex->texture_number;
+				qglDeleteTextures(1, &nTexture);
+				pPrev->next = pNextTex;
+				free(pTex);
+			}
+			else
+			{
+				pPrev = pTex;
+			}
+			pTex = pNextTex;
+		}
+	}
 }
 
 void Texture_Cleanup(CStringList *pList)
 {
-  if (g_qeglobals.d_qtextures)
-  {
-	  qtexture_t* pTex = g_qeglobals.d_qtextures->next;
-    while (pTex != NULL && pTex != g_qeglobals.d_qtextures)
-    {
-      qtexture_t* pNextTex = pTex->next;
-      if (pList)
-      {
-        if (pTex->name[0] != '(')
-        {
-          pList->AddTail(pTex->name);
-        }
-      }
+	if (g_qeglobals.d_qtextures)
+	{
+		qtexture_t* pTex = g_qeglobals.d_qtextures->next;
+		while (pTex != NULL && pTex != g_qeglobals.d_qtextures)
+		{
+			qtexture_t* pNextTex = pTex->next;
+			if (pList)
+			{
+				if (pTex->name[0] != '(')
+				{
+					pList->AddTail(pTex->name);
+				}
+			}
 
-  	  if (g_qeglobals.bSurfacePropertiesPlugin)
-	    {
-		    // Timo
-		    // Surface properties plugin
+			if (g_qeglobals.bSurfacePropertiesPlugin)
+			{
+				// Timo
+				// Surface properties plugin
 #ifdef _DEBUG
-  		  if ( !pTex->pData )
-	  		  Sys_Printf("WARNING: found a qtexture_t* with no IPluginQTexture\n");
+				if ( !pTex->pData )
+					Sys_Printf("WARNING: found a qtexture_t* with no IPluginQTexture\n");
 #endif
-  		  if ( pTex->pData )
-	  		  GETPLUGINTEXDEF(pTex)->DecRef();
-  	  }
-	    free(pTex);
-      pTex = pNextTex;
-    }
-  }
+				if ( pTex->pData )
+					GETPLUGINTEXDEF(pTex)->DecRef();
+			}
+			free(pTex);
+			pTex = pNextTex;
+		}
+	}
 
-  int nSize = g_lstSkinCache.GetSize();
-  for (int i = 0; i < nSize; i++)
-  {
-    SkinInfo *pInfo = reinterpret_cast<SkinInfo*>(g_lstSkinCache.GetAt(i));
-    delete pInfo;
-  }
+	int nSize = g_lstSkinCache.GetSize();
+	for (int i = 0; i < nSize; i++)
+	{
+		SkinInfo *pInfo = reinterpret_cast<SkinInfo*>(g_lstSkinCache.GetAt(i));
+		delete pInfo;
+	}
 
 }
 
@@ -2455,34 +2301,34 @@ Texture_Flush
 */
 void Texture_Flush (bool bReload)
 {
-  if (!ConfirmModified())
-    return;
+	if (!ConfirmModified())
+		return;
 
-  Map_New ();
+	Map_New ();
 
-  CWaitCursor cursor;
-  CStringList strList;
-  Texture_Init(false);
-  Texture_Cleanup(&strList);
+	CWaitCursor cursor;
+	CStringList strList;
+	Texture_Init(false);
+	Texture_Cleanup(&strList);
 
-  GLuint* pGln = new GLuint[texture_extension_number-1];
-  qglGenTextures(texture_extension_number-1, pGln);
-  QE_CheckOpenGLForErrors();
-  qglDeleteTextures(texture_extension_number-1, pGln);
-  QE_CheckOpenGLForErrors();
-  delete []pGln;
-  texture_extension_number = 1;
+	GLuint* pGln = new GLuint[texture_extension_number-1];
+	qglGenTextures(texture_extension_number-1, pGln);
+	QE_CheckOpenGLForErrors();
+	qglDeleteTextures(texture_extension_number-1, pGln);
+	QE_CheckOpenGLForErrors();
+	delete []pGln;
+	texture_extension_number = 1;
 	g_qeglobals.d_qtextures = NULL;
 
-  if (bReload)
-  {
-    POSITION pos = strList.GetHeadPosition();
-    while (pos)
-    {
-      CString strTex = strList.GetNext(pos);
-		  Texture_ForName (strTex.GetBuffer(0));
-    }
-  }
+	if (bReload)
+	{
+		POSITION pos = strList.GetHeadPosition();
+		while (pos)
+		{
+			CString strTex = strList.GetNext(pos);
+			Texture_ForName (strTex.GetBuffer(0));
+		}
+	}
 
 }
 
@@ -2507,16 +2353,16 @@ BEGIN_MESSAGE_MAP(CTexWnd, CWnd)
 	ON_WM_VSCROLL()
 	ON_WM_CHAR()
 	ON_COMMAND(ID_TEXTURES_FLUSH, OnTexturesFlush)
-  ON_BN_CLICKED(1200, OnShaderClick)
+	ON_BN_CLICKED(1200, OnShaderClick)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-LONG WINAPI TexWndProc(HWND    hWnd, UINT    uMsg, WPARAM  wParam, LPARAM  lParam) {
+LONG WINAPI TexWndProc(HWND		hWnd, UINT		uMsg, WPARAM	wParam, LPARAM	lParam) {
 	int		xPos, yPos;
-    RECT	rect;
-    GetClientRect(hWnd, &rect);
+		RECT	rect;
+		GetClientRect(hWnd, &rect);
 	//Sys_Printf("left=%d top=%d right=%d bottom=%d\n", rect.left, rect.top, rect.right, rect.bottom);
 	if (g_pParentWnd->m_pTexWnd) {
 		CRect size;
@@ -2533,9 +2379,9 @@ LONG WINAPI TexWndProc(HWND    hWnd, UINT    uMsg, WPARAM  wParam, LPARAM  lPara
 		Sys_Printf("WM_KEYDOWN");
 	}
 
-    switch (uMsg) {
+		switch (uMsg) {
 	case WM_CREATE:
-    s_hdcTexture = GetDC(hWnd);
+		s_hdcTexture = GetDC(hWnd);
 		QEW_SetupPixelFormat(s_hdcTexture, false);
 
 		if ( ( s_hglrcTexture = qwglCreateContext( s_hdcTexture ) ) == 0 )
@@ -2544,10 +2390,10 @@ LONG WINAPI TexWndProc(HWND    hWnd, UINT    uMsg, WPARAM  wParam, LPARAM  lPara
 		if (!qwglShareLists( g_qeglobals.d_hglrcBase, s_hglrcTexture ) )
 			Error( "wglShareLists in WTex_WndProc failed" );
 
-    if (!qwglMakeCurrent( s_hdcTexture, s_hglrcTexture ))
-		  Error ("wglMakeCurrent in WTex_WndProc failed");
+		if (!qwglMakeCurrent( s_hdcTexture, s_hglrcTexture ))
+			Error ("wglMakeCurrent in WTex_WndProc failed");
 
-	  g_qeglobals.d_hwndTexture = hWnd;
+		g_qeglobals.d_hwndTexture = hWnd;
 		return 0;
 
 	case WM_DESTROY:
@@ -2557,33 +2403,33 @@ LONG WINAPI TexWndProc(HWND    hWnd, UINT    uMsg, WPARAM  wParam, LPARAM  lPara
 		return 0;
 #if 0
 	case WM_PAINT:
-        { 
-		    PAINTSTRUCT	ps;
+				{ 
+				PAINTSTRUCT	ps;
 
-		    BeginPaint(hWnd, &ps);
+				BeginPaint(hWnd, &ps);
 
-        if ( !qwglMakeCurrent( s_hdcTexture, s_hglrcTexture ) )
-        //if ( !wglMakeCurrent( ps.hdc, s_hglrcTexture ) )
-        {
-          Sys_Printf("ERROR: wglMakeCurrent failed..\n ");
-          Sys_Printf("Please restart Q3Radiant if the Texture view is not working\n");
-        }
-        else
-        {
-			    Texture_Draw2 (rect.right-rect.left, rect.bottom-rect.top - g_nTextureOffset);
-			    qwglSwapBuffers(s_hdcTexture);
-          TRACE("Texture Paint\n");
-        }
-		    EndPaint(hWnd, &ps);
-        }
+				if ( !qwglMakeCurrent( s_hdcTexture, s_hglrcTexture ) )
+				//if ( !wglMakeCurrent( ps.hdc, s_hglrcTexture ) )
+				{
+					Sys_Printf("ERROR: wglMakeCurrent failed..\n ");
+					Sys_Printf("Please restart Q3Radiant if the Texture view is not working\n");
+				}
+				else
+				{
+					Texture_Draw2 (rect.right-rect.left, rect.bottom-rect.top - g_nTextureOffset);
+					qwglSwapBuffers(s_hdcTexture);
+					TRACE("Texture Paint\n");
+				}
+				EndPaint(hWnd, &ps);
+				}
 		return 0;
 #endif
 	case WM_MBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 	case WM_LBUTTONDOWN:
 		SetCapture( g_qeglobals.d_hwndTexture );
-		xPos = (short)LOWORD(lParam);  // horizontal position of cursor 
-		yPos = (short)HIWORD(lParam);  // vertical position of cursor 
+		xPos = (short)LOWORD(lParam);	// horizontal position of cursor 
+		yPos = (short)HIWORD(lParam);	// vertical position of cursor 
 		
 		Texture_MouseDown (xPos, yPos - g_nTextureOffset, wParam);
 		return 0;
@@ -2591,48 +2437,48 @@ LONG WINAPI TexWndProc(HWND    hWnd, UINT    uMsg, WPARAM  wParam, LPARAM  lPara
 	case WM_MBUTTONUP:
 	case WM_RBUTTONUP:
 	case WM_LBUTTONUP:
-		xPos = (short)LOWORD(lParam);  // horizontal position of cursor 
-		yPos = (short)HIWORD(lParam);  // vertical position of cursor 
+		xPos = (short)LOWORD(lParam);	// horizontal position of cursor 
+		yPos = (short)HIWORD(lParam);	// vertical position of cursor 
 		
 		Texture_MouseUp (xPos, yPos - g_nTextureOffset, wParam);
 		if (! (wParam & (MK_LBUTTON|MK_RBUTTON|MK_MBUTTON)))
 			ReleaseCapture ();
 		return 0;
 	case WM_MOUSEMOVE:
-		xPos = (short)LOWORD(lParam);  // horizontal position of cursor 
-		yPos = (short)HIWORD(lParam);  // vertical position of cursor 
+		xPos = (short)LOWORD(lParam);	// horizontal position of cursor 
+		yPos = (short)HIWORD(lParam);	// vertical position of cursor 
 		
 		Texture_MouseMoved (xPos, yPos - g_nTextureOffset, wParam);
 		return 0;
 
 #if 1
-    case WM_KEYDOWN:
-    case WM_SYSKEYDOWN:
+		case WM_KEYDOWN:
+		case WM_SYSKEYDOWN:
 		if (imgui_ready) {
 			ImGuiIO& io = ImGui::GetIO();
 			if (wParam < 256)
 				io.KeysDown[wParam] = 1;
 		}
-        return 0;
-    case WM_KEYUP:
-    case WM_SYSKEYUP:
-        if (imgui_ready) {
+				return 0;
+		case WM_KEYUP:
+		case WM_SYSKEYUP:
+				if (imgui_ready) {
 			ImGuiIO& io = ImGui::GetIO();
 			if (wParam < 256)
-			  io.KeysDown[wParam] = 0;
+				io.KeysDown[wParam] = 0;
 		}
-        return 0;
-    case WM_CHAR:
-        // You can also use ToAscii()+GetKeyboardState() to retrieve characters.
-        if (imgui_ready) {
+				return 0;
+		case WM_CHAR:
+				// You can also use ToAscii()+GetKeyboardState() to retrieve characters.
+				if (imgui_ready) {
 			ImGuiIO& io = ImGui::GetIO();
 			if (wParam > 0 && wParam < 0x10000)
 				io.AddInputCharacter((unsigned short)wParam);
 		}
-        return 0;
+				return 0;
 #endif
-    }
-    return DefWindowProc (hWnd, uMsg, wParam, lParam);
+		}
+		return DefWindowProc (hWnd, uMsg, wParam, lParam);
 }
 
 BOOL CTexWnd::PreTranslateMessage(MSG *pMsg) {
@@ -2654,31 +2500,29 @@ BOOL CTexWnd::PreTranslateMessage(MSG *pMsg) {
 #endif
 }
 
-LRESULT CTexWnd::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
+LRESULT CTexWnd::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	//ImGui_ImplWin32_WndProcHandler(NULL, uMsg, wParam, lParam);
 	//Sys_Printf("CTexWnd::WindowProc: %d %d %d\n", uMsg, wParam, lParam);
-    switch (uMsg)
-    {
-    //case WM_COMMAND:
-    //    if (HIWORD(wParam) == ID_EXPCATXML)
-    //    {
-    //        Plugin::OnExportCatalogXML();
-    //        return TRUE;
-    //    }
-    }
-    return CWnd::WindowProc(uMsg, wParam, lParam);
+	switch (uMsg) {
+	//case WM_COMMAND:
+	//		if (HIWORD(wParam) == ID_EXPCATXML)
+	//		{
+	//				Plugin::OnExportCatalogXML();
+	//				return TRUE;
+	//		}
+	}
+	return CWnd::WindowProc(uMsg, wParam, lParam);
 }
 
 BOOL CTexWnd::PreCreateWindow(CREATESTRUCT& cs) {
-		WNDCLASS wc;
+	WNDCLASS wc;
 	HINSTANCE hInstance = AfxGetInstanceHandle();
 	if (::GetClassInfo(hInstance, TEXTURE_WINDOW_CLASS, &wc) == FALSE) {
 		// Register a new class
 		memset (&wc, 0, sizeof(wc));
-		wc.style         = CS_NOCLOSE | CS_OWNDC;
+		wc.style				 = CS_NOCLOSE | CS_OWNDC;
 		wc.lpszClassName = TEXTURE_WINDOW_CLASS;
-		wc.hCursor       = LoadCursor (NULL,IDC_ARROW);
+		wc.hCursor			 = LoadCursor (NULL,IDC_ARROW);
 		wc.lpfnWndProc = TexWndProc;
 		if (AfxRegisterClass(&wc) == FALSE)
 		Error ("CZWnd RegisterClass: failed");
@@ -2690,25 +2534,22 @@ BOOL CTexWnd::PreCreateWindow(CREATESTRUCT& cs) {
 	return CWnd::PreCreateWindow(cs);
 }
 
-int CTexWnd::OnCreate(LPCREATESTRUCT lpCreateStruct) 
-{
+int CTexWnd::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	if (CWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
-
-  g_nTextureOffset = 25;
-  if (!g_PrefsDlg.m_bTextureWindow)
-  {
-    g_nTextureOffset -= 25;
-  }
-  ShowScrollBar(SB_VERT, g_PrefsDlg.m_bTextureScrollbar);
-  m_bNeedRange = true;
+	g_nTextureOffset = 25;
+	if (!g_PrefsDlg.m_bTextureWindow) {
+		g_nTextureOffset -= 25;
+	}
+	ShowScrollBar(SB_VERT, g_PrefsDlg.m_bTextureScrollbar);
+	m_bNeedRange = true;
 	return 0;
 }
 
 void CTexWnd::OnSize(UINT nType, int cx, int cy) 
 {
 	CWnd::OnSize(nType, cx, cy);
-  m_bNeedRange = true;
+	m_bNeedRange = true;
 }
 
 void CTexWnd::OnShaderClick() {
@@ -2725,33 +2566,28 @@ int g_nLastLen = 0;
 int g_nTimerHandle = -1;
 char g_cLastChar;
 
-void CTexWnd::UpdateFilter(const char* pFilter)
-{
-  if (g_nTimerHandle > 0)
-    KillTimer(1);
-  g_bFilterEnabled = false;
-  if (pFilter)
-  {
-    g_strFilter = pFilter;
-    if (g_strFilter.GetLength() > 0)
-    {
-      g_bFilterEnabled = true;
-      if (g_pParentWnd->CurrentStyle() == QR_QE4 || g_pParentWnd->CurrentStyle() == QR_4WAY)
-      {
-        if (g_strFilter.GetLength() > g_nLastLen)
-        {
-          g_cLastChar = toupper(g_strFilter.GetAt(g_strFilter.GetLength()-1));
-          if (g_cLastChar == 'N' || g_cLastChar == 'O') // one of the other popups
-          {
-            g_nTimerHandle = SetTimer(1, 800, NULL);   // half second timer
-          }
-        }
-      }
-    }
-    g_nLastLen = g_strFilter.GetLength();
-	  SortTextures();
-  }
-  Sys_UpdateWindows (W_TEXTURE);
+void CTexWnd::UpdateFilter(const char* pFilter) {
+	if (g_nTimerHandle > 0)
+		KillTimer(1);
+	g_bFilterEnabled = false;
+	if (pFilter) {
+		g_strFilter = pFilter;
+		if (g_strFilter.GetLength() > 0) {
+			g_bFilterEnabled = true;
+			if (g_pParentWnd->CurrentStyle() == QR_QE4 || g_pParentWnd->CurrentStyle() == QR_4WAY) {
+				if (g_strFilter.GetLength() > g_nLastLen) {
+					g_cLastChar = toupper(g_strFilter.GetAt(g_strFilter.GetLength()-1));
+					if (g_cLastChar == 'N' || g_cLastChar == 'O') // one of the other popups
+					{
+						g_nTimerHandle = SetTimer(1, 800, NULL);	 // half second timer
+					}
+				}
+			}
+		}
+		g_nLastLen = g_strFilter.GetLength();
+		SortTextures();
+	}
+	Sys_UpdateWindows (W_TEXTURE);
 }
 
 void CTexWnd::UpdatePrefs() {
@@ -2773,16 +2609,12 @@ void CTexWnd::OnTimer(UINT nIDEvent) {
 }
 
 void CTexWnd::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-		
 	Sys_Printf("CTexWnd::OnKeyDown\n");
-	
 	//g_pParentWnd->HandleKey(nChar, nRepCnt, nFlags);
-
 }
 
-void CTexWnd::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) 
-{
-  g_pParentWnd->HandleKey(nChar, nRepCnt, nFlags, false);
+void CTexWnd::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	g_pParentWnd->HandleKey(nChar, nRepCnt, nFlags, false);
 }
 
 LRESULT CTexWnd::DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam) {
@@ -2795,243 +2627,180 @@ LRESULT CTexWnd::DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam) {
 	return CWnd::DefWindowProc(message, wParam, lParam);
 }
 
-
-void CTexWnd::OnPaint() 
-{
+void CTexWnd::OnPaint() {
 	CPaintDC dc(this); // device context for painting
-  CRect rctClient;
-  GetClientRect(rctClient);
-  int nOld = g_qeglobals.d_texturewin.m_nTotalHeight;
-  if (!qwglMakeCurrent(s_hdcTexture, s_hglrcTexture))
-  //if ( !qwglMakeCurrent(dc.m_hDC, s_hglrcTexture ) )
-  {
-    Sys_Printf("ERROR: wglMakeCurrent failed..\n ");
-    Sys_Printf("Please restart Q3Radiant if the Texture view is not working\n");
-  }
-  else
-  {
-    Texture_Draw2 (rctClient.right-rctClient.left, rctClient.bottom-rctClient.top - g_nTextureOffset);
+	CRect rctClient;
+	GetClientRect(rctClient);
+	int nOld = g_qeglobals.d_texturewin.m_nTotalHeight;
+	if (!qwglMakeCurrent(s_hdcTexture, s_hglrcTexture)) {
+		Sys_Printf("ERROR: wglMakeCurrent failed..\n ");
+		Sys_Printf("Please restart Q3Radiant if the Texture view is not working\n");
+	} else {
+		Texture_Draw2 (rctClient.right-rctClient.left, rctClient.bottom-rctClient.top - g_nTextureOffset);
 		qwglSwapBuffers(s_hdcTexture);
-    TRACE("Texture Paint\n");
-  }
-  if (g_PrefsDlg.m_bTextureScrollbar && (m_bNeedRange || g_qeglobals.d_texturewin.m_nTotalHeight != nOld))
-  {
-    m_bNeedRange = false;
-    SetScrollRange(SB_VERT, 0, g_qeglobals.d_texturewin.m_nTotalHeight, TRUE);
-  }
+		TRACE("Texture Paint\n");
+	}
+	if (g_PrefsDlg.m_bTextureScrollbar && (m_bNeedRange || g_qeglobals.d_texturewin.m_nTotalHeight != nOld)) {
+		m_bNeedRange = false;
+		SetScrollRange(SB_VERT, 0, g_qeglobals.d_texturewin.m_nTotalHeight, TRUE);
+	}
 }
 
 void CTexWnd::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar) 
 {
 	CWnd::OnVScroll(nSBCode, nPos, pScrollBar);
 
-  int n = GetScrollPos(SB_VERT);;
-  switch (nSBCode)
-  {
-    case SB_LINEUP :
-    {
-      n = (n - 15 >  0) ? n - 15 : 0; 
-      break;
-    }
-    case SB_LINEDOWN :
-    {
-      n = (n + 15 < g_qeglobals.d_texturewin.m_nTotalHeight) ? n + 15 : n; 
-      break;
-    }
-    case SB_PAGEUP :
-    {
-      n = (n - g_qeglobals.d_texturewin.height >  0) ? n - g_qeglobals.d_texturewin.height : 0; 
-      break;
-    }
-    case SB_PAGEDOWN :
-    {
-      n = (n + g_qeglobals.d_texturewin.height < g_qeglobals.d_texturewin.m_nTotalHeight) ? n + g_qeglobals.d_texturewin.height : n; 
-      break;
-    }
-    case SB_THUMBPOSITION :
-    {
-      n = nPos;
-      break;
-    }
-    case SB_THUMBTRACK :
-    {
-      n = nPos;
-      break;
-    }
-  }
-  SetScrollPos(SB_VERT, n);
+	int n = GetScrollPos(SB_VERT);;
+	switch (nSBCode)
+	{
+		case SB_LINEUP :
+		{
+			n = (n - 15 >	0) ? n - 15 : 0; 
+			break;
+		}
+		case SB_LINEDOWN :
+		{
+			n = (n + 15 < g_qeglobals.d_texturewin.m_nTotalHeight) ? n + 15 : n; 
+			break;
+		}
+		case SB_PAGEUP :
+		{
+			n = (n - g_qeglobals.d_texturewin.height >	0) ? n - g_qeglobals.d_texturewin.height : 0; 
+			break;
+		}
+		case SB_PAGEDOWN :
+		{
+			n = (n + g_qeglobals.d_texturewin.height < g_qeglobals.d_texturewin.m_nTotalHeight) ? n + g_qeglobals.d_texturewin.height : n; 
+			break;
+		}
+		case SB_THUMBPOSITION :
+		{
+			n = nPos;
+			break;
+		}
+		case SB_THUMBTRACK :
+		{
+			n = nPos;
+			break;
+		}
+	}
+	SetScrollPos(SB_VERT, n);
 	g_qeglobals.d_texturewin.originy = -((int)n);
-  Invalidate();
-  UpdateWindow();
-  //Sys_UpdateWindows(W_TEXTURE);
+	Invalidate();
+	UpdateWindow();
+	//Sys_UpdateWindows(W_TEXTURE);
 }
 
 /*
-and are the caps new caps?  anything done with older stuff will be fubar'd.. which brings up the point if you ever naturalize a cap, you cannot force it back to cap texturing.. i will add that too
+and are the caps new caps?	anything done with older stuff will be fubar'd.. which brings up the point if you ever naturalize a cap, you cannot force it back to cap texturing.. i will add that too
 */
 
-void CTexWnd::OnTexturesFlush() 
-{
-	// TODO: Add your command handler code here
-	
+void CTexWnd::OnTexturesFlush() {
 }
 
-void LoadShaders()
-{
+void LoadShaders() {
 	char	dirstring[1024];
 	char	*path;
 	//struct _finddata_t fileinfo;
 	//int		handle;
-  path = ValueForKey (g_qeglobals.d_project_entity, "basepath");
-  sprintf (dirstring, "%s/scripts/shaderlist.txt", path);
-  char *pBuff = NULL;
-  
-  int nLen = LoadFile(dirstring, reinterpret_cast<void**>(&pBuff));
-  if (nLen == -1)
-  {
-    nLen = PakLoadAnyFile(dirstring, reinterpret_cast<void**>(&pBuff));
-  }
-  if (nLen > 0)
-  {
-    CStringList lst;
-    StartTokenParsing(pBuff);
-    nLen = 0;
-    while (GetToken(true))
-    {
-      // each token should be a shader filename
-      sprintf(dirstring, "%s/scripts/%s.shader", path, token);
-      lst.AddTail(dirstring);
-      nLen++;
-    }
-    POSITION pos = lst.GetHeadPosition();
-    while (pos != NULL)
-    {
-      LoadShader(lst.GetAt(pos).GetBuffer(0), NULL);
-      lst.GetNext(pos);
-    }
-    free(pBuff);
-  }
-  else
-  {
-    Sys_Printf("Unable to load shaderlist.txt, shaders not loaded!");
-  }
-
-/*
-  handle = _findfirst (dirstring, &fileinfo);
-  if (handle != -1)
-  {
-    do
-    {
-      if ((fileinfo.attrib & _A_SUBDIR))
-        continue;
-      sprintf(dirstring, "%s/scripts/%s", path, fileinfo.name);
-      LoadShader(dirstring, NULL);
-	  } while (_findnext( handle, &fileinfo ) != -1);
-
-	  _findclose (handle);
-  }
-*/
+	path = ValueForKey (g_qeglobals.d_project_entity, "basepath");
+	sprintf (dirstring, "%s/scripts/shaderlist.txt", path);
+	char *pBuff = NULL;
+	int nLen = LoadFile(dirstring, reinterpret_cast<void**>(&pBuff));
+	if (nLen == -1) {
+		nLen = PakLoadAnyFile(dirstring, reinterpret_cast<void**>(&pBuff));
+	}
+	if (nLen > 0) {
+		CStringList lst;
+		StartTokenParsing(pBuff);
+		nLen = 0;
+		while (GetToken(true))
+		{
+			// each token should be a shader filename
+			sprintf(dirstring, "%s/scripts/%s.shader", path, token);
+			lst.AddTail(dirstring);
+			nLen++;
+		}
+		POSITION pos = lst.GetHeadPosition();
+		while (pos != NULL)
+		{
+			LoadShader(lst.GetAt(pos).GetBuffer(0), NULL);
+			lst.GetNext(pos);
+		}
+		free(pBuff);
+	} else {
+		Sys_Printf("Unable to load shaderlist.txt, shaders not loaded!");
+	}
 }
 
-void FreeShaders()
-{
-  int nSize = g_lstShaders.GetSize();
-  for (int i = 0; i < nSize; i++)
-  {
-    CShaderInfo *pInfo = reinterpret_cast<CShaderInfo*>(g_lstShaders.ElementAt(i));
-    delete pInfo;
-  }
-
-  g_lstShaders.RemoveAll();
+void FreeShaders() {
+	int nSize = g_lstShaders.GetSize();
+	for (int i = 0; i < nSize; i++) {
+		CShaderInfo *pInfo = reinterpret_cast<CShaderInfo*>(g_lstShaders.ElementAt(i));
+		delete pInfo;
+	}
+	g_lstShaders.RemoveAll();
 }
 
-void ReloadShaders()
-{
-  FreeShaders();
-  LoadShaders();
-  qtexture_t* pTex = g_qeglobals.d_qtextures;
-  while (pTex != NULL)
-  {
-    SetNameShaderInfo(pTex, NULL, pTex->name);
-    pTex = pTex->next;
-  }
-
+void ReloadShaders() {
+	FreeShaders();
+	LoadShaders();
+	qtexture_t* pTex = g_qeglobals.d_qtextures;
+	while (pTex != NULL) {
+		SetNameShaderInfo(pTex, NULL, pTex->name);
+		pTex = pTex->next;
+	}
 }
 
-int WINAPI Texture_LoadSkin(char *pName, int *pnWidth, int *pnHeight)
-{
-  byte *pic = NULL;
-  byte *pic32 = NULL;
-  int nTex = -1;
-
-  strlwr(pName);
-  QE_ConvertDOSToUnixName(pName, pName);
-
-  int nSize = g_lstSkinCache.GetSize();
-  for (int i = 0; i < nSize; i++)
-  {
-    SkinInfo *pInfo = reinterpret_cast<SkinInfo*>(g_lstSkinCache.GetAt(i));
-    if (pInfo)
-    {
-      if (stricmp(pName, pInfo->m_strName) == 0)
-      {
-        return pInfo->m_nTextureBind;
-      }
-    }
-  }
-
-  LoadImage( pName, &pic32, pnWidth, pnHeight);
-  if (pic32 != NULL)
-  {
-
-    nTex = texture_extension_number++;
-    if (g_PrefsDlg.m_bSGIOpenGL)
-    {
-      //if (!qwglMakeCurrent(g_qeglobals.d_hdcBase, g_qeglobals.d_hglrcBase))
-      if (!qwglMakeCurrent(s_hdcTexture, s_hglrcTexture))
-		    Error ("wglMakeCurrent in LoadTexture failed");
-    }
-
-    qglBindTexture( GL_TEXTURE_2D, nTex);
-    SetTexParameters ();
-
-	  int nCount = MAX_TEXTURE_QUALITY - g_PrefsDlg.m_nTextureQuality;
-	  while (nCount-- > 0)
-	  {
-	    if (*pnWidth > 16 && *pnHeight > 16)
-	    {
-	      R_MipMap(pic32, *pnWidth, *pnHeight);
-	    }
-	    else
-	    {
-	      break;
-	    }
-	  }
-
-    if (g_PrefsDlg.m_bSGIOpenGL)
-    {
-	    if (nomips)
-      {
-		    qglTexImage2D(GL_TEXTURE_2D, 0, 3, *pnWidth, *pnHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pic32);
-      }
-	    else
-		    qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, *pnWidth, *pnHeight,GL_RGBA, GL_UNSIGNED_BYTE, pic32);
-    }
-    else
-    {
-	    if (nomips)
-		    qglTexImage2D(GL_TEXTURE_2D, 0, 3, *pnWidth, *pnHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pic32);
-	    else
-		    qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, *pnWidth, *pnHeight,GL_RGBA, GL_UNSIGNED_BYTE, pic32);
-    }
-	  free (pic32);
-	  qglBindTexture( GL_TEXTURE_2D, 0 );
-  }
-
-  SkinInfo *pInfo = new SkinInfo(pName, nTex);
-  g_lstSkinCache.Add(pInfo);
-
-  return nTex;
+int WINAPI Texture_LoadSkin(char *pName, int *pnWidth, int *pnHeight) {
+	byte *pic = NULL;
+	byte *pic32 = NULL;
+	int nTex = -1;
+	strlwr(pName);
+	QE_ConvertDOSToUnixName(pName, pName);
+	int nSize = g_lstSkinCache.GetSize();
+	for (int i = 0; i < nSize; i++) {
+		SkinInfo *pInfo = reinterpret_cast<SkinInfo*>(g_lstSkinCache.GetAt(i));
+		if (pInfo) {
+			if (stricmp(pName, pInfo->m_strName) == 0) {
+				return pInfo->m_nTextureBind;
+			}
+		}
+	}
+	LoadImage( pName, &pic32, pnWidth, pnHeight);
+	if (pic32 != NULL) {
+		nTex = texture_extension_number++;
+		if (g_PrefsDlg.m_bSGIOpenGL) {
+			//if (!qwglMakeCurrent(g_qeglobals.d_hdcBase, g_qeglobals.d_hglrcBase))
+			if (!qwglMakeCurrent(s_hdcTexture, s_hglrcTexture))
+				Error ("wglMakeCurrent in LoadTexture failed");
+		}
+		qglBindTexture( GL_TEXTURE_2D, nTex);
+		SetTexParameters();
+		int nCount = MAX_TEXTURE_QUALITY - g_PrefsDlg.m_nTextureQuality;
+		while (nCount-- > 0) {
+			if (*pnWidth > 16 && *pnHeight > 16) {
+				R_MipMap(pic32, *pnWidth, *pnHeight);
+			} else {
+				break;
+			}
+		}
+		if (g_PrefsDlg.m_bSGIOpenGL) {
+			if (nomips) {
+				qglTexImage2D(GL_TEXTURE_2D, 0, 3, *pnWidth, *pnHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pic32);
+			} else {
+				qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, *pnWidth, *pnHeight,GL_RGBA, GL_UNSIGNED_BYTE, pic32);
+			}
+		} else {
+			if (nomips)
+				qglTexImage2D(GL_TEXTURE_2D, 0, 3, *pnWidth, *pnHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pic32);
+			else
+				qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, *pnWidth, *pnHeight,GL_RGBA, GL_UNSIGNED_BYTE, pic32);
+		}
+		free (pic32);
+		qglBindTexture( GL_TEXTURE_2D, 0 );
+	}
+	SkinInfo *pInfo = new SkinInfo(pName, nTex);
+	g_lstSkinCache.Add(pInfo);
+	return nTex;
 }
-
-
