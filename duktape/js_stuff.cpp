@@ -3,6 +3,7 @@
 #include "duktapestuff.h"
 #include "../duktape-2-3-0/duktape.h"
 #include "../imgui/imgui_dock_console.h"
+
 #include "bind_memory.h"
 #include "bind_utils.h"
 #include "bind_imgui.h"
@@ -272,7 +273,7 @@ int js_init() {
 	ctx = duk_create_heap(NULL, NULL, NULL, NULL, js_fatal);
 	
 	//init_bullet_bindings(ctx);
-	//init_imgui_bindings(ctx);
+	duktape_bind_imgui(ctx);
 	//init_opengl_bindings(ctx);
 	//init_recast_bindings(ctx);
 	//init_win32_bindings(ctx);
@@ -289,9 +290,9 @@ int js_init() {
 		js_register_function(ctx, funcs[i].name, funcs[i].func);
 	}
 	
-	bind_memory();
-	bind_utils();
-	bind_imgui();
+	//bind_memory();
+	//bind_utils();
+	//bind_imgui();
 
 	// for some reason pcall doesn't give me a full error stack trace
 	duk_peval_string(ctx, "function safeeval(global, code) { try { eval.bind(global)(code); } catch(e) { log(e.stack); }  }");
