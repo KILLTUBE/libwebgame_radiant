@@ -261,9 +261,6 @@
     <ClCompile Include="dock_Z.cpp">
       <Filter>Source Files\docks</Filter>
     </ClCompile>
-    <ClCompile Include="dock_edit.cpp">
-      <Filter>Source Files\docks</Filter>
-    </ClCompile>
     <ClCompile Include="..\imgui\imgui.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
@@ -314,9 +311,6 @@
     </ClCompile>
     <ClCompile Include="..\duktape-2-3-0\duktape.cpp">
       <Filter>Source Files\duktape-2-3-0</Filter>
-    </ClCompile>
-    <ClCompile Include="z.cpp">
-      <Filter>Source Files\docks</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

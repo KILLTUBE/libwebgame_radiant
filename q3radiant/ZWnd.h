@@ -19,47 +19,16 @@ along with Foobar; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-#if !defined(AFX_ZWND_H__44B4BA02_781B_11D1_B53C_00AA00A410FC__INCLUDED_)
-#define AFX_ZWND_H__44B4BA02_781B_11D1_B53C_00AA00A410FC__INCLUDED_
 
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
-// ZWnd.h : header file
-//
 
-/////////////////////////////////////////////////////////////////////////////
-// CZWnd window
-
-class CZWnd : public CWnd
-{
-  DECLARE_DYNCREATE(CZWnd);
-// Construction
-public:
+class CZWnd : public CWnd { public:
+	DECLARE_DYNCREATE(CZWnd);
 	CZWnd();
-
-// Attributes
-public:
-
-// Operations
-public:
-
-// Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CZWnd)
-	protected:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-	//}}AFX_VIRTUAL
-
-// Implementation
-public:
 	virtual ~CZWnd();
-
-	// Generated message map functions
-protected:
-  HDC m_dcZ;
-  HGLRC m_hglrcZ;
-	//{{AFX_MSG(CZWnd)
+	HDC m_dcZ;
+	HGLRC m_hglrcZ;
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnDestroy();
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
@@ -78,13 +47,5 @@ protected:
 	afx_msg void OnMButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
-	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
-
-/////////////////////////////////////////////////////////////////////////////
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Developer Studio will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_ZWND_H__44B4BA02_781B_11D1_B53C_00AA00A410FC__INCLUDED_)
