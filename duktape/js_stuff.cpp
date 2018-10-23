@@ -251,9 +251,7 @@ int js_register_function(duk_context *ctx, char *name, int (*func)(duk_context *
 CCALL duk_context *js_get_ctx() { return ctx; }
 
 CCALL void js_reload() {
-	js_eval_file_safe(ctx, "javascript\\pre_create.js");
-	js_eval_file_safe(ctx, "javascript\\lib.js");
-	js_eval_file_safe(ctx, "javascript\\lib_quake.js");
+	js_eval_file_safe(ctx, "javascript/includes.js");
 	//js_call(ctx, "PostReload", "");
 }
 
@@ -308,7 +306,8 @@ int js_init() {
 	duk_pop(ctx);
 
 	
-	js_call(ctx, "reload", "");
+	js_call(ctx, "reload", ""); // loads includes.js
+	js_call(ctx, "includes", ""); // execute the includes() function defined in it
 
 	return 1;
 }

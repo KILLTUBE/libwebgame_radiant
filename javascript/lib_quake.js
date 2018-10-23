@@ -35,19 +35,9 @@ function printf() {
 			ret += msg[i];
 		}
 	}
-	log(ret);
+	imgui_log(ret);
 	return ret.length;
 }
-
-function require(filename) {
-	var content = file_get_contents( filename );
-	try {
-		eval.bind( get_global() )(content);
-	} catch (e) {
-		printf("require(%): error %\n", filename, e.stack);
-	}
-}
-
 
 if (typeof date_start == "undefined")
 	date_start = Date.now();
@@ -58,7 +48,7 @@ function now() {
 
 print = function() {
 	for (var i=0; i<arguments.length; i++) {
-		log(arguments[i]);
+		imgui_log(arguments[i]);
 	}
 }
 
@@ -122,9 +112,9 @@ handle_input = function(code, global) {
 	try {
 		var ret = eval.bind(global)(code); 
 		
-		log("> ");
+		imgui_log("> ");
 		var_dump(ret);
-		log("\n");
+		imgui_log("\n");
 		
 	} catch (e) {
 		print("handle_input> error: ", e.stack, "\n");
