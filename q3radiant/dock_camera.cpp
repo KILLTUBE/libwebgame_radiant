@@ -165,6 +165,7 @@ void CCamWnd::OnMouseMove(UINT nFlags, CPoint point) {
 }
 
 void CCamWnd::OnLButtonDown(UINT nFlags, CPoint point) {
+	SetFocus();
 	m_ptLastCursor = point;
 	OriginalMouseDown(nFlags, point);
 }
@@ -174,6 +175,7 @@ void CCamWnd::OnLButtonUp(UINT nFlags, CPoint point) {
 }
 
 void CCamWnd::OnMButtonDown(UINT nFlags, CPoint point) {
+	SetFocus();
 	OriginalMouseDown(nFlags, point);
 }
 
@@ -182,6 +184,7 @@ void CCamWnd::OnMButtonUp(UINT nFlags, CPoint point) {
 }
 
 void CCamWnd::OnRButtonDown(UINT nFlags, CPoint point) {
+	SetFocus();
 	OriginalMouseDown(nFlags, point);
 }
 
@@ -248,8 +251,6 @@ void CCamWnd::OriginalMouseUp(UINT nFlags, CPoint point) {
 }
 
 void CCamWnd::OriginalMouseDown(UINT nFlags, CPoint point) {
-	//if (GetTopWindow()->GetSafeHwnd() != GetSafeHwnd())
-	//	BringWindowToTop();
 	CRect r;
 	GetClientRect(r);
 	//SetFocus();

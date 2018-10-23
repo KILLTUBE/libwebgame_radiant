@@ -289,12 +289,6 @@ void Z_Draw() {
 
 IMPLEMENT_DYNCREATE(CZWnd, CWnd);
 
-CZWnd::CZWnd() {
-}
-
-CZWnd::~CZWnd() {
-}
-
 BEGIN_MESSAGE_MAP(CZWnd, CWnd)
 	ON_WM_CREATE()
 	ON_WM_DESTROY()
@@ -329,16 +323,6 @@ int CZWnd::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	if (!qwglMakeCurrent(m_dcZ, m_hglrcZ))
 		Error ("wglMakeCurrent in CZWnd::OnCreate failed");
 	return 0;
-}
-
-void CZWnd::OnDestroy() 
-{
-	QEW_StopGL(GetSafeHwnd(), m_hglrcZ, m_dcZ);
-	CWnd::OnDestroy();
-}
-
-void CZWnd::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	g_pParentWnd->HandleKey(nChar, nRepCnt, nFlags);
 }
 
 void CZWnd::OnLButtonDown(UINT nFlags, CPoint point) {
@@ -408,24 +392,6 @@ void CZWnd::OnSize(UINT nType, int cx, int cy) {
 	Invalidate();
 }
 
-void CZWnd::OnNcCalcSize(BOOL bCalcValidRects, NCCALCSIZE_PARAMS FAR* lpncsp) {
-	CWnd::OnNcCalcSize(bCalcValidRects, lpncsp);
-}
-
-void CZWnd::OnKillFocus(CWnd* pNewWnd) {
-	CWnd::OnKillFocus(pNewWnd);
-	//SendMessage(WM_NCACTIVATE, FALSE , 0 );
-}
-
-void CZWnd::OnSetFocus(CWnd* pOldWnd) {
-	CWnd::OnSetFocus(pOldWnd);
-	//SendMessage(WM_NCACTIVATE, TRUE , 0 );
-}
-
-void CZWnd::OnClose() {
-	CWnd::OnClose();
-}
-
 void CZWnd::OnLButtonUp(UINT nFlags, CPoint point) {
 	CRect rctZ;
 	GetClientRect(rctZ);
@@ -468,8 +434,4 @@ BOOL CZWnd::PreCreateWindow(CREATESTRUCT& cs) {
 	if (cs.style != QE3_CHILDSTYLE)
 		cs.style = QE3_SPLITTER_STYLE;
 	return CWnd::PreCreateWindow(cs);
-}
-
-void CZWnd::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	g_pParentWnd->HandleKey(nChar, nRepCnt, nFlags, false);
 }
