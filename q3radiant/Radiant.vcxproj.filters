@@ -147,9 +147,6 @@
     <ClCompile Include="SurfaceDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TexEdit.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TextureBar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

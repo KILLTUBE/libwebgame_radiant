@@ -19,8 +19,6 @@ along with Foobar; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-// SurfaceDlg.cpp : implementation file
-//
 
 #include "stdafx.h"
 #include "Radiant.h"
@@ -29,22 +27,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "mainfrm.h"
 #include "TextureLayout.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
-static char THIS_FILE[] = __FILE__;
-#endif
-
-/////////////////////////////////////////////////////////////////////////////
 // surface properties plugin
 // global flag for surface properties plugin is g_qeglobals.bSurfacePropertiesPlugin
 _QERPlugSurfaceTable g_SurfaceTable;
 
-/////////////////////////////////////////////////////////////////////////////
-// CSurfaceDlg dialog
-
 CSurfaceDlg g_dlgSurface;
-
 
 CSurfaceDlg::CSurfaceDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CSurfaceDlg::IDD, pParent)
