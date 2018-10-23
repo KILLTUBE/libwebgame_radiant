@@ -667,7 +667,7 @@ void HandlePopup(CWnd* pWindow, unsigned int uId) {
 			TPM_RIGHTBUTTON, ptMouse.x, ptMouse.y,pWindow);
 	mnuPopup.DestroyMenu();
 	// Set focus back to window
-	pWindow->SetFocus();
+	//pWindow->SetFocus();
 }
 
 
@@ -1026,23 +1026,15 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	ShowControlBar(&m_wndToolBar, (m_wndToolBar.GetStyle() & WS_VISIBLE), TRUE);
 
 	SetActiveXY(m_pXYWnd);
-	m_pXYWnd->SetFocus();
+	//m_pXYWnd->SetFocus();
 
 	PostMessage(WM_KEYDOWN, 'O', NULL);
 
 	return 0;
 }
 
-LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
 void CMainFrame::HandleKey(UINT nChar, UINT nRepCnt, UINT nFlags, bool bDown) {
 	//Sys_Printf("CMainFrame::HandleKey %d %d %d %d\n", nChar, nRepCnt, nFlags, bDown);
-	
-	if (bDown)
-		ImGui_ImplWin32_WndProcHandler(NULL, WM_KEYDOWN, nChar, 0);
-	else
-		ImGui_ImplWin32_WndProcHandler(NULL, WM_KEYUP, nChar, 0);
-
 	if (bDown)
 		OnKeyDown(nChar, nRepCnt, nFlags);
 	else
@@ -1266,16 +1258,15 @@ void CMainFrame::RoutineProcessing() {
 }
 
 LRESULT CMainFrame::WindowProc(UINT message, WPARAM wParam, LPARAM lParam) {
-	switch (message) {
-		case WM_KEYDOWN:
-		case WM_KEYUP:
-		case WM_SYSKEYDOWN:
-		case WM_SYSKEYUP:
-		case WM_CHAR:
-			ImGui_ImplWin32_WndProcHandler(this->m_hWnd, message, wParam, lParam);
-			return 0;
-	}
-	
+	//switch (message) {
+	//	case WM_KEYDOWN:
+	//	case WM_KEYUP:
+	//	case WM_SYSKEYDOWN:
+	//	case WM_SYSKEYUP:
+	//	case WM_CHAR:
+	//		ImGui_ImplWin32_WndProcHandler(this->m_hWnd, message, wParam, lParam);
+	//		return 0;
+	//}
 	return CFrameWnd::WindowProc(message, wParam, lParam);
 }
 

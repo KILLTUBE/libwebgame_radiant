@@ -2372,7 +2372,7 @@ LONG WINAPI TexWndProc(HWND		hWnd, UINT		uMsg, WPARAM	wParam, LPARAM	lParam) {
 		imgui_set_widthheight(width, height);
 		//Sys_Printf("left=%d top=%d right=%d bottom=%d\n", size.left, size.top, size.right, size.bottom);
 		//Sys_Printf("wndproc: %d %d %d %d\n", hWnd, uMsg, wParam, lParam);
-		ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
+		//ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 	}
 
 	if (uMsg == WM_KEYDOWN) {
@@ -2428,6 +2428,7 @@ LONG WINAPI TexWndProc(HWND		hWnd, UINT		uMsg, WPARAM	wParam, LPARAM	lParam) {
 	case WM_RBUTTONDOWN:
 	case WM_LBUTTONDOWN:
 		SetCapture( g_qeglobals.d_hwndTexture );
+		SetFocus(g_qeglobals.d_hwndTexture);
 		xPos = (short)LOWORD(lParam);	// horizontal position of cursor 
 		yPos = (short)HIWORD(lParam);	// vertical position of cursor 
 		
@@ -2451,7 +2452,7 @@ LONG WINAPI TexWndProc(HWND		hWnd, UINT		uMsg, WPARAM	wParam, LPARAM	lParam) {
 		Texture_MouseMoved (xPos, yPos - g_nTextureOffset, wParam);
 		return 0;
 
-#if 1
+#if 0
 		case WM_KEYDOWN:
 		case WM_SYSKEYDOWN:
 		if (imgui_ready) {
@@ -2501,7 +2502,7 @@ BOOL CTexWnd::PreTranslateMessage(MSG *pMsg) {
 }
 
 LRESULT CTexWnd::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
-	//ImGui_ImplWin32_WndProcHandler(NULL, uMsg, wParam, lParam);
+	ImGui_ImplWin32_WndProcHandler(GetSafeHwnd(), uMsg, wParam, lParam);
 	//Sys_Printf("CTexWnd::WindowProc: %d %d %d\n", uMsg, wParam, lParam);
 	switch (uMsg) {
 	//case WM_COMMAND:
@@ -2604,17 +2605,15 @@ void CTexWnd::OnTimer(UINT nIDEvent) {
 	KillTimer(1);
 	g_nLastLen = 0;
 	g_nTimerHandle = -1;
-	::SetFocus(g_qeglobals.d_hwndEntity);
-	::PostMessage(g_qeglobals.d_hwndEntity, WM_CHAR, g_cLastChar, 0);
 }
 
 void CTexWnd::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	Sys_Printf("CTexWnd::OnKeyDown\n");
+	//Sys_Printf("CTexWnd::OnKeyDown\n");
 	//g_pParentWnd->HandleKey(nChar, nRepCnt, nFlags);
 }
 
 void CTexWnd::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	g_pParentWnd->HandleKey(nChar, nRepCnt, nFlags, false);
+	//g_pParentWnd->HandleKey(nChar, nRepCnt, nFlags, false);
 }
 
 LRESULT CTexWnd::DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam) {

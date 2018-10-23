@@ -252,7 +252,7 @@ LONG WINAPI XYWndProc (
 
 	case WM_KILLFOCUS:
 	case WM_SETFOCUS:
-		SendMessage( hWnd, WM_NCACTIVATE, uMsg == WM_SETFOCUS, 0 );
+		//SendMessage( hWnd, WM_NCACTIVATE, uMsg == WM_SETFOCUS, 0 );
 		return 0;
 
    	case WM_CLOSE:
@@ -724,8 +724,8 @@ void CXYWnd::OriginalButtonDown(UINT nFlags, CPoint point)
   CRect rctZ;
   GetClientRect(rctZ);
   SetWindowPos(&wndTop, 0,0,0,0, SWP_NOMOVE | SWP_NOSIZE);
-  if (::GetTopWindow( g_qeglobals.d_hwndMain ) != GetSafeHwnd())
-    ::BringWindowToTop(GetSafeHwnd());
+// if (::GetTopWindow( g_qeglobals.d_hwndMain ) != GetSafeHwnd())
+//   ::BringWindowToTop(GetSafeHwnd());
 	SetFocus();
 	SetCapture();
 	XY_MouseDown (point.x, rctZ.Height() - 1 - point.y , nFlags);
@@ -3608,13 +3608,13 @@ void CXYWnd::OnNcCalcSize(BOOL bCalcValidRects, NCCALCSIZE_PARAMS FAR* lpncsp)
 void CXYWnd::OnKillFocus(CWnd* pNewWnd) 
 {
 	CWnd::OnKillFocus(pNewWnd);
-	SendMessage(WM_NCACTIVATE, FALSE , 0 );
+	//SendMessage(WM_NCACTIVATE, FALSE , 0 );
 }
 
 void CXYWnd::OnSetFocus(CWnd* pOldWnd) 
 {
 	CWnd::OnSetFocus(pOldWnd);
-	SendMessage(WM_NCACTIVATE, TRUE , 0 );
+	//SendMessage(WM_NCACTIVATE, TRUE , 0 );
 }
 
 void CXYWnd::OnClose() 
