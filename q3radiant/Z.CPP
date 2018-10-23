@@ -24,70 +24,40 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qe3.h"
 
 #define	PAGEFLIPS	2
+#define CAM_HEIGHT		48 // height of main part
+#define CAM_GIZMO		8	// height of the gizmo
 
 z_t		z;
+static	int	cursorx, cursory;
 
-/*
-============
-Z_Init
-============
-*/
-void Z_Init (void)
-{
+void Z_Init (void) {
 	z.origin[0] = 0;
 	z.origin[1] = 20;
 	z.origin[2] = 46;
-
 	z.scale = 1;
 }
 
-
-
-/*
-============================================================================
-
-  MOUSE ACTIONS
-
-============================================================================
-*/
-
-static	int	cursorx, cursory;
-
-/*
-==============
-Z_MouseDown
-==============
-*/
-void Z_MouseDown (int x, int y, int buttons)
-{
+void Z_MouseDown(int x, int y, int buttons) {
 	vec3_t	org, dir, vup, vright;
 	brush_t	*b;
-
 	Sys_GetCursorPos (&cursorx, &cursory);
-
 	vup[0] = 0; vup[1] = 0; vup[2] = 1/z.scale;
-
 	VectorCopy (z.origin, org);
 	org[2] += (y - (z.height/2))/z.scale;
 	org[1] = -8192;
-
 	b = selected_brushes.next;
-	if (b != &selected_brushes)
-	{
+	if (b != &selected_brushes) {
 		org[0] = (b->mins[0] + b->maxs[0])/2;
 	}
-
 	dir[0] = 0; dir[1] = 1; dir[2] = 0;
-
 	vright[0] = 0; vright[1] = 0; vright[2] = 0;
-
 	// LBUTTON = manipulate selection
 	// shift-LBUTTON = select
 	// middle button = grab texture
 	// ctrl-middle button = set entire brush to texture
 	// ctrl-shift-middle button = set single face to texture
 
-  int nMouseButton = g_PrefsDlg.m_nMouseButtons == 2 ? MK_RBUTTON : MK_MBUTTON;
+	int nMouseButton = g_PrefsDlg.m_nMouseButtons == 2 ? MK_RBUTTON : MK_MBUTTON;
 	if ( (buttons == MK_LBUTTON)
 		|| (buttons == (MK_LBUTTON | MK_SHIFT))
 		|| (buttons == MK_MBUTTON)
@@ -106,27 +76,13 @@ void Z_MouseDown (int x, int y, int buttons)
 		g_pParentWnd->GetCamera()->Camera().origin[2] = org[2] ;
 		Sys_UpdateWindows (W_CAMERA|W_XY_OVERLAY|W_Z);
 	}
-
-
 }
 
-/*
-==============
-Z_MouseUp
-==============
-*/
-void Z_MouseUp (int x, int y, int buttons)
-{
+void Z_MouseUp (int x, int y, int buttons) {
 	Drag_MouseUp ();
 }
 
-/*
-==============
-Z_MouseMoved
-==============
-*/
-void Z_MouseMoved (int x, int y, int buttons)
-{
+void Z_MouseMoved (int x, int y, int buttons) {
 	if (!buttons)
 		return;
 	if (buttons == MK_LBUTTON)
@@ -147,39 +103,19 @@ void Z_MouseMoved (int x, int y, int buttons)
 		}
 		return;
 	}
-		// control mbutton = move camera
-  int nMouseButton = g_PrefsDlg.m_nMouseButtons == 2 ? MK_RBUTTON : MK_MBUTTON;
-	if ((buttons == (MK_CONTROL|nMouseButton) ) || (buttons == (MK_CONTROL|MK_LBUTTON)))
-	{	
+	// control mbutton = move camera
+	int nMouseButton = g_PrefsDlg.m_nMouseButtons == 2 ? MK_RBUTTON : MK_MBUTTON;
+	if ((buttons == (MK_CONTROL|nMouseButton) ) || (buttons == (MK_CONTROL|MK_LBUTTON))) {	
 		g_pParentWnd->GetCamera()->Camera().origin[2] = (y - (z.height/2))/z.scale;
 		Sys_UpdateWindows (W_CAMERA|W_XY_OVERLAY|W_Z);
 	}
-
 }
 
-
-/*
-============================================================================
-
-DRAWING
-
-============================================================================
-*/
-
-
-/*
-==============
-Z_DrawGrid
-==============
-*/
-void Z_DrawGrid (void)
-{
+void Z_DrawGrid () {
 	float	zz, zb, ze;
-	int		w, h;
 	char	text[32];
-
-	w = z.width/2 / z.scale;
-	h = z.height/2 / z.scale;
+	int w = z.width/2 / z.scale;
+	int h = z.height/2 / z.scale;
 
 	zb = z.origin[2] - h;
 	if (zb < region_mins[2])
@@ -192,28 +128,19 @@ void Z_DrawGrid (void)
 	ze = 64 * ceil (ze/64);
 
 	// draw major blocks
-
 	qglColor3fv(g_qeglobals.d_savedinfo.colors[COLOR_GRIDMAJOR]);
-
 	qglBegin (GL_LINES);
-
-	qglVertex2f (0, zb);
-	qglVertex2f (0, ze);
-
-	for (zz=zb ; zz<ze ; zz+=64)
-	{
+	qglVertex2f(0, zb);
+	qglVertex2f(0, ze);
+	for (zz=zb ; zz<ze ; zz+=64) {
 		qglVertex2f (-w, zz);
 		qglVertex2f (w, zz);
 	}
-
 	qglEnd ();
-
 	// draw minor blocks
 	if (g_qeglobals.d_showgrid && g_qeglobals.d_gridsize*z.scale >= 4 &&
-      g_qeglobals.d_savedinfo.colors[COLOR_GRIDMINOR] != g_qeglobals.d_savedinfo.colors[COLOR_GRIDBACK])
-	{
+			g_qeglobals.d_savedinfo.colors[COLOR_GRIDMINOR] != g_qeglobals.d_savedinfo.colors[COLOR_GRIDBACK]) {
 		qglColor3fv(g_qeglobals.d_savedinfo.colors[COLOR_GRIDMINOR]);
-
 		qglBegin (GL_LINES);
 		for (zz=zb ; zz<ze ; zz+=g_qeglobals.d_gridsize)
 		{
@@ -224,119 +151,66 @@ void Z_DrawGrid (void)
 		}
 		qglEnd ();
 	}
-
 	// draw coordinate text if needed
-
 	qglColor3fv(g_qeglobals.d_savedinfo.colors[COLOR_GRIDTEXT]);
-
-	for (zz=zb ; zz<ze ; zz+=64)
-	{
+	for (zz=zb ; zz<ze ; zz+=64) {
 		qglRasterPos2f (-w+1, zz);
 		sprintf (text, "%i",(int)zz);
 		qglCallLists (strlen(text), GL_UNSIGNED_BYTE, text);
 	}
 }
 
-#define CAM_HEIGHT		48 // height of main part
-#define CAM_GIZMO		8	// height of the gizmo
-
-void ZDrawCameraIcon (void)
-{
+void ZDrawCameraIcon() {
 	float	x, y;
 	int	xCam = z.width/4;
-
 	x = 0;
 	y = g_pParentWnd->GetCamera()->Camera().origin[2];
-
 	qglColor3f (0.0, 0.0, 1.0);
 	qglBegin(GL_LINE_STRIP);
-	qglVertex3f (x-xCam,y,0);
-	qglVertex3f (x,y+CAM_GIZMO,0);
-	qglVertex3f (x+xCam,y,0);
-	qglVertex3f (x,y-CAM_GIZMO,0);
-	qglVertex3f (x-xCam,y,0);
-	qglVertex3f (x+xCam,y,0);
-	qglVertex3f (x+xCam,y-CAM_HEIGHT,0);
-	qglVertex3f (x-xCam,y-CAM_HEIGHT,0);
-	qglVertex3f (x-xCam,y,0);
-	qglEnd ();
-
+	qglVertex3f(x-xCam,y,0);
+	qglVertex3f(x,y+CAM_GIZMO,0);
+	qglVertex3f(x+xCam,y,0);
+	qglVertex3f(x,y-CAM_GIZMO,0);
+	qglVertex3f(x-xCam,y,0);
+	qglVertex3f(x+xCam,y,0);
+	qglVertex3f(x+xCam,y-CAM_HEIGHT,0);
+	qglVertex3f(x-xCam,y-CAM_HEIGHT,0);
+	qglVertex3f(x-xCam,y,0);
+	qglEnd();
 }
 
-GLbitfield glbitClear = GL_COLOR_BUFFER_BIT; //HACK
-
-/*
-==============
-Z_Draw
-==============
-*/
-void Z_Draw (void)
-{
-    brush_t	*brush;
+void Z_Draw() {
+	brush_t	*brush;
 	float	w, h;
 	double	start, end;
 	qtexture_t	*q;
 	float	top, bottom;
 	vec3_t	org_top, org_bottom, dir_up, dir_down;
-	int xCam = z.width/3;
-
+	int xCam = z.width / 3;
 	if (!active_brushes.next)
 		return;	// not valid yet
-
-	if (z.timing)
-		start = Sys_DoubleTime ();
-
-	//
-	// clear
-	//
 	qglViewport(0, 0, z.width, z.height);
-
-	qglClearColor (
+	qglClearColor(
 		g_qeglobals.d_savedinfo.colors[COLOR_GRIDBACK][0],
 		g_qeglobals.d_savedinfo.colors[COLOR_GRIDBACK][1],
-		g_qeglobals.d_savedinfo.colors[COLOR_GRIDBACK][2],
-		0);
-
-    /* GL Bug */ 
-	/* When not using hw acceleration, gl will fault if we clear the depth 
-	buffer bit on the first pass. The hack fix is to set the GL_DEPTH_BUFFER_BIT
-	only after Z_Draw() has been called once. Yeah, right. */
-	qglClear(glbitClear); 
-	glbitClear |= GL_DEPTH_BUFFER_BIT;
-
+		g_qeglobals.d_savedinfo.colors[COLOR_GRIDBACK][2], 0);
+	qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	qglMatrixMode(GL_PROJECTION);
-
-  qglLoadIdentity ();
+	qglLoadIdentity ();
 	w = z.width/2 / z.scale;
 	h = z.height/2 / z.scale;
-	qglOrtho (-w, w, z.origin[2]-h, z.origin[2]+h, -8, 8);
-
+	qglOrtho(-w, w, z.origin[2]-h, z.origin[2]+h, -8, 8);
 	qglDisable(GL_TEXTURE_2D);
 	qglDisable(GL_TEXTURE_1D);
 	qglDisable(GL_DEPTH_TEST);
 	qglDisable(GL_BLEND);
-
-
-	//
-	// now draw the grid
-	//
 	Z_DrawGrid ();
-
-	//
-	// draw stuff
-	//
-
 	qglDisable(GL_CULL_FACE);
-
 	qglShadeModel (GL_FLAT);
-
 	qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-
 	qglDisable(GL_TEXTURE_2D);
 	qglDisable(GL_BLEND);
 	qglDisable(GL_DEPTH_TEST);
-
-
 	// draw filled interiors and edges
 	dir_up[0] = 0 ; dir_up[1] = 0; dir_up[2] = 1;
 	dir_down[0] = 0 ; dir_down[1] = 0; dir_down[2] = -1;
@@ -344,22 +218,18 @@ void Z_Draw (void)
 	org_top[2] = 4096;
 	VectorCopy (z.origin, org_bottom);
 	org_bottom[2] = -4096;
-
-	for (brush = active_brushes.next ; brush != &active_brushes ; brush=brush->next)
-	{
+	for (brush = active_brushes.next ; brush != &active_brushes ; brush=brush->next) {
 		if (brush->mins[0] >= z.origin[0]
 			|| brush->maxs[0] <= z.origin[0]
 			|| brush->mins[1] >= z.origin[1]
 			|| brush->maxs[1] <= z.origin[1])
 			continue;
-
 		if (!Brush_Ray (org_top, dir_down, brush, &top))
 			continue;
 		top = org_top[2] - top;
 		if (!Brush_Ray (org_bottom, dir_up, brush, &bottom))
 			continue;
 		bottom = org_bottom[2] + bottom;
-
 		q = Texture_ForName (brush->brush_faces->texdef.name);
 		qglColor3f (q->color[0], q->color[1], q->color[2]);
 		qglBegin (GL_QUADS);
@@ -367,8 +237,7 @@ void Z_Draw (void)
 		qglVertex2f (xCam, bottom);
 		qglVertex2f (xCam, top);
 		qglVertex2f (-xCam, top);
-		qglEnd ();
-
+		qglEnd();
 		qglColor3f (1,1,1);
 		qglBegin (GL_LINE_LOOP);
 		qglVertex2f (-xCam, bottom);
@@ -377,24 +246,16 @@ void Z_Draw (void)
 		qglVertex2f (-xCam, top);
 		qglEnd ();
 	}
-
-	//
 	// now draw selected brushes
-	//
-	for (brush = selected_brushes.next ; brush != &selected_brushes ; brush=brush->next)
-	{
+	for (brush = selected_brushes.next ; brush != &selected_brushes ; brush=brush->next) {
 		if ( !(brush->mins[0] >= z.origin[0]
 			|| brush->maxs[0] <= z.origin[0]
 			|| brush->mins[1] >= z.origin[1]
-			|| brush->maxs[1] <= z.origin[1]) )
-		{
-			if (Brush_Ray (org_top, dir_down, brush, &top))
-			{
+			|| brush->maxs[1] <= z.origin[1]) ) {
+			if (Brush_Ray(org_top, dir_down, brush, &top)) {
 				top = org_top[2] - top;
-				if (Brush_Ray (org_bottom, dir_up, brush, &bottom))
-				{
+				if (Brush_Ray (org_bottom, dir_up, brush, &bottom)) {
 					bottom = org_bottom[2] + bottom;
-
 					q = Texture_ForName (brush->brush_faces->texdef.name);
 					qglColor3f (q->color[0], q->color[1], q->color[2]);
 					qglBegin (GL_QUADS);
@@ -406,8 +267,7 @@ void Z_Draw (void)
 				}
 			}
 		}
-
-	  qglColor3fv(g_qeglobals.d_savedinfo.colors[COLOR_SELBRUSHES]);
+		qglColor3fv(g_qeglobals.d_savedinfo.colors[COLOR_SELBRUSHES]);
 		qglBegin (GL_LINE_LOOP);
 		qglVertex2f (-xCam, brush->mins[2]);
 		qglVertex2f (xCam, brush->mins[2]);
@@ -415,17 +275,11 @@ void Z_Draw (void)
 		qglVertex2f (-xCam, brush->maxs[2]);
 		qglEnd ();
 	}
-
-
-	ZDrawCameraIcon ();
-
-  qglFinish();
+	ZDrawCameraIcon();
+	qglFinish();
 	QE_CheckOpenGLForErrors();
-
-	if (z.timing)
-	{
+	if (z.timing) {
 		end = Sys_DoubleTime ();
 		Sys_Printf ("z: %i ms\n", (int)(1000*(end-start)));
 	}
 }
-

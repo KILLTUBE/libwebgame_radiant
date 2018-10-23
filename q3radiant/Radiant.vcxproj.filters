@@ -225,9 +225,6 @@
     <ClCompile Include="win_qe3.cpp">
       <Filter>Source Files\QE4 Files</Filter>
     </ClCompile>
-    <ClCompile Include="z.cpp">
-      <Filter>Source Files\QE4 Files</Filter>
-    </ClCompile>
     <ClCompile Include="brush_primit.cpp">
       <Filter>Source Files\Brush Primitives</Filter>
     </ClCompile>
@@ -317,6 +314,9 @@
     </ClCompile>
     <ClCompile Include="..\duktape-2-3-0\duktape.cpp">
       <Filter>Source Files\duktape-2-3-0</Filter>
+    </ClCompile>
+    <ClCompile Include="z.cpp">
+      <Filter>Source Files\docks</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
