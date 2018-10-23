@@ -414,12 +414,12 @@ void CZWnd::OnNcCalcSize(BOOL bCalcValidRects, NCCALCSIZE_PARAMS FAR* lpncsp) {
 
 void CZWnd::OnKillFocus(CWnd* pNewWnd) {
 	CWnd::OnKillFocus(pNewWnd);
-	SendMessage(WM_NCACTIVATE, FALSE , 0 );
+	//SendMessage(WM_NCACTIVATE, FALSE , 0 );
 }
 
 void CZWnd::OnSetFocus(CWnd* pOldWnd) {
 	CWnd::OnSetFocus(pOldWnd);
-	SendMessage(WM_NCACTIVATE, TRUE , 0 );
+	//SendMessage(WM_NCACTIVATE, TRUE , 0 );
 }
 
 void CZWnd::OnClose() {

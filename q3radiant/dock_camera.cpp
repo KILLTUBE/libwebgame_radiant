@@ -75,7 +75,7 @@ LONG WINAPI CamWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		switch (uMsg) {
 		case WM_KILLFOCUS:
 		case WM_SETFOCUS:
-			SendMessage( hWnd, WM_NCACTIVATE, uMsg == WM_SETFOCUS, 0 );
+			//SendMessage( hWnd, WM_NCACTIVATE, uMsg == WM_SETFOCUS, 0 );
 			return 0;
 		case WM_NCCALCSIZE:// don't let windows copy pixels
 			DefWindowProc (hWnd, uMsg, wParam, lParam);
@@ -260,7 +260,7 @@ void CCamWnd::OriginalMouseDown(UINT nFlags, CPoint point) {
 	//	BringWindowToTop();
 	CRect r;
 	GetClientRect(r);
-	SetFocus();
+	//SetFocus();
 	SetCapture();
 	//if (!(GetKeyState(VK_MENU) & 0x8000))
 	Sys_Printf("point.x=%d point.y=%d r.bottom-1-point.y=%d\n", point.x, point.y, r.bottom - 1 - point.y);
