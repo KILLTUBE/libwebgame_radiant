@@ -1,11 +1,8 @@
-log = imgui_log;
-
 shittyconsole = function(code, sel_from, sel_to) {
 	if (sel_to < sel_from) {
 		tmp = sel_to;
 		sel_to = sel_from;
 		sel_from = tmp;
-		
 	}
 	if (sel_from != sel_to)
 		code = code.substr(sel_from, sel_to-sel_from);
@@ -15,7 +12,7 @@ shittyconsole = function(code, sel_from, sel_to) {
 
 print = function() {
 	for (var i=0; i<arguments.length; i++) {
-		log(arguments[i]);
+		imgui_log(arguments[i]);
 	}
 }
 
@@ -79,9 +76,9 @@ handle_input = function(code, global) {
 	try {
 		var ret = eval.bind(global)(code); 
 		
-		log("> ");
+		imgui_log("> ");
 		var_dump(ret);
-		log("\n");
+		imgui_log("\n");
 		
 	} catch (e) {
 		print("handle_input> error: ", e.stack, "\n");

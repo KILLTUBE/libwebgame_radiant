@@ -1,4 +1,4 @@
-function sprintf() {
+sprintf = function() {
 	var ret = "";
 	var param = 1; // maps to first %
 	msg = arguments[0];
@@ -8,8 +8,9 @@ function sprintf() {
 			if (msg[i+1] == "%") {
 				ret += "%";
 				i++;
-			} else
+			} else {
 				ret += arguments[param++];
+			}
 		} else {
 			ret += msg[i];
 		}
@@ -17,25 +18,6 @@ function sprintf() {
 	return ret;
 }
 
-function printf() {
-	var ret = "";
-	var param = 1; // maps to first %
-	msg = arguments[0];
-	for (var i=0; i<msg.length; i++) {
-		if (msg[i] == "%") {
-			// %% will be printed as normal %
-			if (msg[i+1] == "%") {
-				ret += "%";
-				i++;
-			} else
-				ret += arguments[param++];
-		} else {
-			ret += msg[i];
-		}
-	}
-	log(ret);
-	return ret.length;
-}
 
 //function require(filename) {
 //	var content = file_get_contents( filename );
