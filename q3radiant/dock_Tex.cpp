@@ -2375,11 +2375,9 @@ LONG WINAPI TexWndProc(HWND		hWnd, UINT		uMsg, WPARAM	wParam, LPARAM	lParam) {
 		//ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 	}
 
-	if (uMsg == WM_KEYDOWN) {
-		Sys_Printf("WM_KEYDOWN");
-	}
 
-		switch (uMsg) {
+
+	switch (uMsg) {
 	case WM_CREATE:
 		s_hdcTexture = GetDC(hWnd);
 		QEW_SetupPixelFormat(s_hdcTexture, false);
@@ -2451,54 +2449,8 @@ LONG WINAPI TexWndProc(HWND		hWnd, UINT		uMsg, WPARAM	wParam, LPARAM	lParam) {
 		
 		Texture_MouseMoved (xPos, yPos - g_nTextureOffset, wParam);
 		return 0;
-
-#if 0
-		case WM_KEYDOWN:
-		case WM_SYSKEYDOWN:
-		if (imgui_ready) {
-			ImGuiIO& io = ImGui::GetIO();
-			if (wParam < 256)
-				io.KeysDown[wParam] = 1;
-		}
-				return 0;
-		case WM_KEYUP:
-		case WM_SYSKEYUP:
-				if (imgui_ready) {
-			ImGuiIO& io = ImGui::GetIO();
-			if (wParam < 256)
-				io.KeysDown[wParam] = 0;
-		}
-				return 0;
-		case WM_CHAR:
-				// You can also use ToAscii()+GetKeyboardState() to retrieve characters.
-				if (imgui_ready) {
-			ImGuiIO& io = ImGui::GetIO();
-			if (wParam > 0 && wParam < 0x10000)
-				io.AddInputCharacter((unsigned short)wParam);
-		}
-				return 0;
-#endif
 		}
 		return DefWindowProc (hWnd, uMsg, wParam, lParam);
-}
-
-BOOL CTexWnd::PreTranslateMessage(MSG *pMsg) {
-#if 0
-	if (pMsg->message == WM_KEYDOWN) {
-		imgui_log("Got WM_KEYDOWN: %d\n", pMsg->message);
-		if (pMsg->wParam == VK_DOWN)
-			AfxMessageBox("down");
-		else if (pMsg->wParam == VK_RIGHT)
-			AfxMessageBox("right");
-		else if (pMsg->wParam == VK_LEFT)
-			AfxMessageBox("left");
-		else if (pMsg->wParam == VK_UP)
-			AfxMessageBox("up");
-	}
-	return 1;
-#else
-	return CWnd::PreTranslateMessage(pMsg);
-#endif
 }
 
 LRESULT CTexWnd::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -2559,10 +2511,6 @@ void CTexWnd::OnShaderClick() {
 	RedrawWindow();
 }
 
-void CTexWnd::OnParentNotify(UINT message, LPARAM lParam) {
-	CWnd::OnParentNotify(message, lParam);
-}
-
 int g_nLastLen = 0;
 int g_nTimerHandle = -1;
 char g_cLastChar;
@@ -2605,25 +2553,6 @@ void CTexWnd::OnTimer(UINT nIDEvent) {
 	KillTimer(1);
 	g_nLastLen = 0;
 	g_nTimerHandle = -1;
-}
-
-void CTexWnd::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	//Sys_Printf("CTexWnd::OnKeyDown\n");
-	//g_pParentWnd->HandleKey(nChar, nRepCnt, nFlags);
-}
-
-void CTexWnd::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	//g_pParentWnd->HandleKey(nChar, nRepCnt, nFlags, false);
-}
-
-LRESULT CTexWnd::DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam) {
-	//RoutineProcessing();
-	//if (message == WM_KEYDOWN)
-	{
-		//Sys_Printf("CMainFrame::DefWindowProc WM_KEYDOWN\n");
-		//ImGui_ImplWin32_WndProcHandler(GetSafeHwnd(), message, wParam, lParam);
-	}
-	return CWnd::DefWindowProc(message, wParam, lParam);
 }
 
 void CTexWnd::OnPaint() {
