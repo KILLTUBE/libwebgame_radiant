@@ -112,10 +112,6 @@ BOOL CCamWnd::PreCreateWindow(CREATESTRUCT& cs) {
 	
 }
 
-void CCamWnd::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	g_pParentWnd->HandleKey(nChar, nRepCnt, nFlags);
-}
-
 void CCamWnd::OnPaint() 
 {
 	CPaintDC dc(this); // device context for painting
@@ -149,10 +145,6 @@ void CCamWnd::SetXYFriend(CXYWnd * pWnd) {
 void CCamWnd::OnDestroy() {
 	QEW_StopGL(GetSafeHwnd(), g_qeglobals.d_hglrcBase, g_qeglobals.d_hdcBase );
 	CWnd::OnDestroy();
-}
-
-void CCamWnd::OnClose() {
-	CWnd::OnClose();
 }
 
 void CCamWnd::OnMouseMove(UINT nFlags, CPoint point) {
@@ -801,17 +793,11 @@ void CCamWnd::OnSize(UINT nType, int cx, int cy) {
 	InvalidateRect(NULL, false);
 }
 
-void CCamWnd::BenchMark() {}
-
 void CCamWnd::ReInitGL() {
 	qwglMakeCurrent(0,0);
 	QEW_SetupPixelFormat(GetDC()->m_hDC, true);
 	if (!qwglMakeCurrent(g_qeglobals.d_hdcBase, g_qeglobals.d_hglrcBase))
 		Error ("wglMakeCurrent failed");
-}
-
-void CCamWnd::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	g_pParentWnd->HandleKey(nChar, nRepCnt, nFlags, false);
 }
 
 // Timo
