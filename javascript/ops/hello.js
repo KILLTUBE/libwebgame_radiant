@@ -1,0 +1,1 @@
+printf("random %\n", "shit12133asd");
