@@ -1,4 +1,4 @@
-#include <stdafx.h>
+#include "stdafx.h"
 
 #include "duktapestuff.h"
 #include "../duktape-2-3-0/duktape.h"	
@@ -293,9 +293,16 @@ int duk_func_imgui_same_line(duk_context *ctx) {
 	return 0;
 }
 
+bool ImGui_ImplOpenGL2_CreateFontsTexture();
+int duk_func_imgui_create_fonts_texture(duk_context *ctx) {
+	ImGui_ImplOpenGL2_CreateFontsTexture();
+	return 0;
+}
+
+
 void js_register_method(duk_context *ctx, char *name, int (*func)(duk_context *ctx));
 
-void bind_imgui() {
+void duktape_bind_imgui(duk_context *ctx) {
 	struct funcis funcs[] = {
 		{"imgui_drag_float",	    duk_func_imgui_drag_float    },
 		{"imgui_button"                          ,duk_func_imgui_button                             },
@@ -337,6 +344,7 @@ void bind_imgui() {
 		{"imgui_push_item_width"                 , duk_func_imgui_push_item_width                   },
 		{"imgui_pop_item_width"                  , duk_func_imgui_pop_item_width                    },
 		{"imgui_same_line"                       , duk_func_imgui_same_line                         },
+		{"imgui_create_fonts_texture"            , duk_func_imgui_create_fonts_texture              },
 
 		{NULL, NULL}
 	};

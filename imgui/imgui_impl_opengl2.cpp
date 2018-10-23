@@ -117,6 +117,17 @@ void ImGui_ImplOpenGL2_RenderDrawData(ImDrawData* draw_data)
     glEnableClientState(GL_COLOR_ARRAY);
     glEnable(GL_TEXTURE_2D);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	// reset texture state stuff
+	glMatrixMode(GL_TEXTURE);
+	glLoadIdentity();
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
+	glDisable(GL_TEXTURE_GEN_R);
+	glDisable(GL_TEXTURE_GEN_Q);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glColor3ub(255,255,255);
+
     //glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context where shaders may be bound
 
     // Setup viewport, orthographic projection matrix
@@ -179,10 +190,14 @@ void ImGui_ImplOpenGL2_RenderDrawData(ImDrawData* draw_data)
     glPolygonMode(GL_FRONT, (GLenum)last_polygon_mode[0]); glPolygonMode(GL_BACK, (GLenum)last_polygon_mode[1]);
     glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
     glScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3]);
+	
 }
 
 bool ImGui_ImplOpenGL2_CreateFontsTexture()
 {
+
+	if (ImGui::GetCurrentContext() == NULL)
+		return false;
     // Build texture atlas
     ImGuiIO& io = ImGui::GetIO();
     unsigned char* pixels;

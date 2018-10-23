@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../imgui/imgui.h"
 #include "../imgui/imgui_docks_radiant.h"
 #include "../imgui/imgui_dock_console.h"
+#include "../imgui/imgui_impl_opengl2.h"
 
 Str m_gStr;
 
@@ -1400,6 +1401,7 @@ void LoadShadersFromDir(const char *pPath)
 			}
 		}
 	}
+	ImGui_ImplOpenGL2_CreateFontsTexture();
 }
 
 
@@ -2212,6 +2214,7 @@ void Texture_Init (bool bHardInit) {
 		g_qeglobals.d_qtextures = NULL;
 	}
 	LoadShaders();
+	ImGui_ImplOpenGL2_CreateFontsTexture();
 }
 
 void Texture_FlushUnused()
@@ -2294,11 +2297,8 @@ void Texture_Cleanup(CStringList *pList)
 
 }
 
-/*
-==================
-Texture_Flush
-==================
-*/
+bool ImGui_ImplOpenGL2_CreateFontsTexture();
+
 void Texture_Flush (bool bReload)
 {
 	if (!ConfirmModified())
@@ -2329,7 +2329,7 @@ void Texture_Flush (bool bReload)
 			Texture_ForName (strTex.GetBuffer(0));
 		}
 	}
-
+	ImGui_ImplOpenGL2_CreateFontsTexture();
 }
 
 IMPLEMENT_DYNCREATE(CTexWnd, CWnd);
@@ -2750,6 +2750,7 @@ void ReloadShaders() {
 		SetNameShaderInfo(pTex, NULL, pTex->name);
 		pTex = pTex->next;
 	}
+	ImGui_ImplOpenGL2_CreateFontsTexture();
 }
 
 int WINAPI Texture_LoadSkin(char *pName, int *pnWidth, int *pnHeight) {
