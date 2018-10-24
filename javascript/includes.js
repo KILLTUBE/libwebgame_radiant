@@ -41,6 +41,7 @@ includes = function() {
 		"javascript/html5.js",
 		"javascript/html5_console.js",
 		"javascript/html5_gl.js",
+		"javascript/playcanvas-1-10-0.js",
 	];
 	for (var i=0; i<files.length; i++) {
 		var file = files[i];

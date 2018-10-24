@@ -8,6 +8,7 @@ shittyconsole = function(code, sel_from, sel_to) {
 		code = code.substr(sel_from, sel_to-sel_from);
 	//printf("code: % % %", code, sel_from, sel_to);
 	handle_input(code, get_global());
+	Sys_UpdateWindows(); // radiant specific, update all windows because e.g. brushes or camera were changed
 }
 
 print = function() {
