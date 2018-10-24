@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CamWnd.h"
 #include "qe3.h"
 #include "splines/splines.h"
+#include "../duktape/duktapestuff.h"
 
 void DrawPathLines();
 void Select_ShiftTexture(int x, int y);
@@ -188,7 +189,8 @@ void CCamWnd::OnMButtonUp(UINT nFlags, CPoint point) {
 
 void CCamWnd::OnRButtonDown(UINT nFlags, CPoint point) {
 	SetFocus();
-	OriginalMouseDown(nFlags, point);
+	//OriginalMouseDown(nFlags, point);
+	js_call(ctx, "startFreeFlyCamera", "");
 }
 
 void CCamWnd::OnRButtonUp(UINT nFlags, CPoint point) {
@@ -259,7 +261,7 @@ void CCamWnd::OriginalMouseDown(UINT nFlags, CPoint point) {
 	//SetFocus();
 	SetCapture();
 	//if (!(GetKeyState(VK_MENU) & 0x8000))
-	Sys_Printf("point.x=%d point.y=%d r.bottom-1-point.y=%d\n", point.x, point.y, r.bottom - 1 - point.y);
+	//Sys_Printf("point.x=%d point.y=%d r.bottom-1-point.y=%d\n", point.x, point.y, r.bottom - 1 - point.y);
 	Cam_MouseDown(point.x, r.bottom - 1 - point.y, nFlags);
 }
 
@@ -339,60 +341,6 @@ void CCamWnd::Cam_PositionDrag() {
 	}
 }
 
-void CCamWnd::Cam_MouseControl (float dtime) {
-	int		xl, xh;
-	int		yl, yh;
-	float	xf, yf;
-	if (g_PrefsDlg.m_nMouseButtons == 2) {
-		if (m_nCambuttonstate != (MK_RBUTTON | MK_SHIFT))
-			return;
-	} else {
-		if (m_nCambuttonstate != MK_RBUTTON)
-			return;
-	}
-	xf = (float)(m_ptButton.x - m_Camera.width/2) / (m_Camera.width/2);
-	yf = (float)(m_ptButton.y - m_Camera.height/2) / (m_Camera.height/2);
-	xl = m_Camera.width/3;
-	xh = xl*2;
-	yl = m_Camera.height/3;
-	yh = yl*2;
-	//Sys_Printf("xf-%f	yf-%f	xl-%i	xh-i%	yl-i%	yh-i%\n",xf,yf,xl,xh,yl,yh);
-#if 0
-	// strafe
-	if (buttony < yl && (buttonx < xl || buttonx > xh))
-		VectorMA (camera.origin, xf*dtime*g_nMoveSpeed, camera.right, camera.origin);
-	else
-#endif
-	{
-		xf *= 1.0 - fabs(yf);
-		if (xf < 0) {
-			xf += 0.1;
-			if (xf > 0)
-				xf = 0;
-		} else {
-			xf -= 0.1;
-			if (xf < 0)
-				xf = 0;
-		}
-		VectorMA (m_Camera.origin, yf*dtime*g_nMoveSpeed, m_Camera.forward, m_Camera.origin);
-		m_Camera.angles[YAW] += xf*-dtime*g_nAngleSpeed;
-	}
-#if 0
-	if (g_PrefsDlg.m_bQE4Painting)
-	{
-		MSG msg;
-		if (::PeekMessage( &msg, NULL, 0, 0, PM_REMOVE )) 
-		{ 
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-	}
-#endif
-	int nUpdate = (g_PrefsDlg.m_bCamXYUpdate) ? (W_CAMERA | W_XY) : (W_CAMERA);
-	Sys_UpdateWindows (nUpdate);
-	g_pParentWnd->PostMessage(WM_TIMER, 0, 0);
-}
-
 void CCamWnd::Cam_MouseDown(int x, int y, int buttons) {
 	vec3_t dir;
 	float f, r, u;
@@ -427,16 +375,12 @@ void CCamWnd::Cam_MouseDown(int x, int y, int buttons) {
 	{
 
 		if (g_PrefsDlg.m_nMouseButtons == 2 && (buttons == (MK_RBUTTON | MK_SHIFT))) {
-			Cam_MouseControl (0.1);
+			// was rightclick here
 		} else {
 			// something global needs to track which window is responsible for stuff
 			Patch_SetView(W_CAMERA);
 			Drag_Begin (x, y, buttons, m_Camera.vright, m_Camera.vup,	m_Camera.origin, dir);
 		}
-		return;
-	}
-	if (buttons == MK_RBUTTON) {
-		Cam_MouseControl (0.1);
 		return;
 	}
 }
@@ -450,7 +394,7 @@ void CCamWnd::Cam_MouseMoved (int x, int y, int buttons) {
 	// left bottom is [0,0]
 	// buttons:
 	// left = MK_LBUTTON(1) right=2 middle=16
-	Sys_Printf("x=%d y=%d buttons=%d\n", x, y, buttons);
+	//Sys_Printf("x=%d y=%d buttons=%d\n", x, y, buttons);
 	m_nCambuttonstate = buttons;
 	if (!buttons) {
 		if ( ( g_qeglobals.d_select_mode == sel_terrainpoint ) || ( g_qeglobals.d_select_mode == sel_terraintexture ) ) {
@@ -475,11 +419,11 @@ void CCamWnd::Cam_MouseMoved (int x, int y, int buttons) {
 	}
 	m_ptButton.x = x;
 	m_ptButton.y = y;
-	if (buttons == (MK_RBUTTON|MK_CONTROL) ) {
-		Cam_PositionDrag ();
-		Sys_UpdateWindows (W_XY|W_CAMERA|W_Z);
-		return;
-	}
+	//if (buttons == (MK_RBUTTON|MK_CONTROL) ) {
+	//	Cam_PositionDrag ();
+	//	Sys_UpdateWindows (W_XY|W_CAMERA|W_Z);
+	//	return;
+	//}
 	GetCursorPos(&m_ptCursor);
 	if (buttons & (MK_LBUTTON | MK_MBUTTON) ) {
 		Drag_MouseMoved (x, y, buttons);
