@@ -309,6 +309,9 @@
     <ClCompile Include="..\duktape-2-3-0\duktape.cpp">
       <Filter>Source Files\duktape-2-3-0</Filter>
     </ClCompile>
+    <ClCompile Include="..\duktape\bind_radiant.cpp">
+      <Filter>Source Files\duktape</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Radiant.rc">
@@ -563,6 +566,9 @@
       <Filter>Source Files\duktape</Filter>
     </ClInclude>
     <ClInclude Include="..\duktape\duktapestuff.h">
+      <Filter>Source Files\duktape</Filter>
+    </ClInclude>
+    <ClInclude Include="..\duktape\bind_radiant.h">
       <Filter>Source Files\duktape</Filter>
     </ClInclude>
   </ItemGroup>

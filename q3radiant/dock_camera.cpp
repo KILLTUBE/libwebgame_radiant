@@ -38,10 +38,13 @@ brush_t* g_pSplitList = NULL;
 
 IMPLEMENT_DYNCREATE(CCamWnd, CWnd);
 
+camera_t *camera = NULL;
+
 CCamWnd::CCamWnd() {
 	m_pXYFriend = NULL;
 	m_nNumTransBrushes = 0;
 	memset(&m_Camera, 0, sizeof(camera_t));
+	camera = &m_Camera;
 	m_pSide_select = NULL;
 	m_bClipMode = false;
 	Cam_Init();
