@@ -40,12 +40,17 @@ int duk_func_radiant_camera_forward_get(duk_context *ctx) {
 	return 1;
 }
 
+int duk_func_Sys_UpdateWindows(duk_context *ctx) {
+	Sys_UpdateWindows(W_ALL);
+	return 0;
+}
 
 void duktape_bind_radiant(duk_context *ctx) {
 	struct funcis funcs[] = {
 		{"radiant_camera_origin_set"           , duk_func_radiant_camera_origin_set   },
 		{"radiant_camera_origin_get"           , duk_func_radiant_camera_origin_get   },
 		{"radiant_camera_forward_get"          , duk_func_radiant_camera_forward_get  },
+		{"Sys_UpdateWindows"                   , duk_func_Sys_UpdateWindows           },
 		{NULL, NULL}
 	};
 	for (int i=0; funcs[i].name; i++) {
