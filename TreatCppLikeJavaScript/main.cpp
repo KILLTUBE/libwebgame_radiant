@@ -72,7 +72,90 @@ void fill(Bitmap bm, uint32_t color) {
 
 using namespace std;
 
+class Console : Object { public:
+	void log(var a                                          ) { cout << a                                                                         << endl; }
+	void log(var a, var b                                   ) { cout << a << " " << b                                                             << endl; }
+	void log(var a, var b, var c                            ) { cout << a << " " << b << " " << c                                                 << endl; }
+	void log(var a, var b, var c, var d                     ) { cout << a << " " << b << " " << c << " " << d                                     << endl; }
+	void log(var a, var b, var c, var d, var e              ) { cout << a << " " << b << " " << c << " " << d << " " << e                         << endl; }
+	void log(var a, var b, var c, var d, var e, var f       ) { cout << a << " " << b << " " << c << " " << d << " " << e << " " << f             << endl; }
+	void log(var a, var b, var c, var d, var e, var f, var g) { cout << a << " " << b << " " << c << " " << d << " " << e << " " << f << " " << g << endl; }
+};
+
+// recursive
+template<typename T, typename... Args>
+void printf(const char *s, T value, Args... args)
+{
+    while (*s)
+    {
+        if (*s == '%')
+        {
+            if (*(s + 1) != '%')
+            {
+                std::cout << value;
+                s += 2; // only works on 2-character format strings ( %d, %f, etc ); fails with %5.4f
+                printf(s, args...); // called even when *s is 0 but does nothing in that case (and ignores extra arguments)
+                return;
+            }
+
+            ++s;
+        }
+
+        std::cout << *s++;
+    }    
+}
+
+void print_object(...) {
+	//cout << o;
+}
+
+template<typename... Args> inline void pass(Args&&... asd) {
+	cout << "passed: " << asd << endl;
+}
+
+template<typename... Args> inline void expand(Args&&... args) {
+	printf("expand()\n");
+	pass(args...);
+
+	//pass( print_object(args)... );
+}
+
+
+template <typename T>
+void bar(T t) {}
+
+void foo2() {}
+
+template <typename Car, typename... Cdr>
+void foo2(Car car, Cdr... cdr) {
+	bar(car);
+	foo2(cdr...);
+}
+
+// expand(42, "answer", true);
+// which will expand to something like:
+// pass( some_function(arg1), some_function(arg2), some_function(arg3) etc... );
+
+
+
+template <typename T>
+void console_log_argument(T t) {
+	std::cout << t << " ";
+}
+ 
+template <typename... Args>
+void console_log(Args&&... args) {
+	int dummy[] = { 0, ((void) console_log_argument(std::forward<Args>(args)),0)... };
+	cout << endl;
+}
+
+
 int main() {
+
+	//foo2 (1, 2, 3, "3");
+	console_log("bunch", "of", "arguments");
+	console_log("or some numbers: ", 1, 2, 3);
+
 	try {
 		// Initialize with a dummy value first or it'll go into an infinite loop
 		global["Function"] = "Function";
@@ -121,6 +204,32 @@ int main() {
 		value = 0.5;
 		//cout << "cout value: " << bitmap.alpha << endl; // correct way
 		//printf("printf value: %f", value); // never use old C varargs functions with modern C++ operators, it will return garbage
+
+		auto args = {1,2,3};
+
+		var a = 1;
+		var b = 2;
+		var c = a + b;
+		Console console;
+		console.log("a", a, "b", b, "c", c); // prints "a 1 b 2 c 3\n"
+		//console.log(console);
+
+		var Console2 = function() {
+			console.log("hello from Console2 constructor");
+			return this;
+		};
+		Console2["log"] = function() {
+			console.log("hello from Console2.log");
+			return "idk";
+		};
+		var console2 = new(Console2);
+		// throws "Object is not a function"... syntax is pretty aids nonetheless, gonna make real classes which inherit from Object
+		//console2["log"]("HAI FROM LOG");
+
+
+
+		//print(1, ':', " Hello", ',', " ", "World!!!");
+		//expand(42, "answer", true);
 
 	} catch (e) {
 		std::cout << "Uncatched error: " << e << std::endl;
