@@ -6,9 +6,9 @@
 #include "../jspp/underscore.h"
 #include "../jspp/operators.h"
 #include "../jspp/constructors.h"
+#include "../jspp/console.h"
 
 // http://sasq64.github.io/cpp-javascript.html
-// 
 
 #define catch(e) catch(var e)
 #define throw throw _=
@@ -72,16 +72,6 @@ void fill(Bitmap bm, uint32_t color) {
 
 using namespace std;
 
-class Console : Object { public:
-	void log(var a                                          ) { cout << a                                                                         << endl; }
-	void log(var a, var b                                   ) { cout << a << " " << b                                                             << endl; }
-	void log(var a, var b, var c                            ) { cout << a << " " << b << " " << c                                                 << endl; }
-	void log(var a, var b, var c, var d                     ) { cout << a << " " << b << " " << c << " " << d                                     << endl; }
-	void log(var a, var b, var c, var d, var e              ) { cout << a << " " << b << " " << c << " " << d << " " << e                         << endl; }
-	void log(var a, var b, var c, var d, var e, var f       ) { cout << a << " " << b << " " << c << " " << d << " " << e << " " << f             << endl; }
-	void log(var a, var b, var c, var d, var e, var f, var g) { cout << a << " " << b << " " << c << " " << d << " " << e << " " << f << " " << g << endl; }
-};
-
 // recursive
 template<typename T, typename... Args>
 void printf(const char *s, T value, Args... args)
@@ -136,26 +126,13 @@ void foo2(Car car, Cdr... cdr) {
 // which will expand to something like:
 // pass( some_function(arg1), some_function(arg2), some_function(arg3) etc... );
 
-
-
-template <typename T>
-void console_log_argument(T t) {
-	std::cout << t << " ";
-}
- 
-template <typename... Args>
-void console_log(Args&&... args) {
-	int dummy[] = { 0, ((void) console_log_argument(std::forward<Args>(args)),0)... };
-	cout << endl;
-}
-
-
 int main() {
+	Console console;
+	console.log("bunch", "of", "arguments");
+	console.warn("or some numbers:", 1, 2, 3);
+	console.error("just a prank", "bro");
 
-	//foo2 (1, 2, 3, "3");
-	console_log("bunch", "of", "arguments");
-	console_log("or some numbers: ", 1, 2, 3);
-
+	
 	try {
 		// Initialize with a dummy value first or it'll go into an infinite loop
 		global["Function"] = "Function";
