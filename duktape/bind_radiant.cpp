@@ -29,6 +29,27 @@ int duk_func_radiant_camera_origin_get(duk_context *ctx) {
 	return 1;
 }
 
+int duk_func_radiant_camera_angles_set(duk_context *ctx) {
+	float x = (float)duk_to_number(ctx, 0);
+	float y = (float)duk_to_number(ctx, 1);
+	float z = (float)duk_to_number(ctx, 2);
+	camera->angles[0] = x;
+	camera->angles[1] = y;
+	camera->angles[2] = z;
+	return 0;
+}
+
+int duk_func_radiant_camera_angles_get(duk_context *ctx) {
+	duk_push_array(ctx);
+	duk_push_number(ctx, camera->angles[0]);
+	duk_put_prop_string(ctx, -2, "x");
+	duk_push_number(ctx, camera->angles[1]);
+	duk_put_prop_string(ctx, -2, "y");
+	duk_push_number(ctx, camera->angles[2]);
+	duk_put_prop_string(ctx, -2, "z");
+	return 1;
+}
+
 int duk_func_radiant_camera_forward_get(duk_context *ctx) {
 	duk_push_array(ctx);
 	duk_push_number(ctx, camera->forward[0]);
@@ -67,6 +88,8 @@ void duktape_bind_radiant(duk_context *ctx) {
 	struct funcis funcs[] = {
 		{"radiant_camera_origin_set"           , duk_func_radiant_camera_origin_set   },
 		{"radiant_camera_origin_get"           , duk_func_radiant_camera_origin_get   },
+		{"radiant_camera_angles_set"           , duk_func_radiant_camera_angles_set   },
+		{"radiant_camera_angles_get"           , duk_func_radiant_camera_angles_get   },
 		{"radiant_camera_forward_get"          , duk_func_radiant_camera_forward_get  },
 		{"Sys_UpdateWindows"                   , duk_func_Sys_UpdateWindows           },
 		{"radiant_mouse_position_set"          , duk_func_radiant_mouse_position_set  },
