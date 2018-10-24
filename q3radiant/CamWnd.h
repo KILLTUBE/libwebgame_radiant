@@ -52,7 +52,6 @@ class CCamWnd : public CWnd { public:
 	void SetXYFriend(CXYWnd* pWnd);
 	virtual ~CCamWnd();
 	camera_t& Camera(){return m_Camera;};
-	void Cam_MouseControl(float dtime);
 	void Cam_ChangeFloor(qboolean up);
 	void Cam_Init();
 	void Cam_BuildMatrix();

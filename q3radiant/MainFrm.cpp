@@ -19,8 +19,6 @@ along with Foobar; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-// MainFrm.cpp : implementation of the CMainFrame class
-//
 
 #include "stdafx.h"
 #include "Radiant.h"
@@ -50,6 +48,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../libs/pakstuff.h"
 #include "splines/splines.h"
 #include "dlgcamera.h"
+#include "../duktape/duktapestuff.h"
 
 struct SplitInfo {
 	int m_nMin;
@@ -1243,9 +1242,9 @@ void CMainFrame::RoutineProcessing() {
 		oldtime = time;
 		if (delta > 0.2)
 			delta = 0.2;
-		// run time dependant behavior
-		if (m_pCamWnd)
-			m_pCamWnd->Cam_MouseControl(delta);
+		
+		js_call(ctx, "update", "");
+
 		if (m_pTexWnd)
 			m_pTexWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
 		if (g_PrefsDlg.m_bQE4Painting && g_nUpdateBits)
