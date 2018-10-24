@@ -45,12 +45,32 @@ int duk_func_Sys_UpdateWindows(duk_context *ctx) {
 	return 0;
 }
 
+int duk_func_radiant_mouse_position_set(duk_context *ctx) {
+	int x = (int)duk_to_number(ctx, 0);
+	int y = (int)duk_to_number(ctx, 1);
+	SetCursorPos(x, y);
+	return 0;
+}
+
+int duk_func_radiant_mouse_position_get(duk_context *ctx) {
+	POINT xy;
+	GetCursorPos(&xy);
+	duk_push_array(ctx);
+	duk_push_number(ctx, xy.x);
+	duk_put_prop_string(ctx, -2, "x");
+	duk_push_number(ctx, xy.y);
+	duk_put_prop_string(ctx, -2, "y");
+	return 1;
+}
+
 void duktape_bind_radiant(duk_context *ctx) {
 	struct funcis funcs[] = {
 		{"radiant_camera_origin_set"           , duk_func_radiant_camera_origin_set   },
 		{"radiant_camera_origin_get"           , duk_func_radiant_camera_origin_get   },
 		{"radiant_camera_forward_get"          , duk_func_radiant_camera_forward_get  },
 		{"Sys_UpdateWindows"                   , duk_func_Sys_UpdateWindows           },
+		{"radiant_mouse_position_set"          , duk_func_radiant_mouse_position_set  },
+		{"radiant_mouse_position_get"          , duk_func_radiant_mouse_position_get  },
 		{NULL, NULL}
 	};
 	for (int i=0; funcs[i].name; i++) {
