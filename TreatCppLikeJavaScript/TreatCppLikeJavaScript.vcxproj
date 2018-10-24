@@ -117,6 +117,15 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\jspp\constructors.h" />
+    <ClInclude Include="..\jspp\javascript_end.h" />
+    <ClInclude Include="..\jspp\javascript_start.h" />
+    <ClInclude Include="..\jspp\object.h" />
+    <ClInclude Include="..\jspp\operators.h" />
+    <ClInclude Include="..\jspp\jsstdlib.h" />
+    <ClInclude Include="..\jspp\underscore.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
