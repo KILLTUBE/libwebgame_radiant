@@ -50,6 +50,7 @@ struct funcis {
 extern duk_context *ctx;
 extern int js_printf(char *msg, ...);
 
+void js_register_method(duk_context *ctx, char *name, int (*func)(duk_context *ctx));
 int js_push_global_by_name(duk_context *ctx, char *name);
 int js_eval_file_safe(duk_context *ctx, char *filename);
 int js_call(duk_context *ctx, char *function, char *params, ...);

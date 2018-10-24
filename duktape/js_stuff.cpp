@@ -7,8 +7,16 @@
 #include "bind_memory.h"
 #include "bind_utils.h"
 #include "bind_imgui.h"
+#include "bind_radiant.h"
 
 duk_context *ctx = NULL;
+
+void js_register_method(duk_context *ctx, char *name, int (*func)(duk_context *ctx)) {
+	duk_push_c_function(ctx, func, DUK_VARARGS);
+	//duk_push_string(ctx, name);
+	duk_put_prop_string(ctx, -2, name);
+	//duk_put_global_string(ctx, name);
+}
 
 int js_push_global_by_name(duk_context *ctx, char *name) {
 	// [..., global]
@@ -273,6 +281,7 @@ int js_init() {
 	
 	//init_bullet_bindings(ctx);
 	duktape_bind_imgui(ctx);
+	duktape_bind_radiant(ctx);
 	//init_opengl_bindings(ctx);
 	//init_recast_bindings(ctx);
 	//init_win32_bindings(ctx);

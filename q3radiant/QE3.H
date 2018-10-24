@@ -45,29 +45,21 @@ extern "C"
 #include "mathlib.h"
 #include "parse.h"
 #include "lbmlib.h"
-
 #include <commctrl.h>
 #include "afxres.h"
 #include "resource.h"
-
 #include "qedefs.h"
-
 #include "qfiles.h"
-
 #include "textures.h"
 #include "brush.h"
 #include "entity.h"
 #include "map.h"
 #include "select.h"
 #include "splines/splines.h"
-
-#include "camera.h"
 #include "xy.h"
 #include "z.h"
 #include "mru.h"
-
 #include "undo.h"
-
 #include "terrain.h"
 
 // the dec offsetof macro doesn't work very well...

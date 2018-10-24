@@ -405,10 +405,3 @@ void duktape_bind_imgui(duk_context *ctx) {
 	duk_pop(ctx);
 
 }
-
-void js_register_method(duk_context *ctx, char *name, int (*func)(duk_context *ctx)) {
-	duk_push_c_function(ctx, func, DUK_VARARGS);
-	//duk_push_string(ctx, name);
-	duk_put_prop_string(ctx, -2, name);
-	//duk_put_global_string(ctx, name);
-}

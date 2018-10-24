@@ -21,6 +21,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #pragma once
 
+typedef enum {
+	cd_wire,
+	cd_solid,
+	cd_texture,
+	cd_light,
+	cd_blend
+} camera_draw_mode;
+
+typedef struct camera_s {
+	int width, height;
+	qboolean	timing;
+	vec3_t	origin;
+	vec3_t	angles;
+	camera_draw_mode	draw_mode;
+	vec3_t	color;			// background 
+	vec3_t	forward, right, up;	// move matrix
+	vec3_t	vup, vpn, vright;	// view matrix
+} camera_t;
+
 class CXYWnd;
 
 class CCamWnd : public CWnd { public:

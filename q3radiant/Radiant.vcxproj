@@ -275,6 +275,7 @@
     </ClCompile>
     <ClCompile Include="..\duktape\bind_imgui.cpp" />
     <ClCompile Include="..\duktape\bind_memory.cpp" />
+    <ClCompile Include="..\duktape\bind_radiant.cpp" />
     <ClCompile Include="..\duktape\bind_utils2.cpp" />
     <ClCompile Include="..\duktape\dukhelpers.cpp" />
     <ClCompile Include="..\duktape\js_stuff.cpp" />
@@ -902,6 +903,7 @@
     <ClInclude Include="..\duktape-2-3-0\duk_config.h" />
     <ClInclude Include="..\duktape\bind_imgui.h" />
     <ClInclude Include="..\duktape\bind_memory.h" />
+    <ClInclude Include="..\duktape\bind_radiant.h" />
     <ClInclude Include="..\duktape\bind_utils.h" />
     <ClInclude Include="..\duktape\dukdebugheaders.h" />
     <ClInclude Include="..\duktape\dukhelpers.h" />
