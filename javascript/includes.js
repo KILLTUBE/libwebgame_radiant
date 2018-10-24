@@ -43,6 +43,7 @@ includes = function() {
 		"javascript/html5_gl.js",
 		"javascript/playcanvas-1-10-0.js",
 		"javascript/camera.js",
+		"javascript/mouse.js",
 	];
 	for (var i=0; i<files.length; i++) {
 		var file = files[i];
