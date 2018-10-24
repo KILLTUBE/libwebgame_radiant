@@ -1,7 +1,13 @@
 /*
-	tmp = camera.origin;
-	tmp.z += 8;
-	camera.origin = tmp;
+	campos = camera.origin;
+	campos.z += 8;
+	camera.origin = campos;
+	
+	camangles = camera.angles
+	camangles.x += 0; // up/down
+	camangles.y -= 0; // left/right
+	camangles.z += 0; // not implemented
+	camera.angles = camangles
 */
 
 Camera = function() {}
@@ -11,8 +17,18 @@ Object.defineProperty(Camera.prototype, "origin", {
 		var tmp = radiant_camera_origin_get();
 		return new pc.Vec3(tmp.x, tmp.y, tmp.z);
 	},
-	set: function(newOrigin) {
-		radiant_camera_origin_set(newOrigin.x, newOrigin.y, newOrigin.z);
+	set: function(tmp) {
+		radiant_camera_origin_set(tmp.x, tmp.y, tmp.z);
+	}
+});
+
+Object.defineProperty(Camera.prototype, "angles", {
+	get: function() {
+		var tmp = radiant_camera_angles_get();
+		return new pc.Vec3(tmp.x, tmp.y, tmp.z);
+	},
+	set: function(tmp) {
+		radiant_camera_angles_set(tmp.x, tmp.y, tmp.z);
 	}
 });
 
