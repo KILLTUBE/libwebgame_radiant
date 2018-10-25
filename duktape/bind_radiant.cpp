@@ -60,6 +60,37 @@ int duk_func_radiant_camera_forward_get(duk_context *ctx) {
 	duk_put_prop_string(ctx, -2, "z");
 	return 1;
 }
+int duk_func_radiant_camera_backward_get(duk_context *ctx) {
+	duk_push_array(ctx);
+	duk_push_number(ctx, camera->forward[0] * -1.0f);
+	duk_put_prop_string(ctx, -2, "x");
+	duk_push_number(ctx, camera->forward[1] * -1.0f);
+	duk_put_prop_string(ctx, -2, "y");
+	duk_push_number(ctx, camera->forward[2] * -1.0f);
+	duk_put_prop_string(ctx, -2, "z");
+	return 1;
+}
+
+int duk_func_radiant_camera_right_get(duk_context *ctx) {
+	duk_push_array(ctx);
+	duk_push_number(ctx, camera->right[0]);
+	duk_put_prop_string(ctx, -2, "x");
+	duk_push_number(ctx, camera->right[1]);
+	duk_put_prop_string(ctx, -2, "y");
+	duk_push_number(ctx, camera->right[2]);
+	duk_put_prop_string(ctx, -2, "z");
+	return 1;
+}
+int duk_func_radiant_camera_left_get(duk_context *ctx) {
+	duk_push_array(ctx);
+	duk_push_number(ctx, camera->right[0] * -1.0f);
+	duk_put_prop_string(ctx, -2, "x");
+	duk_push_number(ctx, camera->right[1] * -1.0f);
+	duk_put_prop_string(ctx, -2, "y");
+	duk_push_number(ctx, camera->right[2] * -1.0f);
+	duk_put_prop_string(ctx, -2, "z");
+	return 1;
+}
 
 int duk_func_Sys_UpdateWindows(duk_context *ctx) {
 	Sys_UpdateWindows(W_ALL);
@@ -116,6 +147,9 @@ void duktape_bind_radiant(duk_context *ctx) {
 		{"radiant_camera_angles_set"           , duk_func_radiant_camera_angles_set   },
 		{"radiant_camera_angles_get"           , duk_func_radiant_camera_angles_get   },
 		{"radiant_camera_forward_get"          , duk_func_radiant_camera_forward_get  },
+		{"radiant_camera_backward_get"         , duk_func_radiant_camera_backward_get },
+		{"radiant_camera_right_get"            , duk_func_radiant_camera_right_get    },
+		{"radiant_camera_left_get"             , duk_func_radiant_camera_left_get     },
 		{"Sys_UpdateWindows"                   , duk_func_Sys_UpdateWindows           },
 		{"radiant_mouse_position_set"          , duk_func_radiant_mouse_position_set  },
 		{"radiant_mouse_position_get"          , duk_func_radiant_mouse_position_get  },

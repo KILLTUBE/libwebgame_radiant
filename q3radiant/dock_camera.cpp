@@ -190,11 +190,12 @@ void CCamWnd::OnMButtonUp(UINT nFlags, CPoint point) {
 void CCamWnd::OnRButtonDown(UINT nFlags, CPoint point) {
 	SetFocus();
 	//OriginalMouseDown(nFlags, point);
-	js_call(ctx, "startFreeFlyCamera", "");
+	js_call(ctx, "freefly_start", "");
 }
 
 void CCamWnd::OnRButtonUp(UINT nFlags, CPoint point) {
-	OriginalMouseUp(nFlags, point);
+	//OriginalMouseUp(nFlags, point);
+	js_call(ctx, "freefly_stop", "");
 }
 
 int CCamWnd::OnCreate(LPCREATESTRUCT lpCreateStruct) {
