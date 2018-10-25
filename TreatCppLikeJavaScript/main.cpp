@@ -10,9 +10,9 @@
 
 // http://sasq64.github.io/cpp-javascript.html
 
-#define catch(e) catch(var e)
+// #define catch(e) catch(var e)
 #define throw throw _=
-#define this This
+//#define this This
 #define new New
 #define in :
 #define function(...) [=] (var This, ##__VA_ARGS__) mutable -> Object
@@ -126,14 +126,69 @@ void foo2(Car car, Cdr... cdr) {
 // which will expand to something like:
 // pass( some_function(arg1), some_function(arg2), some_function(arg3) etc... );
 
+class CanvasInternal { public:
+	int width;
+	int height;
+	vector<uint8_t> buffer;
+};
+//shared_ptr<CanvasInternal> canvasInternal;
+//class CanvasWidth
+
+class Canvas { public:
+	void resize() {
+		cout << "resize to " << width << " " << height << endl;
+	}
+
+	Canvas(int w, int h) : width(*this), height(*this) {
+		cout << "new canvas " << w << " " << h << endl;
+		width.value = w;
+		height.value = h;
+	}
+
+	class Width { public:
+		Canvas& canvas;
+		int value;
+		Width(Canvas& canvas): canvas(canvas) {}
+		int & operator = (const int &i) {
+			value = i;
+			canvas.resize();
+			return value;
+		}
+		operator int () const {
+			return value;
+		}
+	} width;
+
+	class Height { public:
+		Canvas& canvas;
+		int value;
+		Height(Canvas& canvas): canvas(canvas) {}
+		int & operator = (const int &i) {
+			value = i;
+			canvas.resize();
+			return value;
+		}
+		operator int () const {
+			return value;
+		}
+	} height;
+};
+
 int main() {
-	Console console;
-	console.log("bunch", "of", "arguments");
-	console.warn("or some numbers:", 1, 2, 3);
-	console.error("just a prank", "bro");
+
+	Canvas canvas(256, 256);
+	canvas.width = 128;
+	canvas.height = 64;
+
+
+
+	//Console console;
+	//console.log("bunch", "of", "arguments");
+	//console.warn("or some numbers:", 1, 2, 3);
+	//console.error("just a prank", "bro");
 
 	
-	try {
+	//try {
 		// Initialize with a dummy value first or it'll go into an infinite loop
 		global["Function"] = "Function";
 		global["Function"] = function(var s) {
@@ -191,15 +246,15 @@ int main() {
 		console.log("a", a, "b", b, "c", c); // prints "a 1 b 2 c 3\n"
 		//console.log(console);
 
-		var Console2 = function() {
-			console.log("hello from Console2 constructor");
-			return this;
-		};
-		Console2["log"] = function() {
-			console.log("hello from Console2.log");
-			return "idk";
-		};
-		var console2 = new(Console2);
+		//var Console2 = function() {
+		//	console.log("hello from Console2 constructor");
+		//	return this;
+		//};
+		//Console2["log"] = function() {
+		//	console.log("hello from Console2.log");
+		//	return "idk";
+		//};
+		//var console2 = new(Console2);
 		// throws "Object is not a function"... syntax is pretty aids nonetheless, gonna make real classes which inherit from Object
 		//console2["log"]("HAI FROM LOG");
 
@@ -208,9 +263,9 @@ int main() {
 		//print(1, ':', " Hello", ',', " ", "World!!!");
 		//expand(42, "answer", true);
 
-	} catch (e) {
-		std::cout << "Uncatched error: " << e << std::endl;
-	}
+	//} catch (e) {
+	//	std::cout << "Uncatched error: " << e << std::endl;
+	//}
 
 	getchar();
 	return 0;

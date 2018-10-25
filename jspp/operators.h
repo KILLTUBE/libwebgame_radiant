@@ -194,6 +194,7 @@ bool operator >=(Object a, Object b) {
 
 
 std::string Object::toString() {
+#if 0
 	if (s->type == STRING) {
 		return s->s;
 	}
@@ -255,6 +256,8 @@ std::string Object::toString() {
 
 
 	throw _("Unknown type");
+#endif
+	return "removed atm";
 }
 
 
