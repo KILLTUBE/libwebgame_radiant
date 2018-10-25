@@ -84,6 +84,31 @@ int duk_func_radiant_mouse_position_get(duk_context *ctx) {
 	return 1;
 }
 
+int duk_func_leftMousePressed(duk_context *ctx) {
+	auto ret = GetAsyncKeyState(VK_LBUTTON) & 0x8000;
+	duk_push_boolean(ctx, ret);
+	return 1;
+}
+
+int duk_func_middleMousePressed(duk_context *ctx) {
+	auto ret = GetAsyncKeyState(VK_MBUTTON) & 0x8000;
+	duk_push_boolean(ctx, ret);
+	return 1;
+}
+
+int duk_func_rightMousePressed(duk_context *ctx) {
+	auto ret = GetAsyncKeyState(VK_RBUTTON) & 0x8000;
+	duk_push_boolean(ctx, ret);
+	return 1;
+}
+
+int duk_func_GetAsyncKeyState(duk_context *ctx) {
+	int button = duk_to_int(ctx, 0);
+	auto ret = GetAsyncKeyState(button) & 0x8000;
+	duk_push_boolean(ctx, ret);
+	return 1;
+}
+
 void duktape_bind_radiant(duk_context *ctx) {
 	struct funcis funcs[] = {
 		{"radiant_camera_origin_set"           , duk_func_radiant_camera_origin_set   },
@@ -94,6 +119,10 @@ void duktape_bind_radiant(duk_context *ctx) {
 		{"Sys_UpdateWindows"                   , duk_func_Sys_UpdateWindows           },
 		{"radiant_mouse_position_set"          , duk_func_radiant_mouse_position_set  },
 		{"radiant_mouse_position_get"          , duk_func_radiant_mouse_position_get  },
+		{"leftMousePressed"                    , duk_func_leftMousePressed            },
+		{"middleMousePressed"                  , duk_func_middleMousePressed          },
+		{"rightMousePressed"                   , duk_func_rightMousePressed           },
+		{"GetAsyncKeyState"                    , duk_func_GetAsyncKeyState            },
 		{NULL, NULL}
 	};
 	for (int i=0; funcs[i].name; i++) {
