@@ -5,7 +5,7 @@
 	protected:
 		template <typename T>
 		void log_argument(T t) {
-			std::cout << t << " ";
+			//std::cout << t << " ";
 		}
 	public:
 		template <typename... Args>

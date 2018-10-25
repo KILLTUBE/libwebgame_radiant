@@ -134,10 +134,10 @@ protected:
 	{ s->f = 5; s->f5 = f; }
 };
 
-std::ostream& operator<<(std::ostream& stream, Object o) {
-	stream << o.toString();
-	return stream;
-}
+//std::ostream& operator<<(std::ostream& stream, Object o) {
+//	stream << o.toString();
+//	return stream;
+//}
 
 typedef Object var;
 
