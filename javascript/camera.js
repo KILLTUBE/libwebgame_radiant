@@ -39,4 +39,25 @@ Object.defineProperty(Camera.prototype, "forward", {
 	}
 });
 
+Object.defineProperty(Camera.prototype, "backward", {
+	get: function() {
+		var tmp = radiant_camera_backward_get();
+		return new pc.Vec3(tmp.x, tmp.y, tmp.z);
+	}
+});
+
+Object.defineProperty(Camera.prototype, "right", {
+	get: function() {
+		var tmp = radiant_camera_right_get();
+		return new pc.Vec3(tmp.x, tmp.y, tmp.z);
+	}
+});
+
+Object.defineProperty(Camera.prototype, "left", {
+	get: function() {
+		var tmp = radiant_camera_left_get();
+		return new pc.Vec3(tmp.x, tmp.y, tmp.z);
+	}
+});
+
 camera = new Camera();
