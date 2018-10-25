@@ -134,6 +134,24 @@ class CanvasInternal { public:
 //shared_ptr<CanvasInternal> canvasInternal;
 //class CanvasWidth
 
+//template<typename T, std::function<?> S>
+//	class StandardVariable {
+//		T var;
+//		S callback;
+//	public:
+//	T& operator= (T& other) {
+//		callback(var, other);
+//		var = other;
+//		return other;
+//	}
+//	const T& Get() {
+//		return var;
+//	}
+//};
+
+//StandardVariable<float, YourSetterFunctionHere> var;
+
+
 class Canvas { public:
 	void resize() {
 		cout << "resize to " << width << " " << height << endl;
@@ -175,12 +193,9 @@ class Canvas { public:
 };
 
 int main() {
-
 	Canvas canvas(256, 256);
 	canvas.width = 128;
 	canvas.height = 64;
-
-
 
 	//Console console;
 	//console.log("bunch", "of", "arguments");
