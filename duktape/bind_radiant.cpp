@@ -51,22 +51,28 @@ int duk_func_radiant_camera_angles_get(duk_context *ctx) {
 }
 
 int duk_func_radiant_camera_forward_get(duk_context *ctx) {
+	//vec3_t forward;
+	//AngleVectors(camera->angles, forward, NULL, NULL);
+	//forward[2] *= 1.0f; // fix "bug" or whatever
 	duk_push_array(ctx);
-	duk_push_number(ctx, camera->forward[0]);
+	duk_push_number(ctx, camera->vpn[0]);
 	duk_put_prop_string(ctx, -2, "x");
-	duk_push_number(ctx, camera->forward[1]);
+	duk_push_number(ctx, camera->vpn[1]);
 	duk_put_prop_string(ctx, -2, "y");
-	duk_push_number(ctx, camera->forward[2]);
+	duk_push_number(ctx, camera->vpn[2]);
 	duk_put_prop_string(ctx, -2, "z");
 	return 1;
 }
 int duk_func_radiant_camera_backward_get(duk_context *ctx) {
+	//vec3_t forward;
+	//AngleVectors(camera->angles, forward, NULL, NULL);
+	//forward[2] *= 1.0f; // fix "bug" or whatever
 	duk_push_array(ctx);
-	duk_push_number(ctx, camera->forward[0] * -1.0f);
+	duk_push_number(ctx, camera->vpn[0] * -1.0f);
 	duk_put_prop_string(ctx, -2, "x");
-	duk_push_number(ctx, camera->forward[1] * -1.0f);
+	duk_push_number(ctx, camera->vpn[1] * -1.0f);
 	duk_put_prop_string(ctx, -2, "y");
-	duk_push_number(ctx, camera->forward[2] * -1.0f);
+	duk_push_number(ctx, camera->vpn[2] * -1.0f);
 	duk_put_prop_string(ctx, -2, "z");
 	return 1;
 }
@@ -92,6 +98,37 @@ int duk_func_radiant_camera_left_get(duk_context *ctx) {
 	return 1;
 }
 
+int duk_func_radiant_camera_up_get(duk_context *ctx) {
+	// fucking AngleVectors is bugged up shit
+	//vec3_t up;
+	//AngleVectors(camera->angles, NULL, NULL, up);
+	//up[0] *= 1.0f; // fix "bug" or whatever
+	//up[1] *= 1.0f; // fix "bug" or whatever
+	duk_push_array(ctx);
+	duk_push_number(ctx, camera->vup[0]);
+	duk_put_prop_string(ctx, -2, "x");
+	duk_push_number(ctx, camera->vup[1]);
+	duk_put_prop_string(ctx, -2, "y");
+	duk_push_number(ctx, camera->vup[2]);
+	duk_put_prop_string(ctx, -2, "z");
+	return 1;
+}
+int duk_func_radiant_camera_down_get(duk_context *ctx) {
+	// fucking AngleVectors is bugged up shit
+	//vec3_t up;
+	//AngleVectors(camera->angles, NULL, NULL, up);
+	//up[0] *= 1.0f; // fix "bug" or whatever
+	//up[1] *= 1.0f; // fix "bug" or whatever
+	duk_push_array(ctx);
+	duk_push_number(ctx, camera->vup[0] * -1.0f);
+	duk_put_prop_string(ctx, -2, "x");
+	duk_push_number(ctx, camera->vup[1] * -1.0f);
+	duk_put_prop_string(ctx, -2, "y");
+	duk_push_number(ctx, camera->vup[2] * -1.0f);
+	duk_put_prop_string(ctx, -2, "z");
+	return 1;
+}
+
 int duk_func_Sys_UpdateWindows(duk_context *ctx) {
 	Sys_UpdateWindows(W_ALL);
 	return 0;
@@ -113,6 +150,17 @@ int duk_func_radiant_mouse_position_get(duk_context *ctx) {
 	duk_push_number(ctx, xy.y);
 	duk_put_prop_string(ctx, -2, "y");
 	return 1;
+}
+
+
+int duk_func_radiant_mouse_show(duk_context *ctx) {
+	ShowCursor(true);
+	return 0;
+}
+
+int duk_func_radiant_mouse_hide(duk_context *ctx) {
+	while(ShowCursor(false) >= 0);
+	return 0;
 }
 
 int duk_func_leftMousePressed(duk_context *ctx) {
@@ -150,9 +198,13 @@ void duktape_bind_radiant(duk_context *ctx) {
 		{"radiant_camera_backward_get"         , duk_func_radiant_camera_backward_get },
 		{"radiant_camera_right_get"            , duk_func_radiant_camera_right_get    },
 		{"radiant_camera_left_get"             , duk_func_radiant_camera_left_get     },
+		{"radiant_camera_up_get"               , duk_func_radiant_camera_up_get       },
+		{"radiant_camera_down_get"             , duk_func_radiant_camera_down_get     },
 		{"Sys_UpdateWindows"                   , duk_func_Sys_UpdateWindows           },
 		{"radiant_mouse_position_set"          , duk_func_radiant_mouse_position_set  },
 		{"radiant_mouse_position_get"          , duk_func_radiant_mouse_position_get  },
+		{"radiant_mouse_show"                  , duk_func_radiant_mouse_show          },
+		{"radiant_mouse_hide"                  , duk_func_radiant_mouse_hide          },
 		{"leftMousePressed"                    , duk_func_leftMousePressed            },
 		{"middleMousePressed"                  , duk_func_middleMousePressed          },
 		{"rightMousePressed"                   , duk_func_rightMousePressed           },
