@@ -21,11 +21,13 @@ freefly_on = false;
 freefly_start = function() {
 	freefly_on = true;
 	oldmousepos = mouse.position;
+	mouse.hide();
 	console.log("FREEFLY");
 }
 
 freefly_stop = function() {
 	freefly_on = false;
+	mouse.show();
 }
 
 freefly_update = function() {
@@ -43,7 +45,7 @@ freefly_update = function() {
 	
 	// update angles from mouse pos
 	var deltaMousePos = new pc.Vec2().sub2(mouse.position, oldmousepos );
-	console.log("deltaMousePos", deltaMousePos)
+	//console.log("deltaMousePos", deltaMousePos)
 	deltaMousePos.scale(1/5.333) // 1920 / 360 = 5.333
 	camera.angles = camera.angles.add(new pc.Vec3( -deltaMousePos.y, -deltaMousePos.x, 0)) 
 	mouse.position = oldmousepos; // reset mouse pos
