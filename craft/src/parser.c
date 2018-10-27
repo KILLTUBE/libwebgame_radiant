@@ -72,8 +72,8 @@ bool read_all(Parser *m) {
 }
 
 void parse_line(Parser *m, const char *line) {
-    ItemSpec s = {};
-
+    ItemSpec s;
+	memset(&s, 0, sizeof(ItemSpec));
     sscanf(line, ITEMSPEC_NAME_FORMAT " %d", s.name, &s.obstacle);
 
     printf("spec: name (%s), obstacle(%d)\n\n", s.name, s.obstacle);

@@ -1,7 +1,6 @@
 #ifndef _rendering_h_
 #define _rendering_h_
-
-#include <GL/glew.h>
+#include "glew/include/GL/glew.h"
 #include "attrib.h"
 #include "chunk.h"
 #include "player.h"

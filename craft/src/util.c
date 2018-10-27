@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include "cube.h"
-#include "lodepng.h"
+#include "lodepng/lodepng.h"
 #include "matrix.h"
 #include "util.h"
 

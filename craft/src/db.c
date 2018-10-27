@@ -1,8 +1,8 @@
 #include <string.h>
 #include "db.h"
 #include "ring.h"
-#include "sqlite3.h"
-#include "tinycthread.h"
+#include "sqlite/sqlite3.h"
+#include "tinycthread/tinycthread.h"
 
 static int db_enabled = 0;
 
@@ -146,7 +146,7 @@ int db_init(char *path) {
     rc = sqlite3_prepare_v2(db, set_key_query, -1, &set_key_stmt, NULL);
     if (rc) return rc;
     sqlite3_exec(db, "begin;", NULL, NULL, NULL);
-    db_worker_start();
+    db_worker_start(NULL);
     return 0;
 }
 

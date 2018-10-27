@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "client.h"
-#include "tinycthread.h"
+#include "tinycthread/tinycthread.h"
 
 #define QUEUE_SIZE 1048576
 #define RECV_SIZE 4096
@@ -210,27 +210,27 @@ int recv_worker(void *arg) {
 }
 
 void client_connect(char *hostname, int port) {
-    if (!client_enabled) {
-        return;
-    }
-    struct hostent *host;
-    struct sockaddr_in address;
-    if ((host = gethostbyname(hostname)) == 0) {
-        perror("gethostbyname");
-        exit(1);
-    }
-    memset(&address, 0, sizeof(address));
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = ((struct in_addr *)(host->h_addr_list[0]))->s_addr;
-    address.sin_port = htons(port);
-    if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-        perror("socket");
-        exit(1);
-    }
-    if (connect(sd, (struct sockaddr *)&address, sizeof(address)) == -1) {
-        perror("connect");
-        exit(1);
-    }
+    //if (!client_enabled) {
+    //    return;
+    //}
+    //struct hostent *host;
+    //struct sockaddr_in address;
+    //if ((host = gethostbyname(hostname)) == 0) {
+    //    perror("gethostbyname");
+    //    exit(1);
+    //}
+    //memset(&address, 0, sizeof(address));
+    //address.sin_family = AF_INET;
+    //address.sin_addr.s_addr = ((struct in_addr *)(host->h_addr_list[0]))->s_addr;
+    //address.sin_port = htons(port);
+    //if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+    //    perror("socket");
+    //    exit(1);
+    //}
+    //if (connect(sd, (struct sockaddr *)&address, sizeof(address)) == -1) {
+    //    perror("connect");
+    //    exit(1);
+    //}
 }
 
 void client_start() {

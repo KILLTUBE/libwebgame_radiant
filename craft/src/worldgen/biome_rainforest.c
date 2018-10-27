@@ -1,5 +1,5 @@
 #include "biome_rainforest.h"
-#include "noise.h"
+#include "../noise/noise.h"
 #include "../config.h"
 #include "../item.h"
 

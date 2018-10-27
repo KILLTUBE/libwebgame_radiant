@@ -1,7 +1,7 @@
 #ifndef _chunk_h_
 #define _chunk_h_
 
-#include <GL/glew.h>
+#include "glew/include/GL/glew.h"
 #include "map.h"
 #include "sign.h"
 
