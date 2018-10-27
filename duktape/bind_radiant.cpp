@@ -181,6 +181,18 @@ int duk_func_rightMousePressed(duk_context *ctx) {
 	return 1;
 }
 
+int duk_func_shiftButtonPressed(duk_context *ctx) {
+	auto ret = GetAsyncKeyState(VK_SHIFT) & 0x8000;
+	duk_push_boolean(ctx, ret);
+	return 1;
+}
+
+int duk_func_controlButtonPressed(duk_context *ctx) {
+	auto ret = GetAsyncKeyState(VK_CONTROL) & 0x8000;
+	duk_push_boolean(ctx, ret);
+	return 1;
+}
+
 int duk_func_GetAsyncKeyState(duk_context *ctx) {
 	int button = duk_to_int(ctx, 0);
 	auto ret = GetAsyncKeyState(button) & 0x8000;
@@ -208,6 +220,8 @@ void duktape_bind_radiant(duk_context *ctx) {
 		{"leftMousePressed"                    , duk_func_leftMousePressed            },
 		{"middleMousePressed"                  , duk_func_middleMousePressed          },
 		{"rightMousePressed"                   , duk_func_rightMousePressed           },
+		{"shiftButtonPressed"                  , duk_func_shiftButtonPressed          },
+		{"controlButtonPressed"                , duk_func_controlButtonPressed        },
 		{"GetAsyncKeyState"                    , duk_func_GetAsyncKeyState            },
 		{NULL, NULL}
 	};
