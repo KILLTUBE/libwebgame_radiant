@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Ressourcendateien">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="files">
+      <UniqueIdentifier>{99e6c797-eb6e-42a5-a676-7143ba9e21af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="worldgen">
+      <UniqueIdentifier>{fb8e128f-6d43-42e0-9091-64e39fabf7b9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\attrib.h">
+      <Filter>files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\auth.h">
+      <Filter>files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\chunk.h">
+      <Filter>files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\client.h">
+      <Filter>files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\config.h">
+      <Filter>files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\cube.h">
+      <Filter>files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\db.h">
+      <Filter>files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\inventory.h">
+      <Filter>files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\item.h">
+      <Filter>files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\map.h">
+      <Filter>files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\matrix.h">
+      <Filter>files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\parser.h">
+      <Filter>files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\player.h">
+      <Filter>files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\rendering.h">
+      <Filter>files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ring.h">
+      <Filter>files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\sign.h">
+      <Filter>files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\state.h">
+      <Filter>files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\util.h">
+      <Filter>files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\worldgen\base_terrain.h">
+      <Filter>worldgen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\worldgen\biome_desert.h">
+      <Filter>worldgen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\worldgen\biome_rainforest.h">
+      <Filter>worldgen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\worldgen\biome_taiga.h">
+      <Filter>worldgen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\worldgen\biome_temperate.h">
+      <Filter>worldgen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\worldgen\world.h">
+      <Filter>worldgen</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\auth.c">
+      <Filter>files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\client.c">
+      <Filter>files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\cube.c">
+      <Filter>files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\db.c">
+      <Filter>files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\inventory.c">
+      <Filter>files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\item.c">
+      <Filter>files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\main.c">
+      <Filter>files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\map.c">
+      <Filter>files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\matrix.c">
+      <Filter>files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\parser.c">
+      <Filter>files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\rendering.c">
+      <Filter>files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ring.c">
+      <Filter>files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\sign.c">
+      <Filter>files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\util.c">
+      <Filter>files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\worldgen\base_terrain.c">
+      <Filter>worldgen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\worldgen\biome_desert.c">
+      <Filter>worldgen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\worldgen\biome_rainforest.c">
+      <Filter>worldgen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\worldgen\biome_taiga.c">
+      <Filter>worldgen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\worldgen\biome_temperate.c">
+      <Filter>worldgen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\worldgen\world.c">
+      <Filter>worldgen</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
