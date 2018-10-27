@@ -28,14 +28,19 @@
     <ClInclude Include="..\src\db.h" />
     <ClInclude Include="..\src\inventory.h" />
     <ClInclude Include="..\src\item.h" />
+    <ClInclude Include="..\src\lodepng\lodepng.h" />
     <ClInclude Include="..\src\map.h" />
     <ClInclude Include="..\src\matrix.h" />
+    <ClInclude Include="..\src\noise\noise.h" />
     <ClInclude Include="..\src\parser.h" />
     <ClInclude Include="..\src\player.h" />
     <ClInclude Include="..\src\rendering.h" />
     <ClInclude Include="..\src\ring.h" />
     <ClInclude Include="..\src\sign.h" />
+    <ClInclude Include="..\src\sqlite\sqlite3.h" />
+    <ClInclude Include="..\src\sqlite\sqlite3ext.h" />
     <ClInclude Include="..\src\state.h" />
+    <ClInclude Include="..\src\tinycthread\tinycthread.h" />
     <ClInclude Include="..\src\util.h" />
     <ClInclude Include="..\src\worldgen\base_terrain.h" />
     <ClInclude Include="..\src\worldgen\biome_desert.h" />
@@ -49,15 +54,20 @@
     <ClCompile Include="..\src\client.c" />
     <ClCompile Include="..\src\cube.c" />
     <ClCompile Include="..\src\db.c" />
+    <ClCompile Include="..\src\glew\src\glew.c" />
     <ClCompile Include="..\src\inventory.c" />
     <ClCompile Include="..\src\item.c" />
+    <ClCompile Include="..\src\lodepng\lodepng.c" />
     <ClCompile Include="..\src\main.c" />
     <ClCompile Include="..\src\map.c" />
     <ClCompile Include="..\src\matrix.c" />
+    <ClCompile Include="..\src\noise\noise.c" />
     <ClCompile Include="..\src\parser.c" />
     <ClCompile Include="..\src\rendering.c" />
     <ClCompile Include="..\src\ring.c" />
     <ClCompile Include="..\src\sign.c" />
+    <ClCompile Include="..\src\sqlite\sqlite3.c" />
+    <ClCompile Include="..\src\tinycthread\tinycthread.c" />
     <ClCompile Include="..\src\util.c" />
     <ClCompile Include="..\src\worldgen\base_terrain.c" />
     <ClCompile Include="..\src\worldgen\biome_desert.c" />
@@ -126,6 +136,9 @@
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>D:\Quake-III-Arena-master\craft\src\glfw\build\src\Debug\glfw3.lib;opengl32.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

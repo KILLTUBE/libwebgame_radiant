@@ -11,6 +11,21 @@
     <Filter Include="worldgen">
       <UniqueIdentifier>{fb8e128f-6d43-42e0-9091-64e39fabf7b9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="glew">
+      <UniqueIdentifier>{6a56bf4b-2847-4344-a708-f749a95ae2a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="noise">
+      <UniqueIdentifier>{eb2e7cec-d818-4022-b7a1-f6d0cc8f8f93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sql">
+      <UniqueIdentifier>{948c2600-85f3-405d-98f0-2b7f355a95a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tinycthread">
+      <UniqueIdentifier>{7ac8efc3-00f9-4625-971b-1403fbd1e46e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lodepng">
+      <UniqueIdentifier>{9be425b8-20de-4aa6-94f2-e79849281cb3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\attrib.h">
@@ -85,6 +100,21 @@
     <ClInclude Include="..\src\worldgen\world.h">
       <Filter>worldgen</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\noise\noise.h">
+      <Filter>noise</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\sqlite\sqlite3.h">
+      <Filter>sql</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\sqlite\sqlite3ext.h">
+      <Filter>sql</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\tinycthread\tinycthread.h">
+      <Filter>tinycthread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\lodepng\lodepng.h">
+      <Filter>lodepng</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\auth.c">
@@ -146,6 +176,21 @@
     </ClCompile>
     <ClCompile Include="..\src\worldgen\world.c">
       <Filter>worldgen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\glew\src\glew.c">
+      <Filter>glew</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\noise\noise.c">
+      <Filter>noise</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\sqlite\sqlite3.c">
+      <Filter>sql</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\tinycthread\tinycthread.c">
+      <Filter>tinycthread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\lodepng\lodepng.c">
+      <Filter>lodepng</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
