@@ -30,16 +30,23 @@ freefly_stop = function() {
 	mouse.show();
 }
 
+cameraMoveSpeed = 2;
+
 freefly_update = function() {
 	if ( ! freefly_on)
 		return;
 	
+	speed = cameraMoveSpeed
+	if (shiftButtonPressed())
+		speed *= 10.0;
 	
+	if (controlButtonPressed())
+		speed /= 5.0;
 	
 	// do thread stuff etc. later
 	var newDir = getNewDir(camera);
 	var campos = camera.origin;
-	campos.add(newDir);
+	campos.add(newDir.scale(speed));
 	camera.origin = campos;
 	
 	
