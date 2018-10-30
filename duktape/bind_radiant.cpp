@@ -200,6 +200,14 @@ int duk_func_GetAsyncKeyState(duk_context *ctx) {
 	return 1;
 }
 
+void LoadShadersFromDir(const char *pPath);
+
+int duk_func_LoadShadersFromDir(duk_context *ctx) {
+	const char *path = duk_to_string(ctx, 0);
+	LoadShadersFromDir(path);
+	return 0;
+}
+
 void duktape_bind_radiant(duk_context *ctx) {
 	struct funcis funcs[] = {
 		{"radiant_camera_origin_set"           , duk_func_radiant_camera_origin_set   },
@@ -223,6 +231,7 @@ void duktape_bind_radiant(duk_context *ctx) {
 		{"shiftButtonPressed"                  , duk_func_shiftButtonPressed          },
 		{"controlButtonPressed"                , duk_func_controlButtonPressed        },
 		{"GetAsyncKeyState"                    , duk_func_GetAsyncKeyState            },
+		{"LoadShadersFromDir"                  , duk_func_LoadShadersFromDir          },
 		{NULL, NULL}
 	};
 	for (int i=0; funcs[i].name; i++) {
