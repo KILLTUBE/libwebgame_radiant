@@ -43,6 +43,9 @@
     <Filter Include="Source Files\duktape">
       <UniqueIdentifier>{5dfaf910-8127-450f-b582-52509402224a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="tinygltf">
+      <UniqueIdentifier>{5715b91b-c3b0-4bfe-b787-660ea5e6e31b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BrushScript.cpp">
@@ -312,6 +315,9 @@
     <ClCompile Include="..\duktape\bind_radiant.cpp">
       <Filter>Source Files\duktape</Filter>
     </ClCompile>
+    <ClCompile Include="..\tinygltf\loader_example.cc">
+      <Filter>tinygltf</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Radiant.rc">
@@ -570,6 +576,18 @@
     </ClInclude>
     <ClInclude Include="..\duktape\bind_radiant.h">
       <Filter>Source Files\duktape</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tinygltf\json.hpp">
+      <Filter>tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tinygltf\stb_image.h">
+      <Filter>tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tinygltf\stb_image_write.h">
+      <Filter>tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tinygltf\tiny_gltf.h">
+      <Filter>tinygltf</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
