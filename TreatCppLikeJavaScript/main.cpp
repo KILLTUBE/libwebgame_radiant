@@ -9,6 +9,9 @@
 #include "../jspp/console.h"
 
 // http://sasq64.github.io/cpp-javascript.html
+// https://github.com/Jeff-Mott-OR/javascript-cpp-rosetta-stone/blob/master/test/cpp/src/main.cpp
+// https://github.com/Jeff-Mott-OR/javascript-cpp-rosetta-stone
+// http://blog.vjeux.com/2011/javascript/jspp-morph-cpp-into-javascript.html
 
 // #define catch(e) catch(var e)
 #define throw throw _=
@@ -16,8 +19,6 @@
 #define new New
 #define in :
 #define function(...) [=] (var This, ##__VA_ARGS__) mutable -> Object
-
-
 
 using namespace std;
 
