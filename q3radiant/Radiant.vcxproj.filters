@@ -318,6 +318,39 @@
     <ClCompile Include="..\tinygltf\loader_example.cc">
       <Filter>tinygltf</Filter>
     </ClCompile>
+    <ClCompile Include="..\tinygltf\bvhaccel.cpp">
+      <Filter>tinygltf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tinygltf\gltf-loader.cc">
+      <Filter>tinygltf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tinygltf\main.cc">
+      <Filter>tinygltf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tinygltf\matrix.cc">
+      <Filter>tinygltf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tinygltf\nanort.cc">
+      <Filter>tinygltf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tinygltf\obj-loader.cc">
+      <Filter>tinygltf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tinygltf\render-config.cc">
+      <Filter>tinygltf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tinygltf\stbi-impl.cc">
+      <Filter>tinygltf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tinygltf\tiny_obj_loader.cc">
+      <Filter>tinygltf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tinygltf\trackball.cc">
+      <Filter>tinygltf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tinygltf\render.cpp">
+      <Filter>tinygltf</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Radiant.rc">
@@ -587,6 +620,45 @@
       <Filter>tinygltf</Filter>
     </ClInclude>
     <ClInclude Include="..\tinygltf\tiny_gltf.h">
+      <Filter>tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tinygltf\gltf-loader.h">
+      <Filter>tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tinygltf\material.h">
+      <Filter>tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tinygltf\mesh.h">
+      <Filter>tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tinygltf\nanort.h">
+      <Filter>tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tinygltf\nanosg.h">
+      <Filter>tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tinygltf\obj-loader.h">
+      <Filter>tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tinygltf\render.h">
+      <Filter>tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tinygltf\render-config.h">
+      <Filter>tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tinygltf\matrix.h">
+      <Filter>tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tinygltf\picojson.h">
+      <Filter>tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tinygltf\tiny_obj_loader.h">
+      <Filter>tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tinygltf\tinyexr.h">
+      <Filter>tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tinygltf\trackball.h">
       <Filter>tinygltf</Filter>
     </ClInclude>
   </ItemGroup>
