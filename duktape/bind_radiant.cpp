@@ -1,12 +1,12 @@
 #include "stdafx.h"
-
 #include "duktapestuff.h"
-#include "../duktape-2-3-0/duktape.h"	
+#include "../duktape-2-3-0/duktape.h"
 //#include <kung/duktape/dukdebugheaders.h>
 #include "../q3radiant/QERTYPES.H"
 #include "../q3radiant/CamWnd.h"
 #include "../q3radiant/qe3.h"
 #include "../craft/src/glfw/include/GLFW/glfw3.h"
+#include "../craft/src/tinycthread/tinycthread.h"
 
 extern camera_t *camera;
 
@@ -212,12 +212,88 @@ int duk_func_LoadShadersFromDir(duk_context *ctx) {
 
 GLFWwindow *glfw_windows[8] = {NULL};
 int glfw_next_id = 0;
+
+void on_key(GLFWwindow *window, int key, int scancode, int action, int mods) {
+}
+
+void on_char(GLFWwindow *window, unsigned int u) {
+}
+
+void on_mouse_button(GLFWwindow *window, int button, int action, int mods) {
+}
+
+void on_scroll(GLFWwindow *window, double xdelta, double ydelta) {
+}
+
+typedef struct
+{
+    GLFWwindow* window;
+    const char* title;
+    float r, g, b;
+    thrd_t id;
+} Thread;
+
+
+int thread_main(void* data) {
+
+	
+	GLFWmonitor *monitor = NULL;
+	GLFWwindow *window = NULL;
+	window = glfwCreateWindow(640, 480, "document.title", monitor, NULL);
+	//glfw_windows[0] = window;
+	int width = 640;
+	int height = 480;
+
+
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(1);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetKeyCallback(window, on_key);
+    glfwSetCharCallback(window, on_char);
+    glfwSetMouseButtonCallback(window, on_mouse_button);
+    glfwSetScrollCallback(window, on_scroll);
+
+	while (true) {
+
+		
+		glfwGetFramebufferSize(window, &width, &height);
+		glViewport(0, 0, width, height);
+
+		if (glfwWindowShouldClose(window)) {
+			break;
+		}
+
+		
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+
+	return 0;
+
+}
+
+// glfw_create_window()
 int duk_glfw_create_window(duk_context *ctx) {
 	int window_id = glfw_next_id++;
-	GLFWmonitor *monitor = NULL;
 	
-	glfw_windows[window_id] = glfwCreateWindow(640, 480, "document.title", monitor, NULL);
-	duk_push_int(ctx, window_id);
+	static int first = 1;
+	if (first) {
+		first = 0;
+		glfwInit();
+	}
+	Thread threads[] =
+    {
+        { NULL, "Red", 1.f, 0.f, 0.f, 0 },
+        { NULL, "Green", 0.f, 1.f, 0.f, 0 },
+        { NULL, "Blue", 0.f, 0.f, 1.f, 0 }
+    };
+	int i=0;
+	if (thrd_create(&threads[i].id, thread_main, threads + i) != thrd_success) {
+
+	}
+
+
+	duk_push_int(ctx, i);
 	return 1;
 }
 

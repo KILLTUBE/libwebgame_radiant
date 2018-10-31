@@ -46,6 +46,9 @@
     <Filter Include="tinygltf">
       <UniqueIdentifier>{5715b91b-c3b0-4bfe-b787-660ea5e6e31b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\tinycthread">
+      <UniqueIdentifier>{f8b95377-22c7-4b99-89f4-c2a86cad3d32}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BrushScript.cpp">
@@ -350,6 +353,9 @@
     </ClCompile>
     <ClCompile Include="..\tinygltf\render.cpp">
       <Filter>tinygltf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\craft\src\tinycthread\tinycthread.c">
+      <Filter>Source Files\tinycthread</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -660,6 +666,9 @@
     </ClInclude>
     <ClInclude Include="..\tinygltf\trackball.h">
       <Filter>tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\craft\src\tinycthread\tinycthread.h">
+      <Filter>Source Files\tinycthread</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
