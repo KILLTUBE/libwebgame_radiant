@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 /* -*- mode: c; tab-width: 2; indent-tabs-mode: nil; -*-
 Copyright (c) 2012 Marcus Geelnard
 

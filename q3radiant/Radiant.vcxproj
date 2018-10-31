@@ -268,6 +268,10 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\craft\src\tinycthread\tinycthread.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
+    </ClCompile>
     <ClCompile Include="..\duktape-2-3-0\duktape.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
@@ -921,6 +925,7 @@
     <ResourceCompile Include="Radiant.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\craft\src\tinycthread\tinycthread.h" />
     <ClInclude Include="..\duktape-2-3-0\duktape.h" />
     <ClInclude Include="..\duktape-2-3-0\duk_config.h" />
     <ClInclude Include="..\duktape\bind_imgui.h" />
