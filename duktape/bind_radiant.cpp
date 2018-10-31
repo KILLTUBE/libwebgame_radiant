@@ -5,6 +5,8 @@
 //#include <kung/duktape/dukdebugheaders.h>
 #include "../q3radiant/QERTYPES.H"
 #include "../q3radiant/CamWnd.h"
+#include "../q3radiant/qe3.h"
+#include "../craft/src/glfw/include/GLFW/glfw3.h"
 
 extern camera_t *camera;
 
@@ -208,6 +210,17 @@ int duk_func_LoadShadersFromDir(duk_context *ctx) {
 	return 0;
 }
 
+GLFWwindow *glfw_windows[8] = {NULL};
+int glfw_next_id = 0;
+int duk_glfw_create_window(duk_context *ctx) {
+	int window_id = glfw_next_id++;
+	GLFWmonitor *monitor = NULL;
+	
+	glfw_windows[window_id] = glfwCreateWindow(640, 480, "document.title", monitor, NULL);
+	duk_push_int(ctx, window_id);
+	return 1;
+}
+
 void duktape_bind_radiant(duk_context *ctx) {
 	struct funcis funcs[] = {
 		{"radiant_camera_origin_set"           , duk_func_radiant_camera_origin_set   },
@@ -232,6 +245,8 @@ void duktape_bind_radiant(duk_context *ctx) {
 		{"controlButtonPressed"                , duk_func_controlButtonPressed        },
 		{"GetAsyncKeyState"                    , duk_func_GetAsyncKeyState            },
 		{"LoadShadersFromDir"                  , duk_func_LoadShadersFromDir          },
+		// glfw
+		{"glfw_create_window"                  , duk_glfw_create_window               },
 		{NULL, NULL}
 	};
 	for (int i=0; funcs[i].name; i++) {
