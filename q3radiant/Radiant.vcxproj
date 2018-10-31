@@ -949,6 +949,7 @@
     <ClInclude Include="..\imgui\imstb_rectpack.h" />
     <ClInclude Include="..\imgui\imstb_textedit.h" />
     <ClInclude Include="..\imgui\imstb_truetype.h" />
+    <ClInclude Include="..\ThreadsafeQueue.h" />
     <ClInclude Include="..\tinygltf\gltf-loader.h" />
     <ClInclude Include="..\tinygltf\json.hpp" />
     <ClInclude Include="..\tinygltf\material.h" />

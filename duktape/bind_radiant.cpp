@@ -7,6 +7,8 @@
 #include "../q3radiant/qe3.h"
 #include "../craft/src/glfw/include/GLFW/glfw3.h"
 #include "../craft/src/tinycthread/tinycthread.h"
+#include "../imgui/imgui_dock_console.h"
+#include "../ThreadsafeQueue.h"
 
 extern camera_t *camera;
 
@@ -213,7 +215,16 @@ int duk_func_LoadShadersFromDir(duk_context *ctx) {
 GLFWwindow *glfw_windows[8] = {NULL};
 int glfw_next_id = 0;
 
+
+ThreadsafeQueue<std::string> queue;
+
 void on_key(GLFWwindow *window, int key, int scancode, int action, int mods) {
+	std::string str;
+	str += "key=";
+	str += key;
+	str += " scancode=";
+	str += scancode;
+	queue.enqueue(str);
 }
 
 void on_char(GLFWwindow *window, unsigned int u) {
@@ -225,12 +236,11 @@ void on_mouse_button(GLFWwindow *window, int button, int action, int mods) {
 void on_scroll(GLFWwindow *window, double xdelta, double ydelta) {
 }
 
-typedef struct
-{
-    GLFWwindow* window;
-    const char* title;
-    float r, g, b;
-    thrd_t id;
+typedef struct {
+	GLFWwindow* window;
+	const char* title;
+	float r, g, b;
+	thrd_t id;
 } Thread;
 
 
@@ -295,6 +305,13 @@ int duk_glfw_create_window(duk_context *ctx) {
 
 	duk_push_int(ctx, i);
 	return 1;
+}
+
+void duktape_update() {
+	if (queue.q.size() > 0) {
+		auto str = queue.dequeue();
+		imgui_log("Got: %s", str.c_str());
+	}
 }
 
 void duktape_bind_radiant(duk_context *ctx) {
