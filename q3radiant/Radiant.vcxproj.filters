@@ -670,6 +670,9 @@
     <ClInclude Include="..\craft\src\tinycthread\tinycthread.h">
       <Filter>Source Files\tinycthread</Filter>
     </ClInclude>
+    <ClInclude Include="..\ThreadsafeQueue.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\bevel.bmp">

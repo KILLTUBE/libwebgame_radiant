@@ -2358,6 +2358,7 @@ BEGIN_MESSAGE_MAP(CTexWnd, CWnd)
 END_MESSAGE_MAP()
 
 LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+void duktape_update();
 
 LONG WINAPI TexWndProc(HWND		hWnd, UINT		uMsg, WPARAM	wParam, LPARAM	lParam) {
 	int		xPos, yPos;
@@ -2375,7 +2376,7 @@ LONG WINAPI TexWndProc(HWND		hWnd, UINT		uMsg, WPARAM	wParam, LPARAM	lParam) {
 		//ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam);
 	}
 
-
+	duktape_update();
 
 	switch (uMsg) {
 	case WM_CREATE:
