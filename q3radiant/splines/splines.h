@@ -596,9 +596,9 @@ public:
 		glLabeledPoint(blue, startPos, (editMode) ? 5 : 3, "Start interpolated");
 		glLabeledPoint(blue, endPos, (editMode) ? 5 : 3, "End interpolated");
 		glBegin(GL_LINES);
-		qglVertex3fv(startPos);
-		qglVertex3fv(endPos);
-		qglEnd();
+		glVertex3fv(startPos);
+		glVertex3fv(endPos);
+		glEnd();
 	}
 
 	virtual void start(long t) {

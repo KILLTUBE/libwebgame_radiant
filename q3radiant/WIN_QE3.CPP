@@ -241,7 +241,7 @@ void Error (char *error, ...)
 	int		err;
 	
 	err = GetLastError ();
-	int i = qglGetError();
+	int i = glGetError();
 	
 	va_start (argptr,error);
 	vsprintf (text, error,argptr);
@@ -266,7 +266,7 @@ void Warning (char *error, ...)
 	int		err;
 
 	err = GetLastError ();
-  int i = qglGetError();
+  int i = glGetError();
 
 	va_start (argptr,error);
 	vsprintf (text, error,argptr);

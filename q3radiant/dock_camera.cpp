@@ -254,7 +254,7 @@ int CCamWnd::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	if (!hfont)
 		Error( "couldn't create font" );
 	::SelectObject(g_qeglobals.d_hdcBase, hfont);
-	if ((g_qeglobals.d_font_list = qglGenLists (256)) == 0)
+	if ((g_qeglobals.d_font_list = glGenLists (256)) == 0)
 		Error( "couldn't create font dlists" );
 	// create the bitmap display lists
 	// we're making images of glyphs 0 thru 255
@@ -266,12 +266,12 @@ int CCamWnd::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 			Error( "wglUseFontBitmaps faileD" );
 	}
 	// indicate start of glyph display lists
-	qglListBase (g_qeglobals.d_font_list);
+	glListBase (g_qeglobals.d_font_list);
 	// report OpenGL information
-	Sys_Printf ("GL_VENDOR: %s\n", qglGetString (GL_VENDOR));
-	Sys_Printf ("GL_RENDERER: %s\n", qglGetString (GL_RENDERER));
-	Sys_Printf ("GL_VERSION: %s\n", qglGetString (GL_VERSION));
-	Sys_Printf ("GL_EXTENSIONS: %s\n", qglGetString (GL_EXTENSIONS));
+	Sys_Printf ("GL_VENDOR: %s\n", glGetString (GL_VENDOR));
+	Sys_Printf ("GL_RENDERER: %s\n", glGetString (GL_RENDERER));
+	Sys_Printf ("GL_VERSION: %s\n", glGetString (GL_VERSION));
+	Sys_Printf ("GL_EXTENSIONS: %s\n", glGetString (GL_EXTENSIONS));
 	g_qeglobals.d_hwndCamera = GetSafeHwnd();
 	return 0;
 }
@@ -316,7 +316,7 @@ void CCamWnd::Cam_BuildMatrix() {
 	m_Camera.forward[1] = sin(ya);
 	m_Camera.right[0] = m_Camera.forward[1];
 	m_Camera.right[1] = -m_Camera.forward[0];
-	qglGetFloatv (GL_PROJECTION_MATRIX, &matrix[0][0]);
+	glGetFloatv (GL_PROJECTION_MATRIX, &matrix[0][0]);
 	for (i=0 ; i<3 ; i++) {
 		m_Camera.vright[i] = matrix[i][0];
 		m_Camera.vup[i] = matrix[i][1];
@@ -514,13 +514,13 @@ void CCamWnd::DrawLightRadius(brush_t* pBrush) {
 	int nRadius = Brush_LightRadius(pBrush);
 	if (nRadius > 0) {
 		Brush_SetLightColor(pBrush);
-		qglEnable(GL_BLEND);
-		qglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glEnable(GL_BLEND);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		qglDisable(GL_TEXTURE_2D);
-		qglEnable(GL_TEXTURE_2D);
-		qglDisable(GL_BLEND);
-		qglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glDisable(GL_TEXTURE_2D);
+		glEnable(GL_TEXTURE_2D);
+		glDisable(GL_BLEND);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 }
 #endif
@@ -538,8 +538,8 @@ void CCamWnd::Cam_Draw() {
 		return;	// not valid yet
 	// clear
 	QE_CheckOpenGLForErrors();
-	qglViewport(0, 0, m_Camera.width, m_Camera.height);
-	qglScissor(0, 0, m_Camera.width, m_Camera.height);
+	glViewport(0, 0, m_Camera.width, m_Camera.height);
+	glScissor(0, 0, m_Camera.width, m_Camera.height);
 	glClearColor(
 		g_qeglobals.d_savedinfo.colors[COLOR_CAMERABACK][0],
 		g_qeglobals.d_savedinfo.colors[COLOR_CAMERABACK][1],
@@ -548,27 +548,27 @@ void CCamWnd::Cam_Draw() {
 	// set up viewpoint
 	vec5_t lightPos;
 	if (g_PrefsDlg.m_bGLLighting) {
-		qglEnable(GL_LIGHTING);
-		//qglEnable(GL_LIGHT0);
+		glEnable(GL_LIGHTING);
+		//glEnable(GL_LIGHT0);
 		lightPos[0] = lightPos[1] = lightPos[2] = 3.5;
 		lightPos[3] = 1.0;
-		qglLightModelfv(GL_LIGHT_MODEL_AMBIENT, lightPos);
+		glLightModelfv(GL_LIGHT_MODEL_AMBIENT, lightPos);
 		//qglLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
 		//lightPos[0] = lightPos[1] = lightPos[2] = 3.5;
 		//qglLightfv(GL_LIGHT0, GL_AMBIENT, lightPos);
 	} else {
-		qglDisable(GL_LIGHTING);
+		glDisable(GL_LIGHTING);
 	}
-	qglMatrixMode(GL_PROJECTION);
-	qglLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
 	screenaspect = (float)m_Camera.width / m_Camera.height;
 	yfov = 2*atan((float)m_Camera.height / m_Camera.width)*180/Q_PI;
 	qgluPerspective (yfov,	screenaspect,	2,	8192);
-	qglRotatef (-90,	1, 0, 0);			// put Z going up
-	qglRotatef (90,	0, 0, 1);			// put Z going up
-	qglRotatef (m_Camera.angles[0],	0, 1, 0);
-	qglRotatef (-m_Camera.angles[1],	0, 0, 1);
-	qglTranslatef (-m_Camera.origin[0],	-m_Camera.origin[1],	-m_Camera.origin[2]);
+	glRotatef (-90,	1, 0, 0);			// put Z going up
+	glRotatef (90,	0, 0, 1);			// put Z going up
+	glRotatef (m_Camera.angles[0],	0, 1, 0);
+	glRotatef (-m_Camera.angles[1],	0, 0, 1);
+	glTranslatef (-m_Camera.origin[0],	-m_Camera.origin[1],	-m_Camera.origin[2]);
 	Cam_BuildMatrix();
 	//if (m_Camera.draw_mode == cd_light)
 	//{
@@ -584,52 +584,52 @@ void CCamWnd::Cam_Draw() {
 	GLfloat lAmbient[] = {1.0, 1.0, 1.0, 1.0};
 	switch (m_Camera.draw_mode) {
 		case cd_wire:
-			qglPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-			qglDisable(GL_TEXTURE_2D);
-			qglDisable(GL_TEXTURE_1D);
-			qglDisable(GL_BLEND);
-			qglDisable(GL_DEPTH_TEST);
+			glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+			glDisable(GL_TEXTURE_2D);
+			glDisable(GL_TEXTURE_1D);
+			glDisable(GL_BLEND);
+			glDisable(GL_DEPTH_TEST);
 			glColor3f(1.0, 1.0, 1.0);
-			//		qglEnable (GL_LINE_SMOOTH);
+			//		glEnable (GL_LINE_SMOOTH);
 			break;
 		case cd_solid:
-			qglCullFace(GL_FRONT);
-			qglEnable(GL_CULL_FACE);
-			qglShadeModel (GL_FLAT);
-			qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-			qglDisable(GL_TEXTURE_2D);
-			qglDisable(GL_BLEND);
-			qglEnable(GL_DEPTH_TEST);
-			qglDepthFunc (GL_LEQUAL);
+			glCullFace(GL_FRONT);
+			glEnable(GL_CULL_FACE);
+			glShadeModel (GL_FLAT);
+			glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+			glDisable(GL_TEXTURE_2D);
+			glDisable(GL_BLEND);
+			glEnable(GL_DEPTH_TEST);
+			glDepthFunc (GL_LEQUAL);
 			break;
 		case cd_texture:
-			qglCullFace(GL_FRONT);
-			qglEnable(GL_CULL_FACE);
-			qglShadeModel (GL_FLAT);
-			qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-			qglEnable(GL_TEXTURE_2D);
-			qglTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			qglDisable(GL_BLEND);
-			qglEnable(GL_DEPTH_TEST);
-			qglDepthFunc (GL_LEQUAL);
+			glCullFace(GL_FRONT);
+			glEnable(GL_CULL_FACE);
+			glShadeModel (GL_FLAT);
+			glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+			glEnable(GL_TEXTURE_2D);
+			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glDisable(GL_BLEND);
+			glEnable(GL_DEPTH_TEST);
+			glDepthFunc (GL_LEQUAL);
 			break;
 		case cd_blend:
-			qglCullFace(GL_FRONT);
-			qglEnable(GL_CULL_FACE);
-			qglShadeModel (GL_FLAT);
-			qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-			qglEnable(GL_TEXTURE_2D);
-			qglTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			qglDisable(GL_DEPTH_TEST);
-			qglEnable (GL_BLEND);
+			glCullFace(GL_FRONT);
+			glEnable(GL_CULL_FACE);
+			glShadeModel (GL_FLAT);
+			glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+			glEnable(GL_TEXTURE_2D);
+			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glDisable(GL_DEPTH_TEST);
+			glEnable (GL_BLEND);
 			glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			break;
 	}
-	qglMatrixMode(GL_TEXTURE);
+	glMatrixMode(GL_TEXTURE);
 	m_nNumTransBrushes = 0;
 	for (brush = active_brushes.next ; brush != &active_brushes ; brush=brush->next) {
 		//DrawLightRadius(brush);
@@ -647,23 +647,23 @@ void CCamWnd::Cam_Draw() {
 		}	
 	}
 	if (g_PrefsDlg.m_bGLLighting) {
-		qglDisable (GL_LIGHTING);
+		glDisable (GL_LIGHTING);
 	}
 	//qglDepthMask ( 0 ); // Don't write to depth buffer
-	qglEnable ( GL_BLEND );
+	glEnable ( GL_BLEND );
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	for ( i = 0; i < m_nNumTransBrushes; i++ ) 
 		Brush_Draw (m_TransBrushes[i]);
 	//qglDepthMask ( 1 ); // Ok, write now
-	qglMatrixMode(GL_PROJECTION);
+	glMatrixMode(GL_PROJECTION);
 	//
 	// now draw selected brushes
 	//
 	if (g_PrefsDlg.m_bGLLighting) {
-		qglEnable (GL_LIGHTING);
+		glEnable (GL_LIGHTING);
 	}
-	qglTranslatef (g_qeglobals.d_select_translate[0], g_qeglobals.d_select_translate[1], g_qeglobals.d_select_translate[2]);
-	qglMatrixMode(GL_TEXTURE);
+	glTranslatef (g_qeglobals.d_select_translate[0], g_qeglobals.d_select_translate[1], g_qeglobals.d_select_translate[2]);
+	glMatrixMode(GL_TEXTURE);
 	brush_t* pList = (g_bClipMode && g_pSplitList) ? g_pSplitList : &selected_brushes;
 	// draw normally
 	for (brush = pList->next ; brush != pList ; brush=brush->next) {
@@ -673,13 +673,13 @@ void CCamWnd::Cam_Draw() {
 		Brush_Draw(brush);
 	}
 	// blend on top
-	qglMatrixMode(GL_PROJECTION);
-	qglDisable (GL_LIGHTING);
+	glMatrixMode(GL_PROJECTION);
+	glDisable (GL_LIGHTING);
 	glColor4f(1.0, 0.0, 0.0, 0.3);
-	qglEnable (GL_BLEND);
-	qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+	glEnable (GL_BLEND);
+	glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	qglDisable (GL_TEXTURE_2D);
+	glDisable (GL_TEXTURE_2D);
 	for (brush = pList->next ; brush != pList ; brush=brush->next) {
 		if ( (brush->patchBrush && g_qeglobals.d_select_mode == sel_curvepoint) || 
 			(brush->terrainBrush && g_qeglobals.d_select_mode == sel_terrainpoint) )
@@ -695,9 +695,9 @@ void CCamWnd::Cam_Draw() {
 		}
 	}
 	// non-zbuffered outline
-	qglDisable (GL_BLEND);
-	qglDisable (GL_DEPTH_TEST);
-	qglPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+	glDisable (GL_BLEND);
+	glDisable (GL_DEPTH_TEST);
+	glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 	glColor3f (1, 1, 1);
 	for (brush = pList->next ; brush != pList ; brush=brush->next) {
 		if (g_qeglobals.dontDrawSelectedOutlines || (brush->patchBrush && g_qeglobals.d_select_mode == sel_curvepoint) ||
@@ -708,25 +708,25 @@ void CCamWnd::Cam_Draw() {
 	}
 	// edge / vertex flags
 	if (g_qeglobals.d_select_mode == sel_vertex) {
-		qglPointSize (4);
+		glPointSize (4);
 		glColor3f (0,1,0);
 		glBegin (GL_POINTS);
 		for (i=0 ; i<g_qeglobals.d_numpoints ; i++)
-			qglVertex3fv (g_qeglobals.d_points[i]);
-		qglEnd ();
-		qglPointSize (1);
+			glVertex3fv (g_qeglobals.d_points[i]);
+		glEnd ();
+		glPointSize (1);
 	} else if (g_qeglobals.d_select_mode == sel_edge) {
 		float	*v1, *v2;
-		qglPointSize (4);
+		glPointSize (4);
 		glColor3f (0,0,1);
 		glBegin (GL_POINTS);
 		for (i=0 ; i<g_qeglobals.d_numedges ; i++) {
 			v1 = g_qeglobals.d_points[g_qeglobals.d_edges[i].p1];
 			v2 = g_qeglobals.d_points[g_qeglobals.d_edges[i].p2];
-			qglVertex3f ( (v1[0]+v2[0])*0.5,(v1[1]+v2[1])*0.5,(v1[2]+v2[2])*0.5);
+			glVertex3f ( (v1[0]+v2[0])*0.5,(v1[1]+v2[1])*0.5,(v1[2]+v2[2])*0.5);
 		}
-		qglEnd ();
-		qglPointSize (1);
+		glEnd ();
+		glPointSize (1);
 	}
 	g_splineList->draw(static_cast<qboolean>(g_qeglobals.d_select_mode == sel_addpoint || g_qeglobals.d_select_mode == sel_editpoint));
 	if (g_qeglobals.selectObject && (g_qeglobals.d_select_mode == sel_addpoint || g_qeglobals.d_select_mode == sel_editpoint)) {
@@ -735,7 +735,7 @@ void CCamWnd::Cam_Draw() {
 	//
 	// draw pointfile
 	//
-	qglEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 	DrawPathLines ();
 	if (g_qeglobals.d_pointfile_display_list) {
 		Pointfile_Draw();
@@ -749,15 +749,15 @@ void CCamWnd::Cam_Draw() {
 	// area selection hack
 	if (g_qeglobals.d_select_mode == sel_area)
 	{
-		qglEnable (GL_BLEND);
+		glEnable (GL_BLEND);
 		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glColor4f(0.0, 0.0, 1.0, 0.25);
-		qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-		qglRectfv(g_qeglobals.d_vAreaTL, g_qeglobals.d_vAreaBR);
-		qglDisable (GL_BLEND);
+		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+		glRectfv(g_qeglobals.d_vAreaTL, g_qeglobals.d_vAreaBR);
+		glDisable (GL_BLEND);
 	}
 #endif
-	qglFinish();
+	glFinish();
 	QE_CheckOpenGLForErrors();
 }
 
