@@ -45,6 +45,7 @@ class CXYWnd;
 class CCamWnd : public CWnd { public:
 	DECLARE_DYNCREATE(CCamWnd);
 	CCamWnd();
+	virtual LRESULT WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	void ShiftTexture_BrushPrimit(face_t *f, int x, int y);
 	void ReInitGL();
