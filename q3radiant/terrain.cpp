@@ -900,18 +900,18 @@ void Terrain_DrawFace( brush_t *brush, terrainFace_t *terraface ) {
 
 	// first tri
 	glColor4fv( a0.rgba );
-	qglTexCoord2fv( a0.tc );
-	qglVertex3fv( a0.xyz );
+	glTexCoord2fv( a0.tc );
+	glVertex3fv( a0.xyz );
 
 	glColor4fv( a1.rgba );
-	qglTexCoord2fv( a1.tc );
-	qglVertex3fv( a1.xyz );
+	glTexCoord2fv( a1.tc );
+	glVertex3fv( a1.xyz );
 
 	glColor4fv( a2.rgba );
-	qglTexCoord2fv( a2.tc );
-	qglVertex3fv( a2.xyz );
+	glTexCoord2fv( a2.tc );
+	glVertex3fv( a2.xyz );
 
-	qglEnd ();
+	glEnd ();
 }
 
 void DrawTerrain( terrainMesh_t *pm, bool bPoints, bool bShade ) {
@@ -942,7 +942,7 @@ void DrawTerrain( terrainMesh_t *pm, bool bPoints, bool bShade ) {
 	scale_x = pm->scale_x;
 	scale_y = pm->scale_y;
 
-	qglShadeModel (GL_SMOOTH);
+	glShadeModel (GL_SMOOTH);
 
 	if ( bShade ) {
 		for( i = 0; i < pm->numtextures; i++ ) {
@@ -960,35 +960,35 @@ void DrawTerrain( terrainMesh_t *pm, bool bPoints, bool bShade ) {
 					// first tri
 					if ( a0.rgba[ 3 ] || a1.rgba[ 3 ] || a2.rgba[ 3 ] ) {
 						glColor4fv( a0.rgba );
-						qglTexCoord2fv( a0.tc );
-						qglVertex3fv( a0.xyz );
+						glTexCoord2fv( a0.tc );
+						glVertex3fv( a0.xyz );
 
 						glColor4fv( a1.rgba );
-						qglTexCoord2fv( a1.tc );
-						qglVertex3fv( a1.xyz );
+						glTexCoord2fv( a1.tc );
+						glVertex3fv( a1.xyz );
 
 						glColor4fv( a2.rgba );
-						qglTexCoord2fv( a2.tc );
-						qglVertex3fv( a2.xyz );
+						glTexCoord2fv( a2.tc );
+						glVertex3fv( a2.xyz );
 					}
 
 					// second tri
 					if ( b0.rgba[ 3 ] || b1.rgba[ 3 ] || b2.rgba[ 3 ] ) {
 						glColor4fv( b0.rgba );
-						qglTexCoord2fv( b0.tc );
-						qglVertex3fv( b0.xyz );
+						glTexCoord2fv( b0.tc );
+						glVertex3fv( b0.xyz );
 
 						glColor4fv( b1.rgba );
-						qglTexCoord2fv( b1.tc );
-						qglVertex3fv( b1.xyz );
+						glTexCoord2fv( b1.tc );
+						glVertex3fv( b1.xyz );
 
 						glColor4fv( b2.rgba );
-						qglTexCoord2fv( b2.tc );
-						qglVertex3fv( b2.xyz );
+						glTexCoord2fv( b2.tc );
+						glVertex3fv( b2.xyz );
 					}
 				}
 
-			qglEnd ();
+			glEnd ();
 			}
 		}
 	} else {
@@ -1007,43 +1007,43 @@ void DrawTerrain( terrainMesh_t *pm, bool bPoints, bool bShade ) {
 					// first tri
 					if ( a0.rgba[ 3 ] || a1.rgba[ 3 ] || a2.rgba[ 3 ] ) {
 						glColor4fv( a0.rgba );
-						qglTexCoord2fv( a0.tc );
-						qglVertex3fv( a0.xyz );
+						glTexCoord2fv( a0.tc );
+						glVertex3fv( a0.xyz );
 
 						glColor4fv( a1.rgba );
-						qglTexCoord2fv( a1.tc );
-						qglVertex3fv( a1.xyz );
+						glTexCoord2fv( a1.tc );
+						glVertex3fv( a1.xyz );
 
 						glColor4fv( a2.rgba );
-						qglTexCoord2fv( a2.tc );
-						qglVertex3fv( a2.xyz );
+						glTexCoord2fv( a2.tc );
+						glVertex3fv( a2.xyz );
 					}
 
 					// second tri
 					if ( b0.rgba[ 3 ] || b1.rgba[ 3 ] || b2.rgba[ 3 ] ) {
 						glColor4fv( b0.rgba );
-						qglTexCoord2fv( b0.tc );
-						qglVertex3fv( b0.xyz );
+						glTexCoord2fv( b0.tc );
+						glVertex3fv( b0.xyz );
 
 						glColor4fv( b1.rgba );
-						qglTexCoord2fv( b1.tc );
-						qglVertex3fv( b1.xyz );
+						glTexCoord2fv( b1.tc );
+						glVertex3fv( b1.xyz );
 
 						glColor4fv( b2.rgba );
-						qglTexCoord2fv( b2.tc );
-						qglVertex3fv( b2.xyz );
+						glTexCoord2fv( b2.tc );
+						glVertex3fv( b2.xyz );
 					}
 				}
-				qglEnd ();
+				glEnd ();
 			}
 		}
 	}
 
-	qglPushAttrib( GL_CURRENT_BIT );
+	glPushAttrib( GL_CURRENT_BIT );
 
-	bool bDisabledLighting = qglIsEnabled( GL_LIGHTING );
+	bool bDisabledLighting = glIsEnabled( GL_LIGHTING );
 	if ( bDisabledLighting ) {
-		qglDisable( GL_LIGHTING );
+		glDisable( GL_LIGHTING );
 	}
 
 #if 0
@@ -1053,8 +1053,8 @@ void DrawTerrain( terrainMesh_t *pm, bool bPoints, bool bShade ) {
 	float			y2;
 
 	// Draw normals
-	qglDisable( GL_TEXTURE_2D );
-	qglDisable( GL_BLEND );
+	glDisable( GL_TEXTURE_2D );
+	glDisable( GL_BLEND );
 	glColor3f( 1, 1, 1 );
 	glBegin( GL_LINES );
 
@@ -1072,29 +1072,29 @@ void DrawTerrain( terrainMesh_t *pm, bool bPoints, bool bShade ) {
 			x2 += scale_x;
 
 			// normals
-			qglVertex3f( x1, y1, pm->origin[ 2 ] + currentrow[ x ].height );
-			qglVertex3f( x1 + currentrow[ x ].normal[ 0 ] * 16.0f, y1 + currentrow[ x ].normal[ 1 ] * 16.0f, pm->origin[ 2 ] + currentrow[ x ].height + currentrow[ x ].normal[ 2 ] * 16.0f );
+			glVertex3f( x1, y1, pm->origin[ 2 ] + currentrow[ x ].height );
+			glVertex3f( x1 + currentrow[ x ].normal[ 0 ] * 16.0f, y1 + currentrow[ x ].normal[ 1 ] * 16.0f, pm->origin[ 2 ] + currentrow[ x ].height + currentrow[ x ].normal[ 2 ] * 16.0f );
 
-			qglVertex3f( x2, y1, pm->origin[ 2 ] + currentrow[ x + 1 ].height );
-			qglVertex3f( x2 + currentrow[ x + 1 ].normal[ 0 ] * 16.0f, y1 + currentrow[ x + 1 ].normal[ 1 ] * 16.0f, pm->origin[ 2 ] + currentrow[ x + 1 ].height + currentrow[ x + 1 ].normal[ 2 ] * 16.0f );
+			glVertex3f( x2, y1, pm->origin[ 2 ] + currentrow[ x + 1 ].height );
+			glVertex3f( x2 + currentrow[ x + 1 ].normal[ 0 ] * 16.0f, y1 + currentrow[ x + 1 ].normal[ 1 ] * 16.0f, pm->origin[ 2 ] + currentrow[ x + 1 ].height + currentrow[ x + 1 ].normal[ 2 ] * 16.0f );
 
-			qglVertex3f( x1, y2, pm->origin[ 2 ] + nextrow[ x ].height );
-			qglVertex3f( x1 + nextrow[ x ].normal[ 0 ] * 16.0f, y2 + nextrow[ x ].normal[ 1 ] * 16.0f, pm->origin[ 2 ] + nextrow[ x ].height + nextrow[ x ].normal[ 2 ] * 16.0f );
+			glVertex3f( x1, y2, pm->origin[ 2 ] + nextrow[ x ].height );
+			glVertex3f( x1 + nextrow[ x ].normal[ 0 ] * 16.0f, y2 + nextrow[ x ].normal[ 1 ] * 16.0f, pm->origin[ 2 ] + nextrow[ x ].height + nextrow[ x ].normal[ 2 ] * 16.0f );
 
-			qglVertex3f( x2, y2, pm->origin[ 2 ] + nextrow[ x + 1 ].height );
-			qglVertex3f( x2 + nextrow[ x + 1 ].normal[ 0 ] * 16.0f, y2 + nextrow[ x + 1 ].normal[ 1 ] * 16.0f, pm->origin[ 2 ] + nextrow[ x + 1 ].height + nextrow[ x + 1 ].normal[ 2 ] * 16.0f );
+			glVertex3f( x2, y2, pm->origin[ 2 ] + nextrow[ x + 1 ].height );
+			glVertex3f( x2 + nextrow[ x + 1 ].normal[ 0 ] * 16.0f, y2 + nextrow[ x + 1 ].normal[ 1 ] * 16.0f, pm->origin[ 2 ] + nextrow[ x + 1 ].height + nextrow[ x + 1 ].normal[ 2 ] * 16.0f );
 		}
 	}
 
-	qglEnd ();
-	qglEnable( GL_TEXTURE_2D );
+	glEnd ();
+	glEnable( GL_TEXTURE_2D );
 #endif
 
 #if 0
 	if ( bPoints && ( g_qeglobals.d_select_mode == sel_terrainpoint || g_qeglobals.d_select_mode == sel_area ) ) {
-		qglPointSize( 6 );
-		qglDisable( GL_TEXTURE_2D );
-		qglDisable( GL_BLEND );
+		glPointSize( 6 );
+		glDisable( GL_TEXTURE_2D );
+		glDisable( GL_BLEND );
 
 		glBegin( GL_POINTS );
 
@@ -1112,44 +1112,44 @@ void DrawTerrain( terrainMesh_t *pm, bool bPoints, bool bShade ) {
 					VectorSet( pSelectedPoints[ nIndex ], x1, y1, pm->heightmap[ x + y * pm->width ].height + pm->origin[ 2 ] );
 					nIndex++;
 				} else {
-					qglVertex3f( x1, y1, pm->origin[ 2 ] + pm->heightmap[ x + y * pm->width ].height );
+					glVertex3f( x1, y1, pm->origin[ 2 ] + pm->heightmap[ x + y * pm->width ].height );
 				}
 			}
 		}
 
-		qglEnd();
+		glEnd();
 		
-		qglEnable( GL_TEXTURE_2D );
+		glEnable( GL_TEXTURE_2D );
 
 		if ( nIndex > 0 ) {
 			glBegin( GL_POINTS );
 			glColor4f( 0, 0, 1, 1 );
 			while( nIndex-- > 0 ) {
-				qglVertex3fv( pSelectedPoints[ nIndex ] );
+				glVertex3fv( pSelectedPoints[ nIndex ] );
 			}
 		
-			qglEnd();
+			glEnd();
 		}
 	}
 #endif
 
 	if ( g_qeglobals.d_numterrapoints && ( ( g_qeglobals.d_select_mode == sel_terrainpoint ) || ( g_qeglobals.d_select_mode == sel_terraintexture ) ) ) {
 #if 0 
-		qglPointSize( 6 );
-		qglDisable( GL_TEXTURE_2D );
-		qglDisable( GL_BLEND );
+		glPointSize( 6 );
+		glDisable( GL_TEXTURE_2D );
+		glDisable( GL_BLEND );
 
 		glBegin( GL_POINTS );
 
 		glColor4f( 1, 0, 1, 1 );
 
 		for( i = 0; i < g_qeglobals.d_numterrapoints; i++ ) {
-			qglVertex3fv( g_qeglobals.d_terrapoints[ i ]->xyz );
+			glVertex3fv( g_qeglobals.d_terrapoints[ i ]->xyz );
 		}
 
-		qglEnd();
+		glEnd();
 			
-		qglEnable( GL_TEXTURE_2D );
+		glEnable( GL_TEXTURE_2D );
 #endif
 
 		brush_t			*pb;
@@ -1164,9 +1164,9 @@ void DrawTerrain( terrainMesh_t *pm, bool bPoints, bool bShade ) {
 		}
 
 		if ( pm ) {
-			qglDisable( GL_TEXTURE_2D );
+			glDisable( GL_TEXTURE_2D );
 			glBegin( GL_TRIANGLES );
-			qglEnable( GL_BLEND );
+			glEnable( GL_BLEND );
 
 			glColor4f( 0.25, 0.5, 1, 0.35 );
 
@@ -1178,54 +1178,54 @@ void DrawTerrain( terrainMesh_t *pm, bool bPoints, bool bShade ) {
 				glColor4f( 0.25, 0.5, 1, g_qeglobals.d_terrapoints[ i ]->scale * 0.75 + 0.25 );
 				Terrain_GetTriangle( pm, g_qeglobals.d_terrapoints[ i ]->tri.index * 2, &a0, &a1, &a2 );
 
-				qglVertex3fv( a0.xyz );
-				qglVertex3fv( a1.xyz );
-				qglVertex3fv( a2.xyz );
+				glVertex3fv( a0.xyz );
+				glVertex3fv( a1.xyz );
+				glVertex3fv( a2.xyz );
 
 				Terrain_GetTriangle( pm, g_qeglobals.d_terrapoints[ i ]->tri.index * 2 + 1, &a0, &a1, &a2 );
 
-				qglVertex3fv( a0.xyz );
-				qglVertex3fv( a1.xyz );
-				qglVertex3fv( a2.xyz );
+				glVertex3fv( a0.xyz );
+				glVertex3fv( a1.xyz );
+				glVertex3fv( a2.xyz );
 			}
-			qglEnd();
+			glEnd();
 			
-			qglDisable( GL_BLEND );
-			qglEnable( GL_TEXTURE_2D );
+			glDisable( GL_BLEND );
+			glEnable( GL_TEXTURE_2D );
 		}
 	}
 }
 
 void Terrain_DrawCam( terrainMesh_t *pm ) {
 	glColor3f( 1,1,1 );
-	qglPushAttrib( GL_ALL_ATTRIB_BITS );
+	glPushAttrib( GL_ALL_ATTRIB_BITS );
 
 	if ( g_bPatchWireFrame ) {
 		if( pm->bSelected ) {
-			qglLineWidth( 2 );
+			glLineWidth( 2 );
 		} else {
-			qglLineWidth( 1 );
+			glLineWidth( 1 );
 		}
 
-		qglDisable( GL_CULL_FACE );
-		qglPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-		qglDisable( GL_TEXTURE_2D );
+		glDisable( GL_CULL_FACE );
+		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+		glDisable( GL_TEXTURE_2D );
 
 		if ( g_PrefsDlg.m_bGLLighting ) {
-			qglDisable( GL_LIGHTING );
+			glDisable( GL_LIGHTING );
 		}
 
 		DrawTerrain( pm, pm->bSelected, true );
 
 		if ( g_PrefsDlg.m_bGLLighting ) {
-			qglEnable( GL_LIGHTING );
+			glEnable( GL_LIGHTING );
 		}
 
-		qglEnable( GL_CULL_FACE );
-		qglLineWidth( 1 );
+		glEnable( GL_CULL_FACE );
+		glLineWidth( 1 );
 	} else {
-		qglEnable( GL_CULL_FACE );
-		qglCullFace( GL_FRONT );
+		glEnable( GL_CULL_FACE );
+		glCullFace( GL_FRONT );
 
 		// draw the textured polys
 		DrawTerrain( pm, pm->bSelected, true );
@@ -1233,8 +1233,8 @@ void Terrain_DrawCam( terrainMesh_t *pm ) {
 		// if selected, draw the red tint on the polys
 		if( pm->bSelected ) { // && ( g_qeglobals.d_savedinfo.include & INCLUDE_CAMERATINT ) ) {
 			glColor4f( 1.0, 0.0, 0.0, 0.3 );
-			qglEnable( GL_BLEND );
-			qglPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+			glEnable( GL_BLEND );
+			glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 			glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
 			DrawTerrain( pm, pm->bSelected );
@@ -1243,17 +1243,17 @@ void Terrain_DrawCam( terrainMesh_t *pm ) {
 		}
 
 		// draw the backside poly outlines
-		qglCullFace( GL_BACK );
-		qglPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-		qglDisable( GL_BLEND );
+		glCullFace( GL_BACK );
+		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+		glDisable( GL_BLEND );
 		DrawTerrain( pm, pm->bSelected, true );
 	}
 
-	qglPopAttrib();
+	glPopAttrib();
 }
 
 void Terrain_DrawXY( terrainMesh_t *pm, entity_t *owner ) {
-	qglPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+	glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
    
 	if ( pm->bSelected ) {
 		glColor3fv( g_qeglobals.d_savedinfo.colors[ COLOR_SELBRUSHES ] );
@@ -1264,11 +1264,11 @@ void Terrain_DrawXY( terrainMesh_t *pm, entity_t *owner ) {
 		glColor3fv( g_qeglobals.d_savedinfo.colors[ COLOR_BRUSHES ] );
 	}
 	
-	qglLineWidth( 1 );
+	glLineWidth( 1 );
 
 	DrawTerrain( pm, pm->bSelected );
 
-	qglPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 }
 
 bool OnlyTerrainSelected( void ) {

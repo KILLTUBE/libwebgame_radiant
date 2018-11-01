@@ -98,14 +98,14 @@ void WINAPI Pointfile_Check (void)
 	Sys_Printf ("Reading pointfile %s\n", name);
 
 	if (!g_qeglobals.d_pointfile_display_list)
-		g_qeglobals.d_pointfile_display_list = qglGenLists(1);
+		g_qeglobals.d_pointfile_display_list = glGenLists(1);
 
 	s_num_points = 0;
-  qglNewList (g_qeglobals.d_pointfile_display_list,  GL_COMPILE);
+  glNewList (g_qeglobals.d_pointfile_display_list,  GL_COMPILE);
 	glColor3f (1, 0, 0);
-	qglDisable(GL_TEXTURE_2D);
-	qglDisable(GL_TEXTURE_1D);
-	qglLineWidth (4);
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_TEXTURE_1D);
+	glLineWidth (4);
 	glBegin(GL_LINE_STRIP);
 	do
 	{
@@ -116,11 +116,11 @@ void WINAPI Pointfile_Check (void)
 			VectorCopy (v, s_pointvecs[s_num_points]);
 			s_num_points++;
 		}
-		qglVertex3fv (v);
+		glVertex3fv (v);
 	} while (1);
-	qglEnd();
-	qglLineWidth (1);
-	qglEndList ();
+	glEnd();
+	glLineWidth (1);
+	glEndList ();
 
 	s_check_point = 0;
 	fclose (f);
@@ -132,25 +132,22 @@ void Pointfile_Draw( void )
 	int i;
 
 	glColor3f( 1.0F, 0.0F, 0.0F );
-	qglDisable(GL_TEXTURE_2D);
-	qglDisable(GL_TEXTURE_1D);
-	qglLineWidth (4);
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_TEXTURE_1D);
+	glLineWidth (4);
 	glBegin(GL_LINE_STRIP);
 	for ( i = 0; i < s_num_points; i++ )
 	{
-		qglVertex3fv( s_pointvecs[i] );
+		glVertex3fv( s_pointvecs[i] );
 	}
-	qglEnd();
-	qglLineWidth( 1 );
+	glEnd();
+	glLineWidth( 1 );
 }
 
-void Pointfile_Clear (void)
-{
+void Pointfile_Clear() {
 	if (!g_qeglobals.d_pointfile_display_list)
 		return;
-
-	qglDeleteLists (g_qeglobals.d_pointfile_display_list, 1);
+	glDeleteLists(g_qeglobals.d_pointfile_display_list, 1);
 	g_qeglobals.d_pointfile_display_list = 0;
 	Sys_UpdateWindows (W_ALL);
 }
-

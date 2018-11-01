@@ -185,17 +185,17 @@ void SortTextures() {
 }
 
 void SetTexParameters() {
-	qglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texture_mode );
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texture_mode );
 	switch (texture_mode) {
 	case GL_NEAREST:
 	case GL_NEAREST_MIPMAP_NEAREST:
 	case GL_NEAREST_MIPMAP_LINEAR:
-		qglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 		break;
 	case GL_LINEAR:
 	case GL_LINEAR_MIPMAP_NEAREST:
 	case GL_LINEAR_MIPMAP_LINEAR:
-		qglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 		break;
 	}
 }
@@ -254,7 +254,7 @@ void Texture_SetMode(int iMenu) {
 	}
 	// select the default texture
 	glBindTexture( GL_TEXTURE_2D, 0 );
-	qglFinish();
+	glFinish();
 	if (g_pParentWnd->GetCamera()->Camera().draw_mode != cd_texture) {
 		g_pParentWnd->GetCamera()->Camera().draw_mode = cd_texture;
 		Map_BuildBrushData();
@@ -349,7 +349,7 @@ qtexture_t *Texture_LoadTexture (miptex_t *qtex) {
 	{
 		if (nomips)
 		{
-			qglTexImage2D(GL_TEXTURE_2D, 0, 3, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, dest);
+			glTexImage2D(GL_TEXTURE_2D, 0, 3, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, dest);
 		}
 		else
 			qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height,GL_RGBA, GL_UNSIGNED_BYTE, dest);
@@ -357,7 +357,7 @@ qtexture_t *Texture_LoadTexture (miptex_t *qtex) {
 	else
 	{
 		if (nomips)
-			qglTexImage2D(GL_TEXTURE_2D, 0, 3, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, dest);
+			glTexImage2D(GL_TEXTURE_2D, 0, 3, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, dest);
 		else
 			qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height,GL_RGBA, GL_UNSIGNED_BYTE, dest);
 	}
@@ -460,7 +460,7 @@ qtexture_t *Texture_LoadTGATexture(unsigned char* pPixels, int nWidth, int nHeig
 	{
 		if (nomips)
 		{
-			qglTexImage2D(GL_TEXTURE_2D, 0, 4, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pPixels);
+			glTexImage2D(GL_TEXTURE_2D, 0, 4, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pPixels);
 		}
 		else
 			qgluBuild2DMipmaps(GL_TEXTURE_2D, 4, nWidth, nHeight,GL_RGBA, GL_UNSIGNED_BYTE, pPixels);
@@ -468,7 +468,7 @@ qtexture_t *Texture_LoadTGATexture(unsigned char* pPixels, int nWidth, int nHeig
 	else
 	{
 		if (nomips)
-			qglTexImage2D(GL_TEXTURE_2D, 0, 4, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pPixels);
+			glTexImage2D(GL_TEXTURE_2D, 0, 4, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pPixels);
 		else
 			qgluBuild2DMipmaps(GL_TEXTURE_2D, 4, nWidth, nHeight,GL_RGBA, GL_UNSIGNED_BYTE, pPixels);
 	}
@@ -536,10 +536,10 @@ qtexture_t *Texture_CreateSolid (const char *name) {
 	glBindTexture( GL_TEXTURE_2D, q->texture_number );
 	SetTexParameters ();
 	if (g_PrefsDlg.m_bSGIOpenGL) {
-		qglTexImage2D(GL_TEXTURE_2D, 0, 3, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, 3, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	} else {
 		if (nomips)
-			qglTexImage2D(GL_TEXTURE_2D, 0, 3, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+			glTexImage2D(GL_TEXTURE_2D, 0, 3, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		else
 			qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, 1, 1,GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
@@ -581,7 +581,7 @@ qtexture_t* Texture_MakeDefault (void)
 	SetTexParameters ();
 
 	if (nomips)
-		qglTexImage2D(GL_TEXTURE_2D, 0, 3, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, 3, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	else
 		VERIFY(qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, 2, 2,GL_RGBA, GL_UNSIGNED_BYTE, data) == 0);
 
@@ -876,7 +876,7 @@ void Texture_Remove(qtexture_t *q)
 			pTex = pTex->next;
 		}
 	}
-	qglDeleteTextures(1, reinterpret_cast<const unsigned int*>(&q->texture_number));
+	glDeleteTextures(1, reinterpret_cast<const unsigned int*>(&q->texture_number));
 
 	if (g_qeglobals.bSurfacePropertiesPlugin)
 	{
@@ -928,7 +928,7 @@ qtexture_t * Texture_MakeNoshadertexture( const char *name )
 	SetTexParameters ();
 
 	if (nomips)
-		qglTexImage2D(GL_TEXTURE_2D, 0, 3, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, 3, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	else
 		VERIFY(qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, 2, 2,GL_RGBA, GL_UNSIGNED_BYTE, data) == 0);
 
@@ -2243,7 +2243,7 @@ void Texture_FlushUnused()
 			if (!pTex->inuse)
 			{
 				unsigned int nTexture = pTex->texture_number;
-				qglDeleteTextures(1, &nTexture);
+				glDeleteTextures(1, &nTexture);
 				pPrev->next = pNextTex;
 				free(pTex);
 			}
@@ -2312,9 +2312,9 @@ void Texture_Flush (bool bReload)
 	Texture_Cleanup(&strList);
 
 	GLuint* pGln = new GLuint[texture_extension_number-1];
-	qglGenTextures(texture_extension_number-1, pGln);
+	glGenTextures(texture_extension_number-1, pGln);
 	QE_CheckOpenGLForErrors();
-	qglDeleteTextures(texture_extension_number-1, pGln);
+	glDeleteTextures(texture_extension_number-1, pGln);
 	QE_CheckOpenGLForErrors();
 	delete []pGln;
 	texture_extension_number = 1;
@@ -2717,13 +2717,13 @@ int WINAPI Texture_LoadSkin(char *pName, int *pnWidth, int *pnHeight) {
 		}
 		if (g_PrefsDlg.m_bSGIOpenGL) {
 			if (nomips) {
-				qglTexImage2D(GL_TEXTURE_2D, 0, 3, *pnWidth, *pnHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pic32);
+				glTexImage2D(GL_TEXTURE_2D, 0, 3, *pnWidth, *pnHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pic32);
 			} else {
 				qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, *pnWidth, *pnHeight,GL_RGBA, GL_UNSIGNED_BYTE, pic32);
 			}
 		} else {
 			if (nomips)
-				qglTexImage2D(GL_TEXTURE_2D, 0, 3, *pnWidth, *pnHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pic32);
+				glTexImage2D(GL_TEXTURE_2D, 0, 3, *pnWidth, *pnHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pic32);
 			else
 				qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, *pnWidth, *pnHeight,GL_RGBA, GL_UNSIGNED_BYTE, pic32);
 		}

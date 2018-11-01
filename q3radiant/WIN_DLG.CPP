@@ -583,10 +583,10 @@ BOOL CALLBACK AboutDlgProc( HWND hwndDlg,
 			char vendor[1024];
 			char extensions[4096];
 
-			sprintf( renderer, "Renderer:\t%s", qglGetString( GL_RENDERER ) );
-			sprintf( version, "Version:\t\t%s", qglGetString( GL_VERSION ) );
-			sprintf( vendor, "Vendor:\t\t%s", qglGetString( GL_VENDOR ) );
-			sprintf( extensions, "%s", qglGetString( GL_EXTENSIONS ) );
+			sprintf( renderer, "Renderer:\t%s", glGetString( GL_RENDERER ) );
+			sprintf( version, "Version:\t\t%s", glGetString( GL_VERSION ) );
+			sprintf( vendor, "Vendor:\t\t%s", glGetString( GL_VENDOR ) );
+			sprintf( extensions, "%s", glGetString( GL_EXTENSIONS ) );
 
 			SetWindowText( GetDlgItem( hwndDlg, IDC_ABOUT_GLRENDERER ),   renderer );
 			SetWindowText( GetDlgItem( hwndDlg, IDC_ABOUT_GLVERSION ),    version );
