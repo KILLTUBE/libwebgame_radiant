@@ -229,6 +229,21 @@ static unsigned s_stipple[32] =
 	0xaaaaaaaa, 0x55555555,0xaaaaaaaa, 0x55555555,
 };
 
+
+
+LRESULT CXYWnd::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
+	switch (uMsg) {
+	    case WM_MOUSEWHEEL:
+			if (GET_WHEEL_DELTA_WPARAM(wParam) > 0) {
+				g_pParentWnd->OnViewZoomin();
+			} else {
+				g_pParentWnd->OnViewZoomout();
+			}
+	}
+
+	return CWnd::WindowProc(uMsg, wParam, lParam);
+}
+
 /*
 ============
 WXY_WndProc
