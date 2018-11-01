@@ -249,11 +249,11 @@ void Texture_SetMode(int iMenu) {
 		return;
 	}
 	for (i=1 ; i<texture_extension_number ; i++) {
-		qglBindTexture( GL_TEXTURE_2D, i );
+		glBindTexture( GL_TEXTURE_2D, i );
 		SetTexParameters ();
 	}
 	// select the default texture
-	qglBindTexture( GL_TEXTURE_2D, 0 );
+	glBindTexture( GL_TEXTURE_2D, 0 );
 	qglFinish();
 	if (g_pParentWnd->GetCamera()->Camera().draw_mode != cd_texture) {
 		g_pParentWnd->GetCamera()->Camera().draw_mode = cd_texture;
@@ -326,7 +326,7 @@ qtexture_t *Texture_LoadTexture (miptex_t *qtex) {
 			Error ("wglMakeCurrent in LoadTexture failed");
 	}
 
-	qglBindTexture( GL_TEXTURE_2D, q->texture_number );
+	glBindTexture( GL_TEXTURE_2D, q->texture_number );
 
 	//Handle3DfxTexturing(q, width, height, dest);
 
@@ -364,7 +364,7 @@ qtexture_t *Texture_LoadTexture (miptex_t *qtex) {
 
 	free (dest);
 
-	qglBindTexture( GL_TEXTURE_2D, 0 );
+	glBindTexture( GL_TEXTURE_2D, 0 );
 
 	return q;
 }
@@ -437,7 +437,7 @@ qtexture_t *Texture_LoadTGATexture(unsigned char* pPixels, int nWidth, int nHeig
 			Error ("wglMakeCurrent in LoadTexture failed");
 	}
 
-	qglBindTexture( GL_TEXTURE_2D, q->texture_number );
+	glBindTexture( GL_TEXTURE_2D, q->texture_number );
 
 	//Handle3DfxTexturing(q, width, height, dest);
 
@@ -473,7 +473,7 @@ qtexture_t *Texture_LoadTGATexture(unsigned char* pPixels, int nWidth, int nHeig
 			qgluBuild2DMipmaps(GL_TEXTURE_2D, 4, nWidth, nHeight,GL_RGBA, GL_UNSIGNED_BYTE, pPixels);
 	}
 
-	qglBindTexture( GL_TEXTURE_2D, 0 );
+	glBindTexture( GL_TEXTURE_2D, 0 );
 
 	return q;
 }
@@ -533,7 +533,7 @@ qtexture_t *Texture_CreateSolid (const char *name) {
 	q->width = q->height = 1;
 	//q->width = q->height = 2;
 	q->texture_number = texture_extension_number++;
-	qglBindTexture( GL_TEXTURE_2D, q->texture_number );
+	glBindTexture( GL_TEXTURE_2D, q->texture_number );
 	SetTexParameters ();
 	if (g_PrefsDlg.m_bSGIOpenGL) {
 		qglTexImage2D(GL_TEXTURE_2D, 0, 3, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -543,7 +543,7 @@ qtexture_t *Texture_CreateSolid (const char *name) {
 		else
 			qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, 1, 1,GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
-	qglBindTexture( GL_TEXTURE_2D, 0 );
+	glBindTexture( GL_TEXTURE_2D, 0 );
 	return q;
 }
 
@@ -577,7 +577,7 @@ qtexture_t* Texture_MakeDefault (void)
 	q->color[2] = 0.5;
 
 	q->texture_number = texture_extension_number++;
-	qglBindTexture( GL_TEXTURE_2D, q->texture_number );
+	glBindTexture( GL_TEXTURE_2D, q->texture_number );
 	SetTexParameters ();
 
 	if (nomips)
@@ -585,7 +585,7 @@ qtexture_t* Texture_MakeDefault (void)
 	else
 		VERIFY(qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, 2, 2,GL_RGBA, GL_UNSIGNED_BYTE, data) == 0);
 
-	qglBindTexture( GL_TEXTURE_2D, 0 );
+	glBindTexture( GL_TEXTURE_2D, 0 );
 	return q;
 }
 
@@ -924,7 +924,7 @@ qtexture_t * Texture_MakeNoshadertexture( const char *name )
 	q->color[2] = 0.5;
 
 	q->texture_number = texture_extension_number++;
-	qglBindTexture( GL_TEXTURE_2D, q->texture_number );
+	glBindTexture( GL_TEXTURE_2D, q->texture_number );
 	SetTexParameters ();
 
 	if (nomips)
@@ -932,7 +932,7 @@ qtexture_t * Texture_MakeNoshadertexture( const char *name )
 	else
 		VERIFY(qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, 2, 2,GL_RGBA, GL_UNSIGNED_BYTE, data) == 0);
 
-	qglBindTexture( GL_TEXTURE_2D, 0 );
+	glBindTexture( GL_TEXTURE_2D, 0 );
 
 	return q;
 }
@@ -2188,7 +2188,7 @@ void Texture_Draw2 (int width, int height)
 			else
 				name++;
 
-				qglCallLists (strlen(name), GL_UNSIGNED_BYTE, name);
+				glCallLists (strlen(name), GL_UNSIGNED_BYTE, name);
 
 #endif 
 	static int first = 1;
@@ -2705,7 +2705,7 @@ int WINAPI Texture_LoadSkin(char *pName, int *pnWidth, int *pnHeight) {
 			if (!qwglMakeCurrent(s_hdcTexture, s_hglrcTexture))
 				Error ("wglMakeCurrent in LoadTexture failed");
 		}
-		qglBindTexture( GL_TEXTURE_2D, nTex);
+		glBindTexture( GL_TEXTURE_2D, nTex);
 		SetTexParameters();
 		int nCount = MAX_TEXTURE_QUALITY - g_PrefsDlg.m_nTextureQuality;
 		while (nCount-- > 0) {
@@ -2728,7 +2728,7 @@ int WINAPI Texture_LoadSkin(char *pName, int *pnWidth, int *pnHeight) {
 				qgluBuild2DMipmaps(GL_TEXTURE_2D, 3, *pnWidth, *pnHeight,GL_RGBA, GL_UNSIGNED_BYTE, pic32);
 		}
 		free (pic32);
-		qglBindTexture( GL_TEXTURE_2D, 0 );
+		glBindTexture( GL_TEXTURE_2D, 0 );
 	}
 	SkinInfo *pInfo = new SkinInfo(pName, nTex);
 	g_lstSkinCache.Add(pInfo);

@@ -895,19 +895,19 @@ void Terrain_DrawFace( brush_t *brush, terrainFace_t *terraface ) {
    
 	Terrain_GetTriangle( pm, terraface->index, &a0, &a1, &a2 );
 
-	qglBindTexture( GL_TEXTURE_2D, terraface->texture->texture_number );
-	qglBegin( GL_TRIANGLES );
+	glBindTexture( GL_TEXTURE_2D, terraface->texture->texture_number );
+	glBegin( GL_TRIANGLES );
 
 	// first tri
-	qglColor4fv( a0.rgba );
+	glColor4fv( a0.rgba );
 	qglTexCoord2fv( a0.tc );
 	qglVertex3fv( a0.xyz );
 
-	qglColor4fv( a1.rgba );
+	glColor4fv( a1.rgba );
 	qglTexCoord2fv( a1.tc );
 	qglVertex3fv( a1.xyz );
 
-	qglColor4fv( a2.rgba );
+	glColor4fv( a2.rgba );
 	qglTexCoord2fv( a2.tc );
 	qglVertex3fv( a2.xyz );
 
@@ -948,41 +948,41 @@ void DrawTerrain( terrainMesh_t *pm, bool bPoints, bool bShade ) {
 		for( i = 0; i < pm->numtextures; i++ ) {
 			texture = pm->textures[ i ];
 
-			qglBindTexture( GL_TEXTURE_2D, texture->texture_number );
+			glBindTexture( GL_TEXTURE_2D, texture->texture_number );
 
 			vert = pm->heightmap;
 			for( y = 0; y < h; y++ ) {
-				qglBegin( GL_TRIANGLES );
+				glBegin( GL_TRIANGLES );
 
 				for( x = 0; x < w; x++, vert++ ) {
 					Terrain_GetTriangles( pm, x, y, &a0, &a1, &a2, &b0, &b1, &b2, texture );
 
 					// first tri
 					if ( a0.rgba[ 3 ] || a1.rgba[ 3 ] || a2.rgba[ 3 ] ) {
-						qglColor4fv( a0.rgba );
+						glColor4fv( a0.rgba );
 						qglTexCoord2fv( a0.tc );
 						qglVertex3fv( a0.xyz );
 
-						qglColor4fv( a1.rgba );
+						glColor4fv( a1.rgba );
 						qglTexCoord2fv( a1.tc );
 						qglVertex3fv( a1.xyz );
 
-						qglColor4fv( a2.rgba );
+						glColor4fv( a2.rgba );
 						qglTexCoord2fv( a2.tc );
 						qglVertex3fv( a2.xyz );
 					}
 
 					// second tri
 					if ( b0.rgba[ 3 ] || b1.rgba[ 3 ] || b2.rgba[ 3 ] ) {
-						qglColor4fv( b0.rgba );
+						glColor4fv( b0.rgba );
 						qglTexCoord2fv( b0.tc );
 						qglVertex3fv( b0.xyz );
 
-						qglColor4fv( b1.rgba );
+						glColor4fv( b1.rgba );
 						qglTexCoord2fv( b1.tc );
 						qglVertex3fv( b1.xyz );
 
-						qglColor4fv( b2.rgba );
+						glColor4fv( b2.rgba );
 						qglTexCoord2fv( b2.tc );
 						qglVertex3fv( b2.xyz );
 					}
@@ -995,41 +995,41 @@ void DrawTerrain( terrainMesh_t *pm, bool bPoints, bool bShade ) {
 		for( i = 0; i < pm->numtextures; i++ ) {
 			texture = pm->textures[ i ];
 
-			qglBindTexture( GL_TEXTURE_2D, texture->texture_number );
+			glBindTexture( GL_TEXTURE_2D, texture->texture_number );
 
 			vert = pm->heightmap;
 			for( y = 0; y < h; y++ ) {
-				qglBegin( GL_TRIANGLES );
+				glBegin( GL_TRIANGLES );
 
 				for( x = 0; x < w; x++, vert++ ) {
 					Terrain_GetTriangles( pm, x, y, &a0, &a1, &a2, &b0, &b1, &b2, texture );
 
 					// first tri
 					if ( a0.rgba[ 3 ] || a1.rgba[ 3 ] || a2.rgba[ 3 ] ) {
-						qglColor4fv( a0.rgba );
+						glColor4fv( a0.rgba );
 						qglTexCoord2fv( a0.tc );
 						qglVertex3fv( a0.xyz );
 
-						qglColor4fv( a1.rgba );
+						glColor4fv( a1.rgba );
 						qglTexCoord2fv( a1.tc );
 						qglVertex3fv( a1.xyz );
 
-						qglColor4fv( a2.rgba );
+						glColor4fv( a2.rgba );
 						qglTexCoord2fv( a2.tc );
 						qglVertex3fv( a2.xyz );
 					}
 
 					// second tri
 					if ( b0.rgba[ 3 ] || b1.rgba[ 3 ] || b2.rgba[ 3 ] ) {
-						qglColor4fv( b0.rgba );
+						glColor4fv( b0.rgba );
 						qglTexCoord2fv( b0.tc );
 						qglVertex3fv( b0.xyz );
 
-						qglColor4fv( b1.rgba );
+						glColor4fv( b1.rgba );
 						qglTexCoord2fv( b1.tc );
 						qglVertex3fv( b1.xyz );
 
-						qglColor4fv( b2.rgba );
+						glColor4fv( b2.rgba );
 						qglTexCoord2fv( b2.tc );
 						qglVertex3fv( b2.xyz );
 					}
@@ -1055,8 +1055,8 @@ void DrawTerrain( terrainMesh_t *pm, bool bPoints, bool bShade ) {
 	// Draw normals
 	qglDisable( GL_TEXTURE_2D );
 	qglDisable( GL_BLEND );
-	qglColor3f( 1, 1, 1 );
-	qglBegin( GL_LINES );
+	glColor3f( 1, 1, 1 );
+	glBegin( GL_LINES );
 
 	y2 = pm->origin[ 1 ];
 	nextrow = pm->heightmap;
@@ -1096,11 +1096,11 @@ void DrawTerrain( terrainMesh_t *pm, bool bPoints, bool bShade ) {
 		qglDisable( GL_TEXTURE_2D );
 		qglDisable( GL_BLEND );
 
-		qglBegin( GL_POINTS );
+		glBegin( GL_POINTS );
 
 		nIndex = 0;
 
-		qglColor4f( 1, 0, 1, 1 );
+		glColor4f( 1, 0, 1, 1 );
 
 		y1 = pm->origin[ 1 ];
 		for ( y = 0; y < pm->height; y++, y1 += pm->scale_y ) {
@@ -1122,8 +1122,8 @@ void DrawTerrain( terrainMesh_t *pm, bool bPoints, bool bShade ) {
 		qglEnable( GL_TEXTURE_2D );
 
 		if ( nIndex > 0 ) {
-			qglBegin( GL_POINTS );
-			qglColor4f( 0, 0, 1, 1 );
+			glBegin( GL_POINTS );
+			glColor4f( 0, 0, 1, 1 );
 			while( nIndex-- > 0 ) {
 				qglVertex3fv( pSelectedPoints[ nIndex ] );
 			}
@@ -1139,9 +1139,9 @@ void DrawTerrain( terrainMesh_t *pm, bool bPoints, bool bShade ) {
 		qglDisable( GL_TEXTURE_2D );
 		qglDisable( GL_BLEND );
 
-		qglBegin( GL_POINTS );
+		glBegin( GL_POINTS );
 
-		qglColor4f( 1, 0, 1, 1 );
+		glColor4f( 1, 0, 1, 1 );
 
 		for( i = 0; i < g_qeglobals.d_numterrapoints; i++ ) {
 			qglVertex3fv( g_qeglobals.d_terrapoints[ i ]->xyz );
@@ -1165,17 +1165,17 @@ void DrawTerrain( terrainMesh_t *pm, bool bPoints, bool bShade ) {
 
 		if ( pm ) {
 			qglDisable( GL_TEXTURE_2D );
-			qglBegin( GL_TRIANGLES );
+			glBegin( GL_TRIANGLES );
 			qglEnable( GL_BLEND );
 
-			qglColor4f( 0.25, 0.5, 1, 0.35 );
+			glColor4f( 0.25, 0.5, 1, 0.35 );
 
 			for( i = 0; i < g_qeglobals.d_numterrapoints; i++ ) {
 				terravert_t		a0;
 				terravert_t		a1;
 				terravert_t		a2;
 
-				qglColor4f( 0.25, 0.5, 1, g_qeglobals.d_terrapoints[ i ]->scale * 0.75 + 0.25 );
+				glColor4f( 0.25, 0.5, 1, g_qeglobals.d_terrapoints[ i ]->scale * 0.75 + 0.25 );
 				Terrain_GetTriangle( pm, g_qeglobals.d_terrapoints[ i ]->tri.index * 2, &a0, &a1, &a2 );
 
 				qglVertex3fv( a0.xyz );
@@ -1197,7 +1197,7 @@ void DrawTerrain( terrainMesh_t *pm, bool bPoints, bool bShade ) {
 }
 
 void Terrain_DrawCam( terrainMesh_t *pm ) {
-	qglColor3f( 1,1,1 );
+	glColor3f( 1,1,1 );
 	qglPushAttrib( GL_ALL_ATTRIB_BITS );
 
 	if ( g_bPatchWireFrame ) {
@@ -1232,14 +1232,14 @@ void Terrain_DrawCam( terrainMesh_t *pm ) {
 
 		// if selected, draw the red tint on the polys
 		if( pm->bSelected ) { // && ( g_qeglobals.d_savedinfo.include & INCLUDE_CAMERATINT ) ) {
-			qglColor4f( 1.0, 0.0, 0.0, 0.3 );
+			glColor4f( 1.0, 0.0, 0.0, 0.3 );
 			qglEnable( GL_BLEND );
 			qglPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-			qglBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+			glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
 			DrawTerrain( pm, pm->bSelected );
 
-			qglColor3f( 1, 1, 1 );
+			glColor3f( 1, 1, 1 );
 		}
 
 		// draw the backside poly outlines
@@ -1256,12 +1256,12 @@ void Terrain_DrawXY( terrainMesh_t *pm, entity_t *owner ) {
 	qglPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
    
 	if ( pm->bSelected ) {
-		qglColor3fv( g_qeglobals.d_savedinfo.colors[ COLOR_SELBRUSHES ] );
+		glColor3fv( g_qeglobals.d_savedinfo.colors[ COLOR_SELBRUSHES ] );
 	} else if ( owner != world_entity && _stricmp( owner->eclass->name, "func_group" ) ) {
-		qglColor3fv( owner->eclass->color );
+		glColor3fv( owner->eclass->color );
 	} else {
 		//FIXME
-		qglColor3fv( g_qeglobals.d_savedinfo.colors[ COLOR_BRUSHES ] );
+		glColor3fv( g_qeglobals.d_savedinfo.colors[ COLOR_BRUSHES ] );
 	}
 	
 	qglLineWidth( 1 );

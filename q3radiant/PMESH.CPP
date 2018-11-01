@@ -128,7 +128,7 @@ void _SetColor(face_t* f, float fColor[3])
   fColor[0] = f->d_color[0];
   fColor[1] = f->d_color[1];
   fColor[2] = f->d_color[2];
-  qglColor3fv(fColor);
+  glColor3fv(fColor);
 }
 
 
@@ -148,7 +148,7 @@ void _DecColor(float fColor[3])
       break;
     }
   }
-	qglColor3fv(fColor);
+	glColor3fv(fColor);
 }
 
 vec_t __VectorNormalize (vec3_t in, vec3_t out)
@@ -2141,7 +2141,7 @@ void DrawSinglePatch (float ctrl[3][3][5], bool bPoints)
   int nCount = -1;
 	for (i = 0 ; i < CBLOCK_SUBDIVISIONS ; i++) 
   {
-    qglBegin (GL_QUAD_STRIP);
+    glBegin (GL_QUAD_STRIP);
 
 		for (j = 0 ; j <= CBLOCK_SUBDIVISIONS ; j++) 
     {
@@ -2269,7 +2269,7 @@ void DrawPatchMesh( patchMesh_t *pm, bool bPoints, bool bShade = false ) {
 //--              vColor[0] = shade;// * q->color[0];
 //--              vColor[1] = shade;// * q->color[1];
 //--              vColor[2] = shade;// * q->color[2];
-//--              qglColor3fv(vColor);
+//--              glColor3fv(vColor);
 //--            }
 
             
@@ -2298,7 +2298,7 @@ void DrawPatchMesh( patchMesh_t *pm, bool bPoints, bool bShade = false ) {
       }
       else
       {
-        qglBegin (GL_TRIANGLES);
+        glBegin (GL_TRIANGLES);
    	    qglTexCoord2fv( pm->ctrl[0][0].st);
 			  qglVertex3fv( pm->ctrl[0][0].xyz);
 			  qglTexCoord2fv( pm->ctrl[2][0].st);
@@ -2316,7 +2316,7 @@ void DrawPatchMesh( patchMesh_t *pm, bool bPoints, bool bShade = false ) {
     }
     else
     {
-      qglCallList(pm->nListID);
+      glCallList(pm->nListID);
     }
   }
   else
@@ -2371,8 +2371,8 @@ void DrawPatchMesh( patchMesh_t *pm, bool bPoints, bool bShade = false ) {
       qglPointSize(6);
       if (g_bPatchAxisOnRow)
       {
-        qglColor3f(1, 0, 1);
-        qglBegin(GL_POINTS);
+        glColor3f(1, 0, 1);
+        glBegin(GL_POINTS);
         for (i = 0; i < pm->width; i++)
         {
 			    qglVertex3fv(reinterpret_cast<float(*)>(&pm->ctrl[i][g_nPatchAxisIndex].xyz));
@@ -2382,8 +2382,8 @@ void DrawPatchMesh( patchMesh_t *pm, bool bPoints, bool bShade = false ) {
         // could do all of this in one loop but it was pretty messy
         if (g_bPatchInsertMode)
         {
-          qglColor3f(0, 0, 1);
-          qglBegin(GL_POINTS);
+          glColor3f(0, 0, 1);
+          glBegin(GL_POINTS);
           for (i = 0; i < pm->width; i++)
           {
 			      qglVertex3fv(reinterpret_cast<float(*)>(&pm->ctrl[i][g_nPatchAxisIndex].xyz));
@@ -2395,8 +2395,8 @@ void DrawPatchMesh( patchMesh_t *pm, bool bPoints, bool bShade = false ) {
         {
           if (g_nPatchBendState == BEND_SELECT_EDGE || g_nPatchBendState == BEND_BENDIT || g_nPatchBendState == BEND_SELECT_ORIGIN)
           {
-            qglColor3f(0, 0, 1);
-            qglBegin(GL_POINTS);
+            glColor3f(0, 0, 1);
+            glBegin(GL_POINTS);
             if (g_nPatchBendState == BEND_SELECT_ORIGIN)
             {
               qglVertex3fv(g_vBendOrigin);
@@ -2423,8 +2423,8 @@ void DrawPatchMesh( patchMesh_t *pm, bool bPoints, bool bShade = false ) {
       }
       else
       {
-        qglColor3f(1, 0, 1);
-        qglBegin(GL_POINTS);
+        glColor3f(1, 0, 1);
+        glBegin(GL_POINTS);
         for (i = 0; i < pm->height; i++)
         {
 			    qglVertex3fv(reinterpret_cast<float(*)>(&pm->ctrl[g_nPatchAxisIndex][i].xyz));
@@ -2434,8 +2434,8 @@ void DrawPatchMesh( patchMesh_t *pm, bool bPoints, bool bShade = false ) {
         // could do all of this in one loop but it was pretty messy
         if (g_bPatchInsertMode)
         {
-          qglColor3f(0, 0, 1);
-          qglBegin(GL_POINTS);
+          glColor3f(0, 0, 1);
+          glBegin(GL_POINTS);
           for (i = 0; i < pm->height; i++)
           {
 			      qglVertex3fv(reinterpret_cast<float(*)>(&pm->ctrl[g_nPatchAxisIndex][i].xyz));
@@ -2447,8 +2447,8 @@ void DrawPatchMesh( patchMesh_t *pm, bool bPoints, bool bShade = false ) {
         {
           if (g_nPatchBendState == BEND_SELECT_EDGE || g_nPatchBendState == BEND_BENDIT || g_nPatchBendState == BEND_SELECT_ORIGIN)
           {
-            qglColor3f(0, 0, 1);
-            qglBegin(GL_POINTS);
+            glColor3f(0, 0, 1);
+            glBegin(GL_POINTS);
             for (i = 0; i < pm->height; i++)
             {
               if (g_nPatchBendState == BEND_SELECT_ORIGIN)
@@ -2481,7 +2481,7 @@ void DrawPatchMesh( patchMesh_t *pm, bool bPoints, bool bShade = false ) {
       {
 		    for ( j = 0 ; j < pm->height ; j++ ) 
         {
-	        qglBegin(GL_POINTS);
+	        glBegin(GL_POINTS);
           // FIXME: need to not do loop lookups inside here
           int n = PointValueInMoveList(pm->ctrl[i][j].xyz);
           if (n >= 0)
@@ -2490,9 +2490,9 @@ void DrawPatchMesh( patchMesh_t *pm, bool bPoints, bool bShade = false ) {
           }
 
           if (i & 0x01 || j & 0x01)
-            qglColor3f(1, 0, 1);
+            glColor3f(1, 0, 1);
           else
-            qglColor3f(0, 1, 0);
+            glColor3f(0, 1, 0);
 			    qglVertex3fv(pm->ctrl[i][j].xyz);
 	        qglEnd();
         }
@@ -2500,8 +2500,8 @@ void DrawPatchMesh( patchMesh_t *pm, bool bPoints, bool bShade = false ) {
     }
     if (nIndex > 0)
     {
-      qglBegin(GL_POINTS);
-      qglColor3f(0, 0, 1);
+      glBegin(GL_POINTS);
+      glColor3f(0, 0, 1);
       while (nIndex-- > 0)
       {
 			  qglVertex3fv(*pSelectedPoints[nIndex]);
@@ -2513,16 +2513,16 @@ void DrawPatchMesh( patchMesh_t *pm, bool bPoints, bool bShade = false ) {
   if (bOverlay)
   {
     qglPointSize(6);
-    qglColor3f(0.5, 0.5, 0.5);
+    glColor3f(0.5, 0.5, 0.5);
 	  for ( i = 0 ; i < pm->width ; i++ )
     {
-      qglBegin(GL_POINTS);
+      glBegin(GL_POINTS);
 		  for ( j = 0 ; j < pm->height ; j++ ) 
       {
 			  if (i & 0x01 || j & 0x01)
-          qglColor3f(0.5, 0, 0.5);
+          glColor3f(0.5, 0, 0.5);
         else
-          qglColor3f(0, 0.5, 0);
+          glColor3f(0, 0.5, 0);
         qglVertex3fv(pm->ctrl[i][j].xyz);
       }
       qglEnd();
@@ -2550,12 +2550,12 @@ void Patch_DrawXY(patchMesh_t *pm)
 	qglPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
   if (pm->bSelected)
   {
-    qglColor3fv(g_qeglobals.d_savedinfo.colors[COLOR_SELBRUSHES]);
+    glColor3fv(g_qeglobals.d_savedinfo.colors[COLOR_SELBRUSHES]);
     //qglDisable (GL_LINE_STIPPLE);
 	  //qglLineWidth (1);
   }
   else
-    qglColor3fv(g_qeglobals.d_savedinfo.colors[COLOR_BRUSHES]);
+    glColor3fv(g_qeglobals.d_savedinfo.colors[COLOR_BRUSHES]);
 
 	DrawPatchMesh( pm , pm->bSelected );
 	qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
@@ -2573,7 +2573,7 @@ Patch_DrawCam
 */
 void Patch_DrawCam(patchMesh_t *pm)
 {
-	qglColor3f (1,1,1);
+	glColor3f (1,1,1);
   qglPushAttrib(GL_ALL_ATTRIB_BITS);
 
   if (g_bPatchWireFrame)
@@ -2600,13 +2600,13 @@ void Patch_DrawCam(patchMesh_t *pm)
     }
 	  qglEnable( GL_CULL_FACE );
     qglCullFace(GL_FRONT);
-    qglBindTexture (GL_TEXTURE_2D, pm->d_texture->texture_number);
+    glBindTexture (GL_TEXTURE_2D, pm->d_texture->texture_number);
 
     if (pm->d_texture->bFromShader && pm->d_texture->fTrans < 1.0)
     {
 	    //qglEnable ( GL_BLEND );
-	    //qglBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-      qglColor4f(pm->d_texture->color[0], pm->d_texture->color[1], pm->d_texture->color[2], pm->d_texture->fTrans); 
+	    //glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      glColor4f(pm->d_texture->color[0], pm->d_texture->color[1], pm->d_texture->color[2], pm->d_texture->fTrans); 
     }
     DrawPatchMesh( pm , pm->bSelected, true );
     
@@ -2621,14 +2621,14 @@ void Patch_DrawCam(patchMesh_t *pm)
 #if 0 // this paints normal indicators on the ctrl points
       //--qglDisable (GL_DEPTH_TEST);
       qglDisable (GL_TEXTURE_2D);
-      qglColor3f (1,1,1);
+      glColor3f (1,1,1);
 
       for (int i = 0; i < pm->width; i++)
       {
         for (int j = 0; j < pm->height; j++)
         {
           vec3_t temp;
-	        qglBegin (GL_LINES);
+	        glBegin (GL_LINES);
 		      qglVertex3fv (pm->ctrl[i][j].xyz);
 		      VectorMA (pm->ctrl[i][j].xyz, 8, pm->ctrl[i][j].normal, temp);
 		      qglVertex3fv (temp);

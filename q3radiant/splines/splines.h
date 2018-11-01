@@ -595,7 +595,7 @@ public:
 	virtual void draw(bool editMode) {
 		glLabeledPoint(blue, startPos, (editMode) ? 5 : 3, "Start interpolated");
 		glLabeledPoint(blue, endPos, (editMode) ? 5 : 3, "End interpolated");
-		qglBegin(GL_LINES);
+		glBegin(GL_LINES);
 		qglVertex3fv(startPos);
 		qglVertex3fv(endPos);
 		qglEnd();
