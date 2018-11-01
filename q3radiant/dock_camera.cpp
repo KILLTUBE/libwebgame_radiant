@@ -55,6 +55,7 @@ CCamWnd::~CCamWnd() {}
 
 
 LRESULT CCamWnd::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
+	
 	if (uMsg == WM_KEYDOWN) {
 		switch (wParam) {
 			case 'W':
@@ -67,6 +68,16 @@ LRESULT CCamWnd::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		}
 		g_pParentWnd->OnKeyDown(wParam, 0, 0);
 	}
+
+	//switch (uMsg) {
+	//    case WM_MOUSEWHEEL:
+	//		if (GET_WHEEL_DELTA_WPARAM(wParam) > 0) {
+	//			g_pParentWnd->OnViewZoomin();
+	//		} else {
+	//			g_pParentWnd->OnViewZoomout();
+	//		}
+	//}
+
 	return CWnd::WindowProc(uMsg, wParam, lParam);
 }
 

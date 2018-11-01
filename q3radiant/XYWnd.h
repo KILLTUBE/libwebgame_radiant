@@ -80,7 +80,10 @@ public:
 	//}}AFX_VIRTUAL
 
 // Implementation
+
 public:
+	
+	virtual LRESULT WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
   bool AreaSelectOK();
   vec3_t& RotateOrigin();
   vec3_t& Rotation();
