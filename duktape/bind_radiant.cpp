@@ -212,15 +212,21 @@ int duk_func_LoadShadersFromDir(duk_context *ctx) {
 	return 0;
 }
 
+typedef struct glfw_window_thread_s {
+	GLFWwindow *window;
+	int window_id;
+	const char *title;
+	float r, g, b;
+	thrd_t threadhandle;
+} glfw_window_thread_t;
+
 ThreadsafeQueue<std::string> queue;
 
 void on_key(GLFWwindow *window, int key, int scancode, int action, int mods) {
-	std::string str;
-	str += "key=";
-	str += key;
-	str += " scancode=";
-	str += scancode;
-	queue.enqueue(str);
+	glfw_window_thread_t *winthread = (glfw_window_thread_t *)glfwGetWindowUserPointer(window);
+	char tmp[256];
+	snprintf(tmp, sizeof(tmp), "on_key(%d, %d, %d, %d, %d);", winthread->window_id, key, scancode, action, mods);
+	queue.enqueue(tmp);
 }
 
 void on_char(GLFWwindow *window, unsigned int u) {
@@ -232,15 +238,6 @@ void on_mouse_button(GLFWwindow *window, int button, int action, int mods) {
 void on_scroll(GLFWwindow *window, double xdelta, double ydelta) {
 }
 
-typedef struct glfw_window_thread_s {
-	GLFWwindow *window;
-	int window_id;
-	const char *title;
-	float r, g, b;
-	thrd_t threadhandle;
-} glfw_window_thread_t;
-
-
 int thread_main(void* data) {
 
 	
@@ -248,6 +245,7 @@ int thread_main(void* data) {
 	GLFWwindow *window = NULL;
 	glfwWindowHint(GLFW_FOCUSED, 0);
 	window = glfwCreateWindow(640, 480, "document.title", monitor, NULL);
+	glfwSetWindowUserPointer(window, data);
 	//glfw_windows[0] = window;
 	int width = 640;
 	int height = 480;
@@ -336,7 +334,8 @@ int duk_glfw_create_window(duk_context *ctx) {
 void duktape_update() {
 	if (queue.q.size() > 0) {
 		auto str = queue.dequeue();
-		imgui_log("Got: %s", str.c_str());
+		js_eval(ctx, (char *)str.c_str());
+		//imgui_log("Got: %s", str.c_str());
 	}
 }
 

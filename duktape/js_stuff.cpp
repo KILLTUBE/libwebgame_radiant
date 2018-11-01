@@ -154,9 +154,11 @@ int js_call(duk_context *ctx, char *function, char *params, ...) {
 	return 1;
 }
 
-int js_eval(char *msg) {
-	duk_eval_string(ctx, msg);
-	duk_pop(ctx);
+int js_eval(duk_context *ctx, char *msg) {
+	duk_push_string(ctx, msg);
+	if (duk_peval_noresult(ctx) != 0) {
+		imgui_log("js_eval failed: %s\n", msg);
+	}
 	return 1;
 }
 

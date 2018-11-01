@@ -54,7 +54,7 @@ void js_register_method(duk_context *ctx, char *name, int (*func)(duk_context *c
 int js_push_global_by_name(duk_context *ctx, char *name);
 int js_eval_file_safe(duk_context *ctx, char *filename);
 int js_call(duk_context *ctx, char *function, char *params, ...);
-int js_eval(char *msg);
+int js_eval(duk_context *ctx, char *msg);
 int duk_func_log(duk_context *ctx);
 int duk_func_file_get_contents(duk_context *ctx);
 int duk_func_get_global(duk_context *ctx);
