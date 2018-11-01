@@ -516,7 +516,7 @@ void CCamWnd::DrawLightRadius(brush_t* pBrush) {
 		Brush_SetLightColor(pBrush);
 		qglEnable(GL_BLEND);
 		qglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		qglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		qglDisable(GL_TEXTURE_2D);
 		qglEnable(GL_TEXTURE_2D);
 		qglDisable(GL_BLEND);
@@ -540,11 +540,11 @@ void CCamWnd::Cam_Draw() {
 	QE_CheckOpenGLForErrors();
 	qglViewport(0, 0, m_Camera.width, m_Camera.height);
 	qglScissor(0, 0, m_Camera.width, m_Camera.height);
-	qglClearColor(
+	glClearColor(
 		g_qeglobals.d_savedinfo.colors[COLOR_CAMERABACK][0],
 		g_qeglobals.d_savedinfo.colors[COLOR_CAMERABACK][1],
 		g_qeglobals.d_savedinfo.colors[COLOR_CAMERABACK][2], 0);
-	qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// set up viewpoint
 	vec5_t lightPos;
 	if (g_PrefsDlg.m_bGLLighting) {
@@ -589,7 +589,7 @@ void CCamWnd::Cam_Draw() {
 			qglDisable(GL_TEXTURE_1D);
 			qglDisable(GL_BLEND);
 			qglDisable(GL_DEPTH_TEST);
-			qglColor3f(1.0, 1.0, 1.0);
+			glColor3f(1.0, 1.0, 1.0);
 			//		qglEnable (GL_LINE_SMOOTH);
 			break;
 		case cd_solid:
@@ -626,7 +626,7 @@ void CCamWnd::Cam_Draw() {
 			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			qglDisable(GL_DEPTH_TEST);
 			qglEnable (GL_BLEND);
-			qglBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			break;
 	}
 	qglMatrixMode(GL_TEXTURE);
@@ -651,7 +651,7 @@ void CCamWnd::Cam_Draw() {
 	}
 	//qglDepthMask ( 0 ); // Don't write to depth buffer
 	qglEnable ( GL_BLEND );
-	qglBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	for ( i = 0; i < m_nNumTransBrushes; i++ ) 
 		Brush_Draw (m_TransBrushes[i]);
 	//qglDepthMask ( 1 ); // Ok, write now
@@ -675,10 +675,10 @@ void CCamWnd::Cam_Draw() {
 	// blend on top
 	qglMatrixMode(GL_PROJECTION);
 	qglDisable (GL_LIGHTING);
-	qglColor4f(1.0, 0.0, 0.0, 0.3);
+	glColor4f(1.0, 0.0, 0.0, 0.3);
 	qglEnable (GL_BLEND);
 	qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-	qglBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	qglDisable (GL_TEXTURE_2D);
 	for (brush = pList->next ; brush != pList ; brush=brush->next) {
 		if ( (brush->patchBrush && g_qeglobals.d_select_mode == sel_curvepoint) || 
@@ -698,7 +698,7 @@ void CCamWnd::Cam_Draw() {
 	qglDisable (GL_BLEND);
 	qglDisable (GL_DEPTH_TEST);
 	qglPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-	qglColor3f (1, 1, 1);
+	glColor3f (1, 1, 1);
 	for (brush = pList->next ; brush != pList ; brush=brush->next) {
 		if (g_qeglobals.dontDrawSelectedOutlines || (brush->patchBrush && g_qeglobals.d_select_mode == sel_curvepoint) ||
 			(brush->terrainBrush && g_qeglobals.d_select_mode == sel_terrainpoint))
@@ -709,8 +709,8 @@ void CCamWnd::Cam_Draw() {
 	// edge / vertex flags
 	if (g_qeglobals.d_select_mode == sel_vertex) {
 		qglPointSize (4);
-		qglColor3f (0,1,0);
-		qglBegin (GL_POINTS);
+		glColor3f (0,1,0);
+		glBegin (GL_POINTS);
 		for (i=0 ; i<g_qeglobals.d_numpoints ; i++)
 			qglVertex3fv (g_qeglobals.d_points[i]);
 		qglEnd ();
@@ -718,8 +718,8 @@ void CCamWnd::Cam_Draw() {
 	} else if (g_qeglobals.d_select_mode == sel_edge) {
 		float	*v1, *v2;
 		qglPointSize (4);
-		qglColor3f (0,0,1);
-		qglBegin (GL_POINTS);
+		glColor3f (0,0,1);
+		glBegin (GL_POINTS);
 		for (i=0 ; i<g_qeglobals.d_numedges ; i++) {
 			v1 = g_qeglobals.d_points[g_qeglobals.d_edges[i].p1];
 			v2 = g_qeglobals.d_points[g_qeglobals.d_edges[i].p2];
@@ -743,15 +743,15 @@ void CCamWnd::Cam_Draw() {
 	}
 	// bind back to the default texture so that we don't have problems
 	// elsewhere using/modifying texture maps between contexts
-	qglBindTexture( GL_TEXTURE_2D, 0 );
+	glBindTexture( GL_TEXTURE_2D, 0 );
 	
 #if 0
 	// area selection hack
 	if (g_qeglobals.d_select_mode == sel_area)
 	{
 		qglEnable (GL_BLEND);
-		qglBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		qglColor4f(0.0, 0.0, 1.0, 0.25);
+		glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glColor4f(0.0, 0.0, 1.0, 0.25);
 		qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 		qglRectfv(g_qeglobals.d_vAreaTL, g_qeglobals.d_vAreaBR);
 		qglDisable (GL_BLEND);

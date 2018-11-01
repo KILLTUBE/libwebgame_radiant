@@ -1398,17 +1398,17 @@ int WINAPI QERApp_RequestInterface( REFGUID refGUID, LPVOID pInterface )
 			Sys_Printf("wrong m_nSize in plugin-requested _QERQglTable interface\n");
 			return 0;
 		}
-		pQglTable->m_pfn_qglAlphaFunc = qglAlphaFunc;
-		pQglTable->m_pfn_qglBegin = qglBegin;
-		pQglTable->m_pfn_qglBindTexture = qglBindTexture;
-		pQglTable->m_pfn_qglBlendFunc = qglBlendFunc;
-		pQglTable->m_pfn_qglCallList = qglCallList;
-		pQglTable->m_pfn_qglCallLists = qglCallLists;
-		pQglTable->m_pfn_qglClear = qglClear;
-		pQglTable->m_pfn_qglClearColor = qglClearColor;
-		pQglTable->m_pfn_qglClearDepth = qglClearDepth;
-		pQglTable->m_pfn_qglColor3f = qglColor3f;
-		pQglTable->m_pfn_qglColor4f = qglColor4f;
+		pQglTable->m_pfn_qglAlphaFunc = glAlphaFunc;
+		pQglTable->m_pfn_glBegin = glBegin;
+		pQglTable->m_pfn_glBindTexture = glBindTexture;
+		pQglTable->m_pfn_glBlendFunc = glBlendFunc;
+		pQglTable->m_pfn_glCallList = glCallList;
+		pQglTable->m_pfn_glCallLists = glCallLists;
+		pQglTable->m_pfn_glClear = glClear;
+		pQglTable->m_pfn_glClearColor = glClearColor;
+		pQglTable->m_pfn_glClearDepth = glClearDepth;
+		pQglTable->m_pfn_glColor3f = glColor3f;
+		pQglTable->m_pfn_glColor4f = glColor4f;
 		pQglTable->m_pfn_qglCullFace = qglCullFace;
 		pQglTable->m_pfn_qglDisable = qglDisable;
 		pQglTable->m_pfn_qglDeleteLists = qglDeleteLists;

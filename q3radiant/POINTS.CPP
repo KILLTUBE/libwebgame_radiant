@@ -102,11 +102,11 @@ void WINAPI Pointfile_Check (void)
 
 	s_num_points = 0;
   qglNewList (g_qeglobals.d_pointfile_display_list,  GL_COMPILE);
-	qglColor3f (1, 0, 0);
+	glColor3f (1, 0, 0);
 	qglDisable(GL_TEXTURE_2D);
 	qglDisable(GL_TEXTURE_1D);
 	qglLineWidth (4);
-	qglBegin(GL_LINE_STRIP);
+	glBegin(GL_LINE_STRIP);
 	do
 	{
 		if (fscanf (f, "%f %f %f\n", &v[0], &v[1], &v[2]) != 3)
@@ -131,11 +131,11 @@ void Pointfile_Draw( void )
 {
 	int i;
 
-	qglColor3f( 1.0F, 0.0F, 0.0F );
+	glColor3f( 1.0F, 0.0F, 0.0F );
 	qglDisable(GL_TEXTURE_2D);
 	qglDisable(GL_TEXTURE_1D);
 	qglLineWidth (4);
-	qglBegin(GL_LINE_STRIP);
+	glBegin(GL_LINE_STRIP);
 	for ( i = 0; i < s_num_points; i++ )
 	{
 		qglVertex3fv( s_pointvecs[i] );

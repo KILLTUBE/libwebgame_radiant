@@ -52,9 +52,9 @@ idCameraDef *g_splineList = &splineList;
 idVec3_t idSplineList::zero(0,0,0);
 
 void glLabeledPoint(idVec3_t &color, idVec3_t &point, float size, const char *label) {
-	qglColor3fv(color);
+	glColor3fv(color);
 	qglPointSize(size);
-	qglBegin(GL_POINTS);
+	glBegin(GL_POINTS);
 	qglVertex3fv(point);
 	qglEnd();
 	idVec3_t v = point;
@@ -62,7 +62,7 @@ void glLabeledPoint(idVec3_t &color, idVec3_t &point, float size, const char *la
 	v.y += 1;
 	v.z += 1;
 	qglRasterPos3fv (v);
-	qglCallLists (strlen(label), GL_UNSIGNED_BYTE, label);
+	glCallLists (strlen(label), GL_UNSIGNED_BYTE, label);
 }
 
 
@@ -75,21 +75,21 @@ void glBox(idVec3_t &color, idVec3_t &point, float size) {
 	maxs[0] += size;
 	maxs[1] -= size;
 	maxs[2] += size;
-	qglColor3fv(color);
-	qglBegin(GL_LINE_LOOP);
+	glColor3fv(color);
+	glBegin(GL_LINE_LOOP);
 	qglVertex3f(mins[0],mins[1],mins[2]);
 	qglVertex3f(maxs[0],mins[1],mins[2]);
 	qglVertex3f(maxs[0],maxs[1],mins[2]);
 	qglVertex3f(mins[0],maxs[1],mins[2]);
 	qglEnd();
-	qglBegin(GL_LINE_LOOP);
+	glBegin(GL_LINE_LOOP);
 	qglVertex3f(mins[0],mins[1],maxs[2]);
 	qglVertex3f(maxs[0],mins[1],maxs[2]);
 	qglVertex3f(maxs[0],maxs[1],maxs[2]);
 	qglVertex3f(mins[0],maxs[1],maxs[2]);
 	qglEnd();
 
-	qglBegin(GL_LINES);
+	glBegin(GL_LINES);
   	qglVertex3f(mins[0],mins[1],mins[2]);
 	qglVertex3f(mins[0],mins[1],maxs[2]);
 	qglVertex3f(mins[0],maxs[1],maxs[2]);
@@ -211,10 +211,10 @@ void idSplineList::draw(bool editMode) {
 	}
 
 
-	qglColor3fv(controlColor);
+	glColor3fv(controlColor);
 	qglPointSize(5);
 	
-	qglBegin(GL_POINTS);
+	glBegin(GL_POINTS);
 	for (i = 0; i < controlPoints.Num(); i++) {
 		qglVertex3fv(*controlPoints[i]);
 	}
@@ -227,8 +227,8 @@ void idSplineList::draw(bool editMode) {
 	}
 
 	//Draw the curve
-	qglColor3fv(pathColor);
-	qglBegin(GL_LINE_STRIP);
+	glColor3fv(pathColor);
+	glBegin(GL_LINE_STRIP);
 	int count = splinePoints.Num();
 	for (i = 0; i < count; i++) {
 		qglVertex3fv(*splinePoints[i]);
@@ -236,9 +236,9 @@ void idSplineList::draw(bool editMode) {
 	qglEnd();
 
 	if (editMode) {
-		qglColor3fv(segmentColor);
+		glColor3fv(segmentColor);
 		qglPointSize(3);
-		qglBegin(GL_POINTS);
+		glBegin(GL_POINTS);
 		for (i = 0; i < count; i++) {
 			qglVertex3fv(*splinePoints[i]);
 		}

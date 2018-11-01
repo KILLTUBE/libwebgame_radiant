@@ -130,8 +130,8 @@ void Z_DrawGrid () {
 	ze = 64 * ceil (ze/64);
 
 	// draw major blocks
-	qglColor3fv(g_qeglobals.d_savedinfo.colors[COLOR_GRIDMAJOR]);
-	qglBegin (GL_LINES);
+	glColor3fv(g_qeglobals.d_savedinfo.colors[COLOR_GRIDMAJOR]);
+	glBegin (GL_LINES);
 	qglVertex2f(0, zb);
 	qglVertex2f(0, ze);
 	for (zz=zb ; zz<ze ; zz+=64) {
@@ -142,8 +142,8 @@ void Z_DrawGrid () {
 	// draw minor blocks
 	if (g_qeglobals.d_showgrid && g_qeglobals.d_gridsize*z.scale >= 4 &&
 			g_qeglobals.d_savedinfo.colors[COLOR_GRIDMINOR] != g_qeglobals.d_savedinfo.colors[COLOR_GRIDBACK]) {
-		qglColor3fv(g_qeglobals.d_savedinfo.colors[COLOR_GRIDMINOR]);
-		qglBegin (GL_LINES);
+		glColor3fv(g_qeglobals.d_savedinfo.colors[COLOR_GRIDMINOR]);
+		glBegin (GL_LINES);
 		for (zz=zb ; zz<ze ; zz+=g_qeglobals.d_gridsize)
 		{
 			if ( ! ((int)zz & 63) )
@@ -154,11 +154,11 @@ void Z_DrawGrid () {
 		qglEnd ();
 	}
 	// draw coordinate text if needed
-	qglColor3fv(g_qeglobals.d_savedinfo.colors[COLOR_GRIDTEXT]);
+	glColor3fv(g_qeglobals.d_savedinfo.colors[COLOR_GRIDTEXT]);
 	for (zz=zb ; zz<ze ; zz+=64) {
 		qglRasterPos2f (-w+1, zz);
 		sprintf (text, "%i",(int)zz);
-		qglCallLists (strlen(text), GL_UNSIGNED_BYTE, text);
+		glCallLists (strlen(text), GL_UNSIGNED_BYTE, text);
 	}
 }
 
@@ -167,8 +167,8 @@ void ZDrawCameraIcon() {
 	int	xCam = z.width/4;
 	x = 0;
 	y = g_pParentWnd->GetCamera()->Camera().origin[2];
-	qglColor3f (0.0, 0.0, 1.0);
-	qglBegin(GL_LINE_STRIP);
+	glColor3f (0.0, 0.0, 1.0);
+	glBegin(GL_LINE_STRIP);
 	qglVertex3f(x-xCam,y,0);
 	qglVertex3f(x,y+CAM_GIZMO,0);
 	qglVertex3f(x+xCam,y,0);
@@ -192,11 +192,11 @@ void Z_Draw() {
 	if (!active_brushes.next)
 		return;	// not valid yet
 	qglViewport(0, 0, z.width, z.height);
-	qglClearColor(
+	glClearColor(
 		g_qeglobals.d_savedinfo.colors[COLOR_GRIDBACK][0],
 		g_qeglobals.d_savedinfo.colors[COLOR_GRIDBACK][1],
 		g_qeglobals.d_savedinfo.colors[COLOR_GRIDBACK][2], 0);
-	qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
 	qglMatrixMode(GL_PROJECTION);
 	qglLoadIdentity ();
 	w = z.width/2 / z.scale;
@@ -233,15 +233,15 @@ void Z_Draw() {
 			continue;
 		bottom = org_bottom[2] + bottom;
 		q = Texture_ForName (brush->brush_faces->texdef.name);
-		qglColor3f (q->color[0], q->color[1], q->color[2]);
-		qglBegin (GL_QUADS);
+		glColor3f (q->color[0], q->color[1], q->color[2]);
+		glBegin (GL_QUADS);
 		qglVertex2f (-xCam, bottom);
 		qglVertex2f (xCam, bottom);
 		qglVertex2f (xCam, top);
 		qglVertex2f (-xCam, top);
 		qglEnd();
-		qglColor3f (1,1,1);
-		qglBegin (GL_LINE_LOOP);
+		glColor3f (1,1,1);
+		glBegin (GL_LINE_LOOP);
 		qglVertex2f (-xCam, bottom);
 		qglVertex2f (xCam, bottom);
 		qglVertex2f (xCam, top);
@@ -259,8 +259,8 @@ void Z_Draw() {
 				if (Brush_Ray (org_bottom, dir_up, brush, &bottom)) {
 					bottom = org_bottom[2] + bottom;
 					q = Texture_ForName (brush->brush_faces->texdef.name);
-					qglColor3f (q->color[0], q->color[1], q->color[2]);
-					qglBegin (GL_QUADS);
+					glColor3f (q->color[0], q->color[1], q->color[2]);
+					glBegin (GL_QUADS);
 					qglVertex2f (-xCam, bottom);
 					qglVertex2f (xCam, bottom);
 					qglVertex2f (xCam, top);
@@ -269,8 +269,8 @@ void Z_Draw() {
 				}
 			}
 		}
-		qglColor3fv(g_qeglobals.d_savedinfo.colors[COLOR_SELBRUSHES]);
-		qglBegin (GL_LINE_LOOP);
+		glColor3fv(g_qeglobals.d_savedinfo.colors[COLOR_SELBRUSHES]);
+		glBegin (GL_LINE_LOOP);
 		qglVertex2f (-xCam, brush->mins[2]);
 		qglVertex2f (xCam, brush->mins[2]);
 		qglVertex2f (xCam, brush->maxs[2]);

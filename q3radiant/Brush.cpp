@@ -514,7 +514,7 @@ void DrawBrushEntityName (brush_t *b)
 			for (i=0 ; i<3 ; i++)
 				mid[i] = (b->mins[i] + b->maxs[i])*0.5; 
 
-			qglBegin (GL_LINE_STRIP);
+			glBegin (GL_LINE_STRIP);
 			qglVertex3fv (mid);
 			mid[0] += c*8;
 			mid[1] += s*8;
@@ -550,7 +550,7 @@ void DrawBrushEntityName (brush_t *b)
 	{
 		name = ValueForKey (b->owner, "classname");
 		qglRasterPos3f (b->mins[0]+4, b->mins[1]+4, b->mins[2]+4);
-		qglCallLists (strlen(name), GL_UNSIGNED_BYTE, name);
+		glCallLists (strlen(name), GL_UNSIGNED_BYTE, name);
 	}
 }
 
@@ -3455,13 +3455,13 @@ bool PaintedModel(brush_t *b, bool bOkToTexture)
 	        qglDisable( GL_CULL_FACE );
 	        qglPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 	        qglDisable(GL_TEXTURE_2D);
-          qglColor3fv(pEclass->color);
+          glColor3fv(pEclass->color);
         }
         else
         {
-          qglColor3f(1, 1, 1);
+          glColor3f(1, 1, 1);
           qglEnable(GL_TEXTURE_2D);
-	        qglBindTexture( GL_TEXTURE_2D, model->nTextureBind );
+	        glBindTexture( GL_TEXTURE_2D, model->nTextureBind );
         }
         vec3_t v;
         
@@ -3502,7 +3502,7 @@ bool PaintedModel(brush_t *b, bool bOkToTexture)
         }
 
 
-	      qglBegin (GL_TRIANGLES);
+	      glBegin (GL_TRIANGLES);
 
         vec5_t vTest[3];
         for (i = 0; i < model->nTriCount; i++)
@@ -3591,14 +3591,14 @@ bool PaintedModel(brush_t *b, bool bOkToTexture)
       vec3_t vCenter, vMin, vMax;
       VectorCopy(b->owner->origin, vCenter);
 
-		  qglColor3fv(vColor);
+		  glColor3fv(vColor);
       qglPointSize(4);
 
-      qglBegin(GL_POINTS);
+      glBegin(GL_POINTS);
       qglVertex3fv(b->owner->origin);
       qglEnd();
 
-      qglBegin(GL_LINES);
+      glBegin(GL_LINES);
       vCenter[0] -= 8;
       qglVertex3fv(vCenter);
       vCenter[0] += 16;
@@ -3625,21 +3625,21 @@ bool PaintedModel(brush_t *b, bool bOkToTexture)
       vMax[1] += 4;
       vMax[2] += 4;
 
-		    qglBegin(GL_LINE_LOOP);
+		    glBegin(GL_LINE_LOOP);
           qglVertex3f(vMin[0],vMin[1],vMin[2]);
           qglVertex3f(vMax[0],vMin[1],vMin[2]);
           qglVertex3f(vMax[0],vMax[1],vMin[2]);
           qglVertex3f(vMin[0],vMax[1],vMin[2]);
 		    qglEnd();
 		    
-		    qglBegin(GL_LINE_LOOP);
+		    glBegin(GL_LINE_LOOP);
 	        qglVertex3f(vMin[0],vMin[1],vMax[2]);
 		      qglVertex3f(vMax[0],vMin[1],vMax[2]);
 		      qglVertex3f(vMax[0],vMax[1],vMax[2]);
 		      qglVertex3f(vMin[0],vMax[1],vMax[2]);
 		    qglEnd();
 
-		    qglBegin(GL_LINES);
+		    glBegin(GL_LINES);
   		    qglVertex3f(vMin[0],vMin[1],vMin[2]);
 		      qglVertex3f(vMin[0],vMin[1],vMax[2]);
 		      qglVertex3f(vMin[0],vMax[1],vMax[2]);
@@ -3653,7 +3653,7 @@ bool PaintedModel(brush_t *b, bool bOkToTexture)
 
 	    if (g_PrefsDlg.m_nEntityShowState & ENTITY_BOXED)
 	    {
-		    qglColor3fv(pEclass->color);
+		    glColor3fv(pEclass->color);
 
         vec3_t mins, maxs;
         VectorCopy(b->mins, mins);
@@ -3668,21 +3668,21 @@ bool PaintedModel(brush_t *b, bool bOkToTexture)
           VectorRotate(maxs, vAngle, b->owner->origin, maxs);
         }
 */
-		    qglBegin(GL_LINE_LOOP);
+		    glBegin(GL_LINE_LOOP);
           qglVertex3f(mins[0],mins[1],mins[2]);
           qglVertex3f(maxs[0],mins[1],mins[2]);
           qglVertex3f(maxs[0],maxs[1],mins[2]);
           qglVertex3f(mins[0],maxs[1],mins[2]);
 		    qglEnd();
 		    
-		    qglBegin(GL_LINE_LOOP);
+		    glBegin(GL_LINE_LOOP);
 	        qglVertex3f(mins[0],mins[1],maxs[2]);
 		      qglVertex3f(maxs[0],mins[1],maxs[2]);
 		      qglVertex3f(maxs[0],maxs[1],maxs[2]);
 		      qglVertex3f(mins[0],maxs[1],maxs[2]);
 		    qglEnd();
 
-		    qglBegin(GL_LINES);
+		    glBegin(GL_LINES);
   		    qglVertex3f(mins[0],mins[1],mins[2]);
 		      qglVertex3f(mins[0],mins[1],maxs[2]);
 		      qglVertex3f(mins[0],maxs[1],maxs[2]);
@@ -3784,9 +3784,9 @@ void Brush_DrawFacingAngle (brush_t *b, entity_t *e)
 	VectorMA (tip1, -dist, up, tip1);
 	VectorMA (tip1, 2*dist, up, tip2);
 
-	qglColor4f (1, 1, 1, 1);
+	glColor4f (1, 1, 1, 1);
 	qglLineWidth (4);
-	qglBegin (GL_LINES);
+	glBegin (GL_LINES);
 	qglVertex3fv (start);
 	qglVertex3fv (endpoint);
 	qglVertex3fv (endpoint);
@@ -3817,7 +3817,7 @@ void DrawLight(brush_t *b)
       vTriColor[2] = fB;
     }
   }
-  qglColor3f(vTriColor[0], vTriColor[1], vTriColor[2]);
+  glColor3f(vTriColor[0], vTriColor[1], vTriColor[2]);
 
   vec3_t vCorners[4];
   float fMid = b->mins[2] + (b->maxs[2] - b->mins[2]) / 2;
@@ -3850,14 +3850,14 @@ void DrawLight(brush_t *b)
   vec3_t vSave;
   VectorCopy(vTriColor, vSave);
 
-  qglBegin(GL_TRIANGLE_FAN);
+  glBegin(GL_TRIANGLE_FAN);
   qglVertex3fv(vTop);
   for (int i = 0; i <= 3; i++)
   {
     vTriColor[0] *= 0.95;
     vTriColor[1] *= 0.95;
     vTriColor[2] *= 0.95;
-    qglColor3f(vTriColor[0], vTriColor[1], vTriColor[2]);
+    glColor3f(vTriColor[0], vTriColor[1], vTriColor[2]);
     qglVertex3fv(vCorners[i]);
   }
   qglVertex3fv(vCorners[0]);
@@ -3868,7 +3868,7 @@ void DrawLight(brush_t *b)
   vTriColor[1] *= 0.95;
   vTriColor[2] *= 0.95;
 
-  qglBegin(GL_TRIANGLE_FAN);
+  glBegin(GL_TRIANGLE_FAN);
   qglVertex3fv(vBottom);
   qglVertex3fv(vCorners[0]);
   for (int i = 3; i >= 0; i--)
@@ -3876,7 +3876,7 @@ void DrawLight(brush_t *b)
     vTriColor[0] *= 0.95;
     vTriColor[1] *= 0.95;
     vTriColor[2] *= 0.95;
-    qglColor3f(vTriColor[0], vTriColor[1], vTriColor[2]);
+    glColor3f(vTriColor[0], vTriColor[1], vTriColor[2]);
     qglVertex3fv(vCorners[i]);
   }
   qglEnd();
@@ -3889,8 +3889,8 @@ void DrawLight(brush_t *b)
     GetVectorForKey (b->owner, "light_up", vUp);
     GetVectorForKey (b->owner, "light_target", vTarget);
 
-    qglColor3f(0, 1, 0);
-		qglBegin(GL_LINE_LOOP);
+    glColor3f(0, 1, 0);
+		glBegin(GL_LINE_LOOP);
     VectorAdd(vTarget, b->owner->origin, vTemp);
     VectorAdd(vTemp, vRight, vTemp);
     VectorAdd(vTemp, vUp, vTemp);
@@ -4004,9 +4004,9 @@ void Brush_Draw( brush_t *b )
 			//--qglPushAttrib(GL_ALL_ATTRIB_BITS);
 			qglDisable(GL_CULL_FACE);
 			//--qglTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-			//--qglBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			//--glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			//--qglDisable(GL_DEPTH_TEST);
-			//--qglBlendFunc (GL_SRC_ALPHA, GL_DST_ALPHA);
+			//--glBlendFunc (GL_SRC_ALPHA, GL_DST_ALPHA);
 			//--qglEnable (GL_BLEND);
 		}
 #endif
@@ -4015,7 +4015,7 @@ void Brush_Draw( brush_t *b )
 		{
 			// set the texture for this face
 			prev = face->d_texture;
-			qglBindTexture( GL_TEXTURE_2D, face->d_texture->texture_number );
+			glBindTexture( GL_TEXTURE_2D, face->d_texture->texture_number );
 		}
 		
 		
@@ -4023,22 +4023,22 @@ void Brush_Draw( brush_t *b )
 		if (!b->patchBrush)
 		{
 			if (face->texdef.flags & SURF_TRANS33) 
-				qglColor4f ( face->d_color[0], face->d_color[1], face->d_color[2], 0.33 );
+				glColor4f ( face->d_color[0], face->d_color[1], face->d_color[2], 0.33 );
 			else if ( face->texdef.flags & SURF_TRANS66) 
-				qglColor4f ( face->d_color[0], face->d_color[1], face->d_color[2], 0.66 );
+				glColor4f ( face->d_color[0], face->d_color[1], face->d_color[2], 0.66 );
 			else
-				qglColor3fv( face->d_color );
+				glColor3fv( face->d_color );
 		}
 		else
 		{
-			qglColor4f ( face->d_color[0], face->d_color[1], face->d_color[2], 0.13 );
+			glColor4f ( face->d_color[0], face->d_color[1], face->d_color[2], 0.13 );
 		}
 		
 		// shader drawing stuff
 		if (face->d_texture->bFromShader)
 		{
 			// setup shader drawing
-			qglColor4f ( face->d_color[0], face->d_color[1], face->d_color[2], face->d_texture->fTrans );
+			glColor4f ( face->d_color[0], face->d_color[1], face->d_color[2], face->d_texture->fTrans );
 			
 		}
 		
@@ -4052,7 +4052,7 @@ void Brush_Draw( brush_t *b )
 		}
 		//}
 		
-		qglBegin(GL_POLYGON);
+		glBegin(GL_POLYGON);
 		//if (nDrawMode == cd_light)
 		
 		for (i=0 ; i<w->numpoints ; i++)
@@ -4077,7 +4077,7 @@ void Brush_Draw( brush_t *b )
 	if (b->owner->eclass->fixedsize && (nDrawMode == cd_texture || nDrawMode == cd_light))
 		qglEnable (GL_TEXTURE_2D);
 	
-	qglBindTexture( GL_TEXTURE_2D, 0 );
+	glBindTexture( GL_TEXTURE_2D, 0 );
 }
 
 
@@ -4088,7 +4088,7 @@ void Face_Draw( face_t *f )
 
 	if ( f->face_winding == 0 )
 		return;
-	qglBegin( GL_POLYGON );
+	glBegin( GL_POLYGON );
 	for ( i = 0 ; i < f->face_winding->numpoints; i++)
 		qglVertex3fv( f->face_winding->points[i] );
 	qglEnd();
@@ -4153,7 +4153,7 @@ void Brush_DrawXY(brush_t *b, int nViewType)
 			vBottom[2] = b->mins[2];
 
 			qglPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-			qglBegin(GL_TRIANGLE_FAN);
+			glBegin(GL_TRIANGLE_FAN);
 			qglVertex3fv(vTop);
 			qglVertex3fv(vCorners[0]);
 			qglVertex3fv(vCorners[1]);
@@ -4161,7 +4161,7 @@ void Brush_DrawXY(brush_t *b, int nViewType)
 			qglVertex3fv(vCorners[3]);
 			qglVertex3fv(vCorners[0]);
 			qglEnd();
-			qglBegin(GL_TRIANGLE_FAN);
+			glBegin(GL_TRIANGLE_FAN);
 			qglVertex3fv(vBottom);
 			qglVertex3fv(vCorners[0]);
 			qglVertex3fv(vCorners[3]);
@@ -4209,7 +4209,7 @@ void Brush_DrawXY(brush_t *b, int nViewType)
     //  continue;
 
 		// draw the polygon
-		qglBegin(GL_LINE_LOOP);
+		glBegin(GL_LINE_LOOP);
     for (i=0 ; i<w->numpoints ; i++)
 		  qglVertex3fv(w->points[i]);
 		qglEnd();
