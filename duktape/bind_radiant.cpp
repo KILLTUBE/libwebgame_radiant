@@ -212,10 +212,6 @@ int duk_func_LoadShadersFromDir(duk_context *ctx) {
 	return 0;
 }
 
-GLFWwindow *glfw_windows[8] = {NULL};
-int glfw_next_id = 0;
-
-
 ThreadsafeQueue<std::string> queue;
 
 void on_key(GLFWwindow *window, int key, int scancode, int action, int mods) {
@@ -236,12 +232,13 @@ void on_mouse_button(GLFWwindow *window, int button, int action, int mods) {
 void on_scroll(GLFWwindow *window, double xdelta, double ydelta) {
 }
 
-typedef struct {
-	GLFWwindow* window;
-	const char* title;
+typedef struct glfw_window_thread_s {
+	GLFWwindow *window;
+	int window_id;
+	const char *title;
 	float r, g, b;
-	thrd_t id;
-} Thread;
+	thrd_t threadhandle;
+} glfw_window_thread_t;
 
 
 int thread_main(void* data) {
@@ -249,15 +246,14 @@ int thread_main(void* data) {
 	
 	GLFWmonitor *monitor = NULL;
 	GLFWwindow *window = NULL;
+	glfwWindowHint(GLFW_FOCUSED, 0);
 	window = glfwCreateWindow(640, 480, "document.title", monitor, NULL);
 	//glfw_windows[0] = window;
 	int width = 640;
 	int height = 480;
-
-
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetKeyCallback(window, on_key);
     glfwSetCharCallback(window, on_char);
     glfwSetMouseButtonCallback(window, on_mouse_button);
@@ -278,32 +274,62 @@ int thread_main(void* data) {
 		glfwPollEvents();
 	}
 
+	glfw_window_thread_t *winthread = (glfw_window_thread_t *)data;
+	winthread->window = NULL;
+	winthread->threadhandle = NULL;
+
 	return 0;
 
 }
 
+glfw_window_thread_t glfw_window_threads[] = {
+    { NULL, 0, "Red"  , 1.f, 0.f, 0.f, NULL },
+    { NULL, 1, "Green", 0.f, 1.f, 0.f, NULL },
+    { NULL, 2, "Blue" , 0.f, 0.f, 1.f, NULL },
+    { NULL, 3, "Blue" , 0.f, 0.f, 1.f, NULL },
+    { NULL, 4, "Blue" , 0.f, 0.f, 1.f, NULL },
+    { NULL, 5, "Blue" , 0.f, 0.f, 1.f, NULL },
+    { NULL, 6, "Blue" , 0.f, 0.f, 1.f, NULL },
+    { NULL, 7, "Blue" , 0.f, 0.f, 1.f, NULL },
+};
+
 // glfw_create_window()
 int duk_glfw_create_window(duk_context *ctx) {
-	int window_id = glfw_next_id++;
-	
+	// let the next for loop proof us wrong...
+	int window_id = -1;
+
+	// iterate over the the GLFW window threads to find an empty one
+	// max 8 windows atm... should be enough for all of my use cases
+	// if 8 windows are used, return -1 as window ID
+	for (int i=0; i<8; i++) {
+		auto &bla = glfw_window_threads[i];
+		if (bla.threadhandle == NULL) {
+			window_id = i;
+			break;
+		}
+	}
+
+	// no windows left, close some...
+	if (window_id == -1) {
+		duk_push_int(ctx, -1);
+		return 1;
+	}
+
+	// just make sure the glfw is initialized...
 	static int first = 1;
 	if (first) {
 		first = 0;
 		glfwInit();
 	}
-	Thread threads[] =
-    {
-        { NULL, "Red", 1.f, 0.f, 0.f, 0 },
-        { NULL, "Green", 0.f, 1.f, 0.f, 0 },
-        { NULL, "Blue", 0.f, 0.f, 1.f, 0 }
-    };
-	int i=0;
-	if (thrd_create(&threads[i].id, thread_main, threads + i) != thrd_success) {
 
+	// actually create a window now as thread
+	if (thrd_create(&glfw_window_threads[window_id].threadhandle, thread_main, glfw_window_threads + window_id) != thrd_success) {
+		duk_push_int(ctx, -1);
+		return 1;
 	}
 
-
-	duk_push_int(ctx, i);
+	// give back the id so we can make some nice glue code in javascript
+	duk_push_int(ctx, window_id);
 	return 1;
 }
 

@@ -8,7 +8,15 @@ Document = function() {}
 Document.prototype.addEventListener = function(name) {    
 }
 
-Window = function() {}
+Window = function() {
+	this.id = glfw_create_window();
+	if (this.id == -1)
+		throw Error("max 8 windows");
+}
+
+Window.prototype.close = function() {
+	// todo
+}
 
 Window.prototype.addEventListener = function(name) {
 }
@@ -51,5 +59,5 @@ HTMLVideoElement  = function() {}
 document = new Document;
 window = new Window;
 canvas = new Canvas;
-navigator = new Navigator;
+window.navigator = new Navigator;
 
