@@ -53,6 +53,23 @@ CCamWnd::CCamWnd() {
 
 CCamWnd::~CCamWnd() {}
 
+
+LRESULT CCamWnd::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam) {
+	if (uMsg == WM_KEYDOWN) {
+		switch (wParam) {
+			case 'W':
+			case 'A':
+			case 'S':
+			case 'D':
+			case 'Q':
+			case 'E':
+				return CWnd::WindowProc(uMsg, wParam, lParam);
+		}
+		g_pParentWnd->OnKeyDown(wParam, 0, 0);
+	}
+	return CWnd::WindowProc(uMsg, wParam, lParam);
+}
+
 BEGIN_MESSAGE_MAP(CCamWnd, CWnd)
 	ON_WM_KEYDOWN()
 	ON_WM_PAINT()

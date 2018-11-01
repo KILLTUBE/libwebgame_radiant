@@ -29,7 +29,7 @@ class CTexWnd : public CWnd { public:
 	void UpdatePrefs();
 	void FocusEdit();
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-	virtual LRESULT CTexWnd::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	virtual LRESULT WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual ~CTexWnd();
 	bool m_bNeedRange;
 	virtual int OnCreate(LPCREATESTRUCT lpCreateStruct);
