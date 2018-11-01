@@ -24,35 +24,52 @@ printf = function() {
 	return ret.length;
 }
 
-require = function(filename) {
+require = function(filename, bindTo) {
 	var content = file_get_contents( filename );
 	try {
-		eval.bind( get_global() )(content);
+		if (bindTo == undefined) {
+			eval.bind( get_global() )(content);
+		} else {
+			
+			(function() {
+				eval(content);
+			}).call(eval(bindTo)); // bindTo == "window"...because its define in other requires
+		}
 	} catch (exception) {
 		printf("require(%): error %\n", filename, exception.stack);
 	}
 }
 
+// prevent that playcanvas fucks "window" up into the global
+// it does something like this, line 18: window = _window || window;
+_window = {fakewindow: "yes"};
+
 includes = function() {
+	// this is a bit of a mess, but it works lol
+	// todo: some proper module loading like nodejs or something
+	
 	var files = [
-		"javascript/pre_create.js",
-		"javascript/lib.js",
-		"javascript/lib_quake.js",
-		"javascript/html5.js",
-		"javascript/html5_console.js",
-		"javascript/html5_gl.js",
-		"javascript/playcanvas-1-10-0.js",
-		"javascript/camera.js",
-		"javascript/camera_freefly.js",
-		"javascript/mouse.js",
-		"javascript/update.js",
+		["javascript/pre_create.js"       , undefined],
+		["javascript/lib.js"              , undefined],
+		["javascript/lib_quake.js"        , undefined],
+		["javascript/html5.js"            , undefined],
+		["javascript/html5_console.js"    , undefined],
+		["javascript/html5_gl.js"         , undefined],
+		["javascript/playcanvas-1-10-0.js", "window "  ],
+		["javascript/camera.js"           , undefined],
+		["javascript/camera_freefly.js"   , undefined],
+		["javascript/mouse.js"            , undefined],
+		["javascript/update.js"           , undefined],
 	];
 	for (var i=0; i<files.length; i++) {
-		var file = files[i];
+		var file = files[i][0];
+		var bindTo = files[i][1];
 		try {
-			require(file);
+			require(file, bindTo);
 		} catch (exception) {
 			printf(exception);
 		}
 	}
+	
+	pc = window.pc;
 }
