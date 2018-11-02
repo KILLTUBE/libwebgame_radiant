@@ -1737,15 +1737,6 @@ void	Texture_ShowInuse (void)
 	SortTextures();
 	//SetInspectorMode(W_TEXTURE);
 	Sys_UpdateWindows (W_TEXTURE);
-
-	sprintf (name, "Textures: in use");
-	SetWindowText(g_qeglobals.d_hwndEntity, name);
-
-	// select the first texture in the list
-	if (!g_qeglobals.d_texturewin.texdef.name[0])
-	{
-		SelectTexture (16, g_qeglobals.d_texturewin.height -16, false);
-	}
 }
 
 /*

@@ -385,7 +385,8 @@ void ProgError(char *errstr, ...)
   vprintf(errstr, args);
   printf(" ***\n");
   va_end(args);
-  exit(5);
+  //exit(5);
+  DebugBreak();
 }
 
 boolean ReadBytes(FILE *file, void *addr, UInt32 size)

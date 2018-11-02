@@ -598,7 +598,8 @@ static void Dump(const tinygltf::Model &model) {
 int main(int argc, char **argv) {
   if (argc < 2) {
     printf("Needs input.gltf\n");
-    exit(1);
+    //exit(1);
+	DebugBreak();
   }
 
   tinygltf::Model model;
