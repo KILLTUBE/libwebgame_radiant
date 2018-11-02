@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "bmp.h"
 #include "pakstuff.h"
 #include "jpeglib.h"
-
+#include "../tinygltf/stb_image.h"
 
 /*
 ============================================================================
@@ -1323,7 +1323,12 @@ void LoadImage( const char *name, byte **pic, int *width, int *height )
 	} 
   else if ( !stricmp( name+len-4, ".jpg" ) ) 
   {
-		LoadJPG( name, pic, width, height ); 
+	int bpp;
+	*pic = stbi_load( name, width, height, &bpp, STBI_rgb_alpha );
+	// rgb is now three bytes per pixel, width*height size. Or NULL if load failed.
+	// Do something with it...
+	//stbi_image_free( rgb );
+	//LoadJPG( name, pic, width, height ); 
 	}
 }
 
