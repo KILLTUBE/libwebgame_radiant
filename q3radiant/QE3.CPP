@@ -40,7 +40,8 @@ void WINAPI QE_CheckOpenGLForErrors(void)
       {
         Map_SaveFile(NULL, false);
       }
-		  exit(1);
+		  //exit(1);
+	  DebugBreak();
     }
     else
     {

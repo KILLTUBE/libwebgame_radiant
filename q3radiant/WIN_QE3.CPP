@@ -44,16 +44,18 @@ HANDLE	bsp_process;
 
 void Sys_MarkMapModified (void)
 {
-	char			title[1024];
+	// for some reason this retarded function crashes complete app without VS debugger turning on
 
-	if (modified != 1)
-	{
-		modified = true;	// mark the map as changed
-		sprintf (title, "%s *", currentmap);
-
-		QE_ConvertDOSToUnixName( title, title );
-		Sys_SetTitle (title);
-	}
+	//char			title[1024];
+	//
+	//if (modified != 1)
+	//{
+	//	modified = true;	// mark the map as changed
+	//	sprintf (title, "%s *", currentmap);
+	//
+	//	QE_ConvertDOSToUnixName( title, title );
+	//	Sys_SetTitle (title);
+	//}
 }
 
 
