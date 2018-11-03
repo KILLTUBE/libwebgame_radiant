@@ -533,8 +533,11 @@ int main (int argc, char **argv) {
 
 	ThreadSetDefault ();
 	//numthreads = 1;		// multiple threads aren't helping because of heavy malloc use
-	SetQdirFromPath (argv[i]);
-
+	//SetQdirFromPath (argv[i]);
+	
+	strncpy(gamedir, "D:\\ioq3\\build\\debug-msvc12-x86\\baseq3\\", sizeof(gamedir));
+	strncpy(qdir, "D:\\ioq3\\build\\debug-msvc12-x86\\baseq3\\", sizeof(qdir));
+		
 #ifdef _WIN32
   InitPakFile(gamedir, NULL);
 #endif
@@ -600,6 +603,8 @@ int main (int argc, char **argv) {
     remove(tempsource);
   }
 
+
+  getchar();
 	return 0;
 }
 

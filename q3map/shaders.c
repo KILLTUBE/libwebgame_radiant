@@ -27,39 +27,27 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "imagelib.h"
 #include "scriplib.h"
 
-#ifdef _TTIMOBUILD
 #include "../common/qfiles.h"
 #include "../common/surfaceflags.h"
-#else
-#include "../code/qcommon/qfiles.h"
-#include "../code/game/surfaceflags.h"
-#endif
+#include "../q3radiant/game_surfaceflags.h"
 
 #include "shaders.h"
-#ifdef _WIN32
 
-#ifdef _TTIMOBUILD
-#include "pakstuff.h"
-#include "jpeglib.h"
-#else
 #include "../libs/pakstuff.h"
 #include "../libs/jpeglib.h"
-#endif
 
-#endif
-
+#define STB_IMAGE_IMPLEMENTATION
+#include "../tinygltf/stb_image.h"
 
 // 5% backsplash by default
 #define	DEFAULT_BACKSPLASH_FRACTION		0.05
 #define	DEFAULT_BACKSPLASH_DISTANCE		24
-
 
 #define	MAX_SURFACE_INFO	4096
 
 shaderInfo_t	defaultInfo;
 shaderInfo_t	shaderInfo[MAX_SURFACE_INFO];
 int				numShaderInfo;
-
 
 typedef struct {
 	char	*name;
@@ -222,7 +210,9 @@ loadTga:
   }
   else {
 #ifdef _WIN32
-    LoadJPGBuff(buffer, &si->pixels, &si->width, &si->height );
+    //LoadJPGBuff(buffer, &si->pixels, &si->width, &si->height );
+	  int bpp;
+si->pixels = stbi_load( filename, &si->width, &si->height, &bpp, STBI_rgb_alpha );
 #endif
   }
 

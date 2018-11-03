@@ -105,7 +105,7 @@
       <CompileAs>Default</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>glaux.lib;glu32.lib;wsock32.lib;opengl32.lib;odbc32.lib;odbccp32.lib;..\libs\pakd.lib;..\libs\jpeg6d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glu32.lib;wsock32.lib;opengl32.lib;odbc32.lib;odbccp32.lib;..\libs\pakd.lib;..\libs\jpeg6d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\Debug/q3map.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>

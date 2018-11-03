@@ -19,13 +19,9 @@ along with Foobar; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-#ifdef _TTIMOBUILD
+
 #include "qfiles.h"
 #include "surfaceflags.h"
-#else
-#include "../code/qcommon/qfiles.h"
-#include "../code/game/surfaceflags.h"
-#endif
 
 extern	int			nummodels;
 extern	dmodel_t	dmodels[MAX_MAP_MODELS];
