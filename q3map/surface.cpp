@@ -84,7 +84,7 @@ mapDrawSurface_t	*DrawSurfaceForSide( bspbrush_t *b, side_t *s, winding_t *w ) {
 	ds->side = s;
 	ds->fogNum = -1;
 	ds->numVerts = w->numpoints;
-	ds->verts = malloc( ds->numVerts * sizeof( *ds->verts ) );
+	ds->verts = (drawVert_t *) malloc( ds->numVerts * sizeof( *ds->verts ) );
 	memset( ds->verts, 0, ds->numVerts * sizeof( *ds->verts ) );
 
 	mins[0] = mins[1] = 99999;
@@ -427,7 +427,7 @@ void ClipSidesIntoTree( entity_t *e, tree_t *tree ) {
 			// duplicate the up-facing side
 			w = ReverseWinding( w );
 		
-			newSide = malloc( sizeof( *side ) );
+			newSide = (side_t *) malloc( sizeof( *side ) );
 			*newSide = *side;
 			newSide->visibleHull = w;
 			newSide->planenum ^= 1;
@@ -487,7 +487,7 @@ int FilterMapDrawSurfIntoTree( vec3_t point, mapDrawSurface_t *ds, node_t *node 
 		}
 	}
 
-	dsr = malloc( sizeof( *dsr ) );
+	dsr = (drawSurfRef_t *) malloc( sizeof( *dsr ) );
 	dsr->outputNumber = numDrawSurfaces;
 	dsr->nextRef = node->drawSurfReferences;
 	node->drawSurfReferences = dsr;
@@ -536,7 +536,7 @@ int FilterMapDrawSurfIntoTree_r( winding_t *w, mapDrawSurface_t *ds, node_t *nod
 		}
 	}
 
-	dsr = malloc( sizeof( *dsr ) );
+	dsr = (drawSurfRef_t *) malloc( sizeof( *dsr ) );
 	dsr->outputNumber = numDrawSurfaces;
 	dsr->nextRef = node->drawSurfReferences;
 	node->drawSurfReferences = dsr;
@@ -584,7 +584,7 @@ int FilterSideIntoTree_r( winding_t *w, side_t *side, mapDrawSurface_t *ds, node
 		return 0;
 	}
 
-	dsr = malloc( sizeof( *dsr ) );
+	dsr = (drawSurfRef_t *) malloc( sizeof( *dsr ) );
 	dsr->outputNumber = numDrawSurfaces;
 	dsr->nextRef = node->drawSurfReferences;
 	node->drawSurfReferences = dsr;

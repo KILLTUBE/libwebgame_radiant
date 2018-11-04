@@ -1514,13 +1514,13 @@ void BasePortalVis (int portalnum)
 	if (p->removed)
 		return;
 
-	p->portalfront = malloc (portalbytes);
+	p->portalfront = (byte *) malloc(portalbytes);
 	memset (p->portalfront, 0, portalbytes);
 
-	p->portalflood = malloc (portalbytes);
+	p->portalflood = (byte *) malloc(portalbytes);
 	memset (p->portalflood, 0, portalbytes);
 	
-	p->portalvis = malloc (portalbytes);
+	p->portalvis = (byte *) malloc(portalbytes);
 	memset (p->portalvis, 0, portalbytes);
 	
 	for (j=0, tp = portals ; j<numportals*2 ; j++, tp++)

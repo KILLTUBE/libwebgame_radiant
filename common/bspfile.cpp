@@ -378,7 +378,7 @@ ParseEpair
 epair_t *ParseEpair( void ) {
 	epair_t	*e;
 
-	e = malloc( sizeof(epair_t) );
+	e = (epair_t *) malloc( sizeof(epair_t) );
 	memset( e, 0, sizeof(epair_t) );
 	
 	if ( strlen(token) >= MAX_KEY-1 ) {
@@ -522,7 +522,7 @@ void 	SetKeyValue( entity_t *ent, const char *key, const char *value ) {
 			return;
 		}
 	}
-	ep = malloc (sizeof(*ep));
+	ep = (epair_t *) malloc (sizeof(*ep));
 	ep->next = ent->epairs;
 	ent->epairs = ep;
 	ep->key = copystring(key);

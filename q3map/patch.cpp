@@ -64,7 +64,7 @@ mapDrawSurface_t	*DrawSurfaceForMesh( mesh_t *m ) {
 	ds->patchWidth = m->width;
 	ds->patchHeight = m->height;
 	ds->numVerts = ds->patchWidth * ds->patchHeight;
-	ds->verts = malloc( ds->numVerts * sizeof( *ds->verts ) );
+	ds->verts = (drawVert_t *) malloc( ds->numVerts * sizeof( *ds->verts ) );
 	memcpy( ds->verts, m->verts, ds->numVerts * sizeof( *ds->verts ) );
 
 	ds->lightmapNum = -1;
@@ -107,7 +107,7 @@ void ParsePatch( void ) {
 	Parse1DMatrix( 5, info );
 	m.width = info[0];
 	m.height = info[1];
-	m.verts = verts = malloc( m.width * m.height * sizeof( m.verts[0] ) );
+	m.verts = verts = (drawVert_t *) malloc( m.width * m.height * sizeof( m.verts[0] ) );
 
 	if ( m.width < 0 || m.width > MAX_PATCH_SIZE
 		|| m.height < 0 || m.height > MAX_PATCH_SIZE ) {
@@ -142,7 +142,7 @@ void ParsePatch( void ) {
 	}
 
 	// find default flags and values
-	pm = malloc( sizeof( *pm ) );
+	pm = (parseMesh_t *) malloc( sizeof( *pm ) );
 	memset( pm, 0, sizeof( *pm ) );
 
 	sprintf( shader, "textures/%s", texture );
@@ -205,7 +205,7 @@ void PatchMapDrawSurfs( entity_t *e ) {
 	if ( !patchCount ) {
 		return;
 	}
-	bordering = malloc( patchCount * patchCount );
+	bordering = (byte *) malloc( patchCount * patchCount );
 	memset( bordering, 0, patchCount * patchCount );
 
 	// build the bordering matrix

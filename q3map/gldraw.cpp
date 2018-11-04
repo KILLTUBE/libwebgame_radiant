@@ -222,7 +222,7 @@ void GLS_Winding (winding_t *w, int code)
 		for (j=0 ; j<3 ; j++)
 			((float *)buf)[2+i*3+j] = w->p[i][j];
 
-	send (draw_socket, buf, w->numpoints*12+8, 0);
+	send(draw_socket, (const char *) buf, w->numpoints*12+8, 0);
 }
 
 void GLS_EndScene (void)

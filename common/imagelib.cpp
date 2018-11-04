@@ -229,7 +229,7 @@ void LoadLBM (const char *filename, byte **picture, byte **palette)
 			break;
 
 		case CMAPID:
-			cmapbuffer = malloc (768);
+			cmapbuffer = (byte *) malloc (768);
 			memset (cmapbuffer, 0, 768);
 			memcpy (cmapbuffer, LBM_P, chunklength);
 			break;
@@ -237,7 +237,7 @@ void LoadLBM (const char *filename, byte **picture, byte **palette)
 		case BODYID:
 			body_p = LBM_P;
 
-			pic_p = picbuffer = malloc (bmhd.w*bmhd.h);
+			pic_p = picbuffer = (byte *) malloc (bmhd.w*bmhd.h);
 			if (formtype == PBMID)
 			{
 			//
@@ -299,7 +299,7 @@ void WriteLBMfile (const char *filename, byte *data,
 	int    length;
 	bmhd_t  basebmhd;
 
-	lbm = lbmptr = malloc (width*height+1000);
+	lbm = lbmptr = (byte *) malloc (width*height+1000);
 
 //
 // start FORM
@@ -469,7 +469,7 @@ void LoadPCX (const char *filename, byte **pic, byte **palette, int *width, int 
 	
 	if (palette)
 	{
-		*palette = malloc(768);
+		*palette = (byte *) malloc(768);
 		memcpy (*palette, (byte *)pcx + len - 768, 768);
 	}
 
@@ -481,7 +481,7 @@ void LoadPCX (const char *filename, byte **pic, byte **palette, int *width, int 
 	if (!pic)
 		return;
 
-	out = malloc ( (pcx->ymax+1) * (pcx->xmax+1) );
+	out = (byte *) malloc ( (pcx->ymax+1) * (pcx->xmax+1) );
 	if (!out)
 		Error ("Skin_Cache: couldn't allocate");
 
@@ -533,7 +533,7 @@ void WritePCXfile (const char *filename, byte *data,
 	pcx_t	*pcx;
 	byte		*pack;
 	  
-	pcx = malloc (width*height*2+1000);
+	pcx = (pcx_t *) malloc (width*height*2+1000);
 	memset (pcx, 0, sizeof(*pcx));
 
 	pcx->manufacturer = 0x0a;	// PCX id
@@ -685,7 +685,7 @@ void LoadBMP (const char *filename, byte **pic, byte **palette, int *width, int 
 
 		if (palette) {
 			fread (bcPalette, 1, 1024, fin);
-			*palette = malloc(768);
+			*palette = (byte *) malloc(768);
 
 			for (i = 0 ; i < 256 ; i++) {
 				(*palette)[i * 3 + 0] = bcPalette[i * 4 + 2];
@@ -702,7 +702,7 @@ void LoadBMP (const char *filename, byte **pic, byte **palette, int *width, int 
 
 		if (palette) {
 			fread (bcPalette, 1, 768, fin);
-			*palette = malloc(768);
+			*palette = (byte *) malloc(768);
 
 			for (i = 0 ; i < 256 ; i++) {
 				(*palette)[i * 3 + 0] = bcPalette[i * 3 + 2];
@@ -739,7 +739,7 @@ void LoadBMP (const char *filename, byte **pic, byte **palette, int *width, int 
 		return;
 	}
 
-	out = malloc ( bcWidth * bcHeight );
+	out = (byte *) malloc ( bcWidth * bcHeight );
 	*pic = out;
 	fseek (fin, bfOffBits, SEEK_SET);
 
@@ -906,7 +906,7 @@ void LoadTGABuffer ( byte *buffer, byte **pic, int *width, int *height)
 	if (height)
 		*height = rows;
 
-	targa_rgba = malloc (numPixels*4);
+	targa_rgba = (byte *) malloc (numPixels*4);
 	*pic = targa_rgba;
 
 	if (targa_header.id_length != 0)
@@ -1089,7 +1089,7 @@ void WriteTGA (const char *filename, byte *data, int width, int height) {
 	int		c;
 	FILE	*f;
 
-	buffer = malloc(width*height*4 + 18);
+	buffer = (byte *) malloc(width*height*4 + 18);
 	memset (buffer, 0, 18);
 	buffer[2] = 2;		// uncompressed type
 	buffer[12] = width&255;
@@ -1149,7 +1149,7 @@ void Load32BitImage (const char *name, unsigned **pixels,  int *width, int *heig
 			return;
 		}
 		size = *width * *height;
-		pixels32 = malloc(size * 4);
+		pixels32 = (byte *) malloc(size * 4);
 		*pixels = (unsigned *)pixels32;
 		for (i = 0 ; i < size ; i++) {
 			v = pixels8[i];

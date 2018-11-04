@@ -128,7 +128,7 @@ void ASE_Load( const char *filename, qboolean verbose, qboolean grabAnims )
 	ase.grabAnims = grabAnims;
 	ase.len = Q_filelength( fp );
 
-	ase.curpos = ase.buffer = malloc( ase.len );
+	ase.curpos = ase.buffer = (char *) malloc( ase.len );
 
 	printf( "Processing '%s'\n", filename );
 
@@ -211,7 +211,7 @@ polyset_t *ASE_GetSurfaceAnimation( int which, int *pNumFrames, int skipFrameSta
 
 	*pNumFrames = numFramesToKeep;
 
-	psets = calloc( sizeof( polyset_t ) * numFramesToKeep, 1 );
+	psets = (polyset_t *) calloc( sizeof( polyset_t ) * numFramesToKeep, 1 );
 
 	for ( f = 0, i = 0; i < numFramesInAnimation; i++ )
 	{
@@ -227,7 +227,7 @@ polyset_t *ASE_GetSurfaceAnimation( int which, int *pNumFrames, int skipFrameSta
 		strcpy( psets[f].name, pObject->name );
 		strcpy( psets[f].materialname, ase.materials[pObject->materialRef].name );
 
-		psets[f].triangles = calloc( sizeof( triangle_t ) * pObject->anim.frames[i].numFaces, 1 );
+		psets[f].triangles = (triangle_t *) calloc( sizeof( triangle_t ) * pObject->anim.frames[i].numFaces, 1 );
 		psets[f].numtriangles = pObject->anim.frames[i].numFaces;
 
 		for ( t = 0; t < pObject->anim.frames[i].numFaces; t++ )
@@ -674,7 +674,7 @@ static void ASE_KeyMESH( const char *token )
 	}
 	else if ( !strcmp( token, "*MESH_VERTEX_LIST" ) )
 	{
-		pMesh->vertexes = calloc( sizeof( aseVertex_t ) * pMesh->numVertexes, 1 );
+		pMesh->vertexes = (aseVertex_t *) calloc( sizeof( aseVertex_t ) * pMesh->numVertexes, 1 );
 		pMesh->currentVertex = 0;
 		VERBOSE( ( ".....parsing MESH_VERTEX_LIST\n" ) );
 		ASE_ParseBracedBlock( ASE_KeyMESH_VERTEX_LIST );
@@ -682,20 +682,20 @@ static void ASE_KeyMESH( const char *token )
 	else if ( !strcmp( token, "*MESH_TVERTLIST" ) )
 	{
 		pMesh->currentVertex = 0;
-		pMesh->tvertexes = calloc( sizeof( aseTVertex_t ) * pMesh->numTVertexes, 1 );
+		pMesh->tvertexes = (aseTVertex_t *) calloc( sizeof( aseTVertex_t ) * pMesh->numTVertexes, 1 );
 		VERBOSE( ( ".....parsing MESH_TVERTLIST\n" ) );
 		ASE_ParseBracedBlock( ASE_KeyMESH_TVERTLIST );
 	}
 	else if ( !strcmp( token, "*MESH_FACE_LIST" ) )
 	{
-		pMesh->faces = calloc( sizeof( aseFace_t ) * pMesh->numFaces, 1 );
+		pMesh->faces = (aseFace_t *) calloc( sizeof( aseFace_t ) * pMesh->numFaces, 1 );
 		pMesh->currentFace = 0;
 		VERBOSE( ( ".....parsing MESH_FACE_LIST\n" ) );
 		ASE_ParseBracedBlock( ASE_KeyMESH_FACE_LIST );
 	}
 	else if ( !strcmp( token, "*MESH_TFACELIST" ) )
 	{
-		pMesh->tfaces = calloc( sizeof( aseFace_t ) * pMesh->numFaces, 1 );
+		pMesh->tfaces = (aseFace_t *) calloc( sizeof( aseFace_t ) * pMesh->numFaces, 1 );
 		pMesh->currentFace = 0;
 		VERBOSE( ( ".....parsing MESH_TFACE_LIST\n" ) );
 		ASE_ParseBracedBlock( ASE_KeyTFACE_LIST );

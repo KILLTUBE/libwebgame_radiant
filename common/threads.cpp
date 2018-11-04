@@ -183,11 +183,11 @@ void RunThreadsOn (int workcnt, qboolean showpacifier, void(*func)(int))
 			   (LPTHREAD_START_ROUTINE)func,	// LPTHREAD_START_ROUTINE lpStartAddr,
 			   (LPVOID)i,	// LPVOID lpvThreadParm,
 			   0,			//   DWORD fdwCreate,
-			   &threadid[i]);
+			   (LPDWORD) &threadid[i]);
 		}
 
 		for (i=0 ; i<numthreads ; i++)
-			WaitForSingleObject (threadhandle[i], INFINITE);
+			WaitForSingleObject (threadhandle[i], (DWORD) INFINITE);
 	}
 	DeleteCriticalSection (&crit);
 

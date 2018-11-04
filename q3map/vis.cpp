@@ -97,7 +97,7 @@ winding_t *NewWinding (int points)
 		Error ("NewWinding: %i points", points);
 	
 	size = (int)((winding_t *)0)->points[points];
-	w = malloc (size);
+	w = (winding_t *) malloc (size);
 	memset (w, 0, size);
 	
 	return w;
@@ -716,7 +716,8 @@ void MergeLeafPortals(void)
 						p1->winding = w;
 						if (p1->hint && p2->hint)
 							hintsmerged++;
-						p1->hint |= p2->hint;
+						//p1->hint |= p2->hint;
+						p1->hint = (qboolean)((int)p1->hint | (int)p2->hint);
 						SetPortalSphere(p1);
 						p2->removed = qtrue;
 						nummerges++;
@@ -880,10 +881,10 @@ void LoadPortals (char *name)
 	portallongs = portalbytes/sizeof(long);
 
 	// each file portal is split into two memory portals
-	portals = malloc(2*numportals*sizeof(vportal_t));
+	portals = (vportal_t *)malloc(2*numportals*sizeof(vportal_t));
 	memset (portals, 0, 2*numportals*sizeof(vportal_t));
 	
-	leafs = malloc(portalclusters*sizeof(leaf_t));
+	leafs = (leaf_t *) malloc(portalclusters*sizeof(leaf_t));
 	memset (leafs, 0, portalclusters*sizeof(leaf_t));
 
 	for (i = 0; i < portalclusters; i++)
@@ -935,7 +936,7 @@ void LoadPortals (char *name)
 		l->numportals++;
 		
 		p->num = i+1;
-		p->hint = hint;
+		p->hint = (qboolean) hint;
 		p->winding = w;
 		VectorSubtract (vec3_origin, plane.normal, p->plane.normal);
 		p->plane.dist = -plane.dist;
@@ -951,7 +952,7 @@ void LoadPortals (char *name)
 		l->numportals++;
 		
 		p->num = i+1;
-		p->hint = hint;
+		p->hint = (qboolean) hint;
 		p->winding = NewWinding(w->numpoints);
 		p->winding->numpoints = w->numpoints;
 		for (j=0 ; j<w->numpoints ; j++)
@@ -966,10 +967,10 @@ void LoadPortals (char *name)
 
 	}
 
-	faces = malloc(2*numfaces*sizeof(vportal_t));
+	faces = (vportal_t *) malloc(2*numfaces*sizeof(vportal_t));
 	memset (faces, 0, 2*numfaces*sizeof(vportal_t));
 
-	faceleafs = malloc(portalclusters*sizeof(leaf_t));
+	faceleafs = (leaf_t *) malloc(portalclusters*sizeof(leaf_t));
 	memset(faceleafs, 0, portalclusters*sizeof(leaf_t));
 
 	for (i = 0, p = faces; i < numfaces; i++)

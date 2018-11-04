@@ -86,12 +86,12 @@ mesh_t *CopyMesh( mesh_t *mesh ) {
 	mesh_t	*out;
 	int		size;
 
-	out = malloc( sizeof( *out ) );
+	out = (mesh_t *) malloc( sizeof( *out ) );
 	out->width = mesh->width;
 	out->height = mesh->height;
 
 	size = out->width * out->height * sizeof( *out->verts );
-	out->verts = malloc( size );
+	out->verts = (drawVert_t *) malloc( size );
 	memcpy( out->verts, mesh->verts, size );
 
 	return out;
@@ -109,10 +109,10 @@ mesh_t *TransposeMesh( mesh_t *in ) {
 	int			w, h;
 	mesh_t		*out;
 
-	out = malloc( sizeof( *out ) );
+	out = (mesh_t *) malloc( sizeof( *out ) );
 	out->width = in->height;
 	out->height = in->width;
-	out->verts = malloc( out->width * out->height * sizeof( drawVert_t ) );
+	out->verts = (drawVert_t *) malloc( out->width * out->height * sizeof( drawVert_t ) );
 
 	for ( h = 0 ; h < in->height ; h++ ) {
 		for ( w = 0 ; w < in->width ; w++ ) {
