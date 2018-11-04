@@ -120,10 +120,10 @@ byte *LoadAlphaMap( int *num_layers, int *alphawidth, int *alphaheight ) {
 
 	ExtractFileExtension( alphamapname, ext);
 	if ( !Q_stricmp( ext, "tga" ) ) {
-		Load32BitImage( ExpandGamePath( alphamapname ), &alphamap32, &width, &height );
+		Load32BitImage( ExpandGamePath( alphamapname ), (unsigned int **) &alphamap32, &width, &height );
 
 		size = width * height;
-		alphamap = malloc( size );
+		alphamap = (byte *) malloc( size );
 		for( i = 0; i < size; i++ ) {
 			alphamap[ i ] = ( ( alphamap32[ i ] & 0xff ) * layers ) / 256;
 			if ( alphamap[ i ] >= layers ) {
@@ -232,7 +232,7 @@ static void SideAsTriFan( terrainSurf_t *surf, int *index, int num ) {
 	// make sure we have enough space for a new vert
 	if ( surf->numVerts >= surf->maxVerts ) {
 		surf->maxVerts += GROW_VERTS;
-		surf->verts = realloc( surf->verts, surf->maxVerts * sizeof( *surf->verts ) );
+		surf->verts = (drawVert_t *) realloc( surf->verts, surf->maxVerts * sizeof( *surf->verts ) );
 	}
 
 	// create a new point in the center of the face
@@ -273,7 +273,7 @@ static void SideAsTriFan( terrainSurf_t *surf, int *index, int num ) {
 	// fill in indices in trifan order
 	if ( surf->numIndexes + num * 3 > surf->maxIndexes ) {
 		surf->maxIndexes = surf->numIndexes + num * 3;
-		surf->indexes = realloc( surf->indexes, surf->maxIndexes * sizeof( *surf->indexes ) );
+		surf->indexes = (int *) realloc( surf->indexes, surf->maxIndexes * sizeof( *surf->indexes ) );
 	}
 
 
@@ -348,7 +348,7 @@ static void SideAsTristrip( terrainSurf_t *surf, int *index, int num ) {
 	// a normal tristrip
 	if ( surf->numIndexes + ni > surf->maxIndexes ) {
 		surf->maxIndexes = surf->numIndexes + ni;
-		surf->indexes = realloc( surf->indexes, surf->maxIndexes * sizeof( *surf->indexes ) );
+		surf->indexes = (int *) realloc( surf->indexes, surf->maxIndexes * sizeof( *surf->indexes ) );
 	}
 
 	memcpy( surf->indexes + surf->numIndexes, indices, ni * sizeof( *surf->indexes ) );
@@ -376,11 +376,11 @@ void CreateTerrainSurface( terrainSurf_t *surf, shaderInfo_t *shader ) {
 	newsurf->numVerts		= surf->numVerts;
 
 	// copy the indices
-	newsurf->indexes = malloc( surf->numIndexes * sizeof( *newsurf->indexes ) );
+	newsurf->indexes = (int *) malloc( surf->numIndexes * sizeof( *newsurf->indexes ) );
 	memcpy( newsurf->indexes, surf->indexes, surf->numIndexes * sizeof( *newsurf->indexes ) );
 
 	// allocate the vertices
-	newsurf->verts = malloc( surf->numVerts * sizeof( *newsurf->verts ) );
+	newsurf->verts = (drawVert_t *) malloc( surf->numVerts * sizeof( *newsurf->verts ) );
 	memset( newsurf->verts, 0, surf->numVerts * sizeof( *newsurf->verts ) );
 
 	// calculate the surface verts
@@ -437,11 +437,11 @@ void EmitTerrainVerts( side_t *side, terrainSurf_t *surf, int maxlayer, int alph
 	if ( !surf->verts ) {
 		surf->numVerts		= 0;
 		surf->maxVerts		= GROW_VERTS;
-		surf->verts			= malloc( surf->maxVerts * sizeof( *surf->verts ) );
+		surf->verts			= (drawVert_t *) malloc( surf->maxVerts * sizeof( *surf->verts ) );
 
 		surf->numIndexes	= 0;
 		surf->maxIndexes	= GROW_INDICES;
-		surf->indexes		= malloc( surf->maxIndexes * sizeof( *surf->indexes ) );
+		surf->indexes		= (int *) malloc( surf->maxIndexes * sizeof( *surf->indexes ) );
 	}
 
 	// calculate the texture coordinate vectors
@@ -451,7 +451,7 @@ void EmitTerrainVerts( side_t *side, terrainSurf_t *surf, int maxlayer, int alph
 	// emit the vertexes
 	numindices = 0;
 	maxindices = surf->maxIndexes;
-	indices = malloc ( maxindices * sizeof( *indices ) );
+	indices = (int *) malloc( maxindices * sizeof( *indices ) );
 
 	for ( i = 0; i < side->winding->numpoints; i++ ) {
 		vert = &surf->verts[ surf->numVerts ];
@@ -486,7 +486,7 @@ void EmitTerrainVerts( side_t *side, terrainSurf_t *surf, int maxlayer, int alph
 		
 		if ( numindices >= maxindices ) {
 			maxindices += GROW_INDICES;
-			indices = realloc( indices, maxindices * sizeof( *indices ) );
+			indices = (int *) realloc( indices, maxindices * sizeof( *indices ) );
 		}
 
 		if ( j != surf->numVerts ) {
@@ -496,7 +496,7 @@ void EmitTerrainVerts( side_t *side, terrainSurf_t *surf, int maxlayer, int alph
 			surf->numVerts++;
 			if ( surf->numVerts >= surf->maxVerts ) {
 				surf->maxVerts += GROW_VERTS;
-				surf->verts = realloc( surf->verts, surf->maxVerts * sizeof( *surf->verts ) );
+				surf->verts = (drawVert_t *) realloc( surf->verts, surf->maxVerts * sizeof( *surf->verts ) );
 			}
 		}
 	}
@@ -527,7 +527,7 @@ terrainSurf_t *SurfaceForShader( shaderInfo_t *shader, int x, int y ) {
 
 	if ( numsurfaces >= maxsurfaces ) {
 		maxsurfaces += GROW_SURFACES;
-		surfaces = realloc( surfaces, maxsurfaces * sizeof( *surfaces ) );
+		surfaces = (terrainSurf_t *) realloc( surfaces, maxsurfaces * sizeof( *surfaces ) );
 		memset( surfaces + numsurfaces + 1, 0, ( maxsurfaces - numsurfaces - 1 ) * sizeof( *surfaces ) );
 	}
 
@@ -591,7 +591,7 @@ void SetTerrainTextures( void ) {
 	for( i = num_layers; i > 0; i-- ) {
 		maxsurfaces += i * surfsize;
 	}
-	surfaces = malloc( maxsurfaces * sizeof( *surfaces ) );
+	surfaces = (terrainSurf_t *) malloc( maxsurfaces * sizeof( *surfaces ) );
 	memset( surfaces, 0, maxsurfaces * sizeof( *surfaces ) );
 
 	terrainShader = ShaderInfoForShader( "textures/common/terrain" );
@@ -790,11 +790,11 @@ void EmitTerrainVerts2( terrainSurf_t *surf, terrainVert_t **verts, int alpha[ 3
 	if ( !surf->verts ) {
 		surf->numVerts		= 0;
 		surf->maxVerts		= GROW_VERTS;
-		surf->verts			= malloc( surf->maxVerts * sizeof( *surf->verts ) );
+		surf->verts			= (drawVert_t *) malloc( surf->maxVerts * sizeof( *surf->verts ) );
 
 		surf->numIndexes	= 0;
 		surf->maxIndexes	= GROW_INDICES;
-		surf->indexes		= malloc( surf->maxIndexes * sizeof( *surf->indexes ) );
+		surf->indexes		= (int *) malloc( surf->maxIndexes * sizeof( *surf->indexes ) );
 	}
 
 	// calculate the texture coordinate vectors
@@ -805,7 +805,7 @@ void EmitTerrainVerts2( terrainSurf_t *surf, terrainVert_t **verts, int alpha[ 3
 	numindices = 0;
 	maxindices = surf->maxIndexes;
 	assert( maxindices >= 0 );
-	indices = malloc ( maxindices * sizeof( *indices ) );
+	indices = (int *) malloc ( maxindices * sizeof( *indices ) );
 
 	PlaneFromPoints( plane, verts[ 0 ]->xyz, verts[ 1 ]->xyz, verts[ 2 ]->xyz );
 
@@ -836,7 +836,7 @@ void EmitTerrainVerts2( terrainSurf_t *surf, terrainVert_t **verts, int alpha[ 3
 		
 		if ( numindices >= maxindices ) {
 			maxindices += GROW_INDICES;
-			indices = realloc( indices, maxindices * sizeof( *indices ) );
+			indices = (int *) realloc( indices, maxindices * sizeof( *indices ) );
 		}
 
 		if ( j != surf->numVerts ) {
@@ -846,7 +846,7 @@ void EmitTerrainVerts2( terrainSurf_t *surf, terrainVert_t **verts, int alpha[ 3
 			surf->numVerts++;
 			if ( surf->numVerts >= surf->maxVerts ) {
 				surf->maxVerts += GROW_VERTS;
-				surf->verts = realloc( surf->verts, surf->maxVerts * sizeof( *surf->verts ) );
+				surf->verts = (drawVert_t *) realloc( surf->verts, surf->maxVerts * sizeof( *surf->verts ) );
 			}
 		}
 	}
@@ -1094,7 +1094,7 @@ void ParseTerrain( void ) {
 	GetToken( qfalse );
 	t.origin[ 2 ] = atof( token );
 
-	t.map = malloc( t.width * t.height * sizeof( t.map[ 0 ] ) );
+	t.map = (terrainVert_t *) malloc( t.width * t.height * sizeof( t.map[ 0 ] ) );
 
 	if ( t.width <= 0 || t.height <= 0 ) {
 		Error( "ParseTerrain: bad size" );
@@ -1143,7 +1143,7 @@ void ParseTerrain( void ) {
 		maxsurfaces += i * surfsize;
 	}
 
-	surfaces = malloc( maxsurfaces * sizeof( *surfaces ) );
+	surfaces = (terrainSurf_t *) malloc( maxsurfaces * sizeof( *surfaces ) );
 	memset( surfaces, 0, maxsurfaces * sizeof( *surfaces ) );
 
 	terrainShader = ShaderInfoForShader( "textures/common/terrain" );

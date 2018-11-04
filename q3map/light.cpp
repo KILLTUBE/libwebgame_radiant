@@ -171,7 +171,7 @@ void SubdivideAreaLight( shaderInfo_t *ls, winding_t *w, vec3_t normal,
 	}
 
 	numAreaLights++;
-	dl = malloc(sizeof(*dl));
+	dl = (light_t *) malloc(sizeof(*dl));
 	memset (dl, 0, sizeof(*dl));
 	dl->next = lights;
 	lights = dl;
@@ -201,7 +201,7 @@ void SubdivideAreaLight( shaderInfo_t *ls, winding_t *w, vec3_t normal,
 
 	// optionally create a point backsplash light
 	if ( backsplash && ls->backsplashFraction > 0 ) {
-		dl2 = malloc(sizeof(*dl));
+		dl2 = (light_t *) malloc(sizeof(*dl));
 		memset (dl2, 0, sizeof(*dl2));
 		dl2->next = lights;
 		lights = dl2;
@@ -320,7 +320,7 @@ void CreateSurfaceLights( void ) {
 
 
 			numPointLights++;
-			dl = malloc(sizeof(*dl));
+			dl = (light_t *) malloc(sizeof(*dl));
 			memset (dl, 0, sizeof(*dl));
 			dl->next = lights;
 			lights = dl;
@@ -483,7 +483,7 @@ void CreateEntityLights (void)
 			continue;
 
 		numPointLights++;
-		dl = malloc(sizeof(*dl));
+		dl = (light_t *) malloc(sizeof(*dl));
 		memset (dl, 0, sizeof(*dl));
 		dl->next = lights;
 		lights = dl;
@@ -1116,11 +1116,11 @@ mesh_t *LinearSubdivideMesh( mesh_t *in ) {
 	mesh_t		*out;
 	drawVert_t	*v1, *v2, *vout;
 
-	out = malloc( sizeof( *out ) );
+	out = (mesh_t *) malloc( sizeof( *out ) );
 
 	out->width = in->width * 2;
 	out->height = in->height;
-	out->verts = malloc( out->width * out->height * sizeof(*out->verts) );
+	out->verts = (drawVert_t *) malloc( out->width * out->height * sizeof(*out->verts) );
 	for ( j = 0 ; j < in->height ; j++ ) {
 		out->verts[ j * out->width + 0 ] = in->verts[ j * in->width + 0 ];
 		out->verts[ j * out->width + out->width - 1 ] = in->verts[ j * in->width + in->width - 1 ];
@@ -1219,7 +1219,7 @@ void TraceLtm( int num ) {
 
 	// vertex-lit triangle model
 	if ( ds->surfaceType == MST_TRIANGLE_SOUP ) {
-		VertexLighting( ds, !si->noVertexShadows, si->forceSunLight, 1.0, &tw );
+		VertexLighting( ds, (qboolean)!si->noVertexShadows, si->forceSunLight, 1.0, &tw );
 		return;
 	}
 	
@@ -1977,7 +1977,7 @@ void TriSoupLightingThread(int num) {
 
 	// vertex-lit triangle model
 	if ( ds->surfaceType == MST_TRIANGLE_SOUP ) {
-		VertexLighting( ds, !si->noVertexShadows, si->forceSunLight, 1.0, &tw );
+		VertexLighting( ds, (qboolean)!si->noVertexShadows, si->forceSunLight, 1.0, &tw );
 	}
 }
 

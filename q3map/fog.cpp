@@ -33,10 +33,10 @@ DrawSurfToMesh
 mesh_t	*DrawSurfToMesh( mapDrawSurface_t *ds ) {
 	mesh_t		*m;
 
-	m = malloc( sizeof( *m ) );
+	m = (mesh_t *) malloc( sizeof( *m ) );
 	m->width = ds->patchWidth;
 	m->height = ds->patchHeight;
-	m->verts = malloc( sizeof(m->verts[0]) * m->width * m->height );
+	m->verts = (drawVert_t *) malloc( sizeof(m->verts[0]) * m->width * m->height );
 	memcpy( m->verts, ds->verts, sizeof(m->verts[0]) * m->width * m->height );
 
 	return m;
@@ -134,7 +134,7 @@ void SplitMeshByPlane( mesh_t *in, vec3_t normal, float dist, mesh_t **front, me
 
 
 	// create two new meshes
-	f = malloc( sizeof( *f ) );
+	f = (mesh_t *) malloc( sizeof( *f ) );
 	f->width = split + 2;
 	if ( ! (f->width & 1) ) {
 		f->width++;
@@ -146,9 +146,9 @@ void SplitMeshByPlane( mesh_t *in, vec3_t normal, float dist, mesh_t **front, me
 		Error( "MAX_PATCH_SIZE after split");
 	}
 	f->height = in->height;
-	f->verts = malloc( sizeof(f->verts[0]) * f->width * f->height );
+	f->verts = (drawVert_t *) malloc( sizeof(f->verts[0]) * f->width * f->height );
 
-	b = malloc( sizeof( *b ) );
+	b = (mesh_t *) malloc( sizeof( *b ) );
 	b->width = in->width - split;
 	if ( ! (b->width & 1) ) {
 		b->width++;
@@ -160,7 +160,7 @@ void SplitMeshByPlane( mesh_t *in, vec3_t normal, float dist, mesh_t **front, me
 		Error( "MAX_PATCH_SIZE after split");
 	}
 	b->height = in->height;
-	b->verts = malloc( sizeof(b->verts[0]) * b->width * b->height );
+	b->verts = (drawVert_t *) malloc( sizeof(b->verts[0]) * b->width * b->height );
 
 	if ( d[0][0] > 0 ) {
 		*front = f;
@@ -270,7 +270,7 @@ qboolean ChopPatchByBrush( mapDrawSurface_t *ds, bspbrush_t *b ) {
 	ds->patchHeight = m->height;
 	ds->numVerts = m->width * m->height;
 	free( ds->verts );
-	ds->verts = malloc( ds->numVerts * sizeof( *ds->verts ) );
+	ds->verts = (drawVert_t *) malloc( ds->numVerts * sizeof( *ds->verts ) );
 	memcpy( ds->verts, m->verts, ds->numVerts * sizeof( *ds->verts ) );
 
 	FreeMesh( m );
@@ -378,7 +378,7 @@ qboolean ChopFaceByBrush( mapDrawSurface_t *ds, bspbrush_t *b ) {
 	ds->numVerts = w->numpoints;
 	free( ds->verts );
 
-	ds->verts = malloc( ds->numVerts * sizeof( *ds->verts ) );
+	ds->verts = (drawVert_t *) malloc( ds->numVerts * sizeof( *ds->verts ) );
 	memset( ds->verts, 0, ds->numVerts * sizeof( *ds->verts ) );
 
 	si = s->shaderInfo;

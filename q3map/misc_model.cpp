@@ -249,10 +249,10 @@ void InsertMD3Model( const char *modelName, vec3_t origin, float angle, tree_t *
 		out->shaderInfo = ShaderInfoForShader( shader->name );
 
 		out->numVerts = surf->numVerts;
-		out->verts = malloc( out->numVerts * sizeof( out->verts[0] ) );
+		out->verts = (drawVert_t *) malloc( out->numVerts * sizeof( out->verts[0] ) );
 
 		out->numIndexes = surf->numTriangles * 3;
-		out->indexes = malloc( out->numIndexes * sizeof( out->indexes[0] ) );
+		out->indexes = (int *) malloc( out->numIndexes * sizeof( out->indexes[0] ) );
 
 		out->lightmapNum = -1;
 		out->fogNum = -1;
@@ -365,10 +365,10 @@ void InsertASEModel( const char *modelName, vec3_t origin, float angle, tree_t *
 		out->shaderInfo = ShaderInfoForShader( pset->materialname );
 
 		out->numVerts = 3 * pset->numtriangles;
-		out->verts = malloc( out->numVerts * sizeof( out->verts[0] ) );
+		out->verts = (drawVert_t *) malloc( out->numVerts * sizeof( out->verts[0] ) );
 
 		out->numIndexes = 3 * pset->numtriangles;
-		out->indexes = malloc( out->numIndexes * sizeof( out->indexes[0] ) );
+		out->indexes = (int *) malloc( out->numIndexes * sizeof( out->indexes[0] ) );
 
 		out->lightmapNum = -1;
 		out->fogNum = -1;

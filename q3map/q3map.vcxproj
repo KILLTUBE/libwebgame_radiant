@@ -238,7 +238,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\common\aselib.c">
+    <ClCompile Include="..\common\aselib.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -246,7 +246,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="..\common\bspfile.c">
+    <ClCompile Include="..\common\bspfile.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -254,7 +254,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="..\common\cmdlib.c">
+    <ClCompile Include="..\common\cmdlib.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -262,7 +262,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="..\common\imagelib.c">
+    <ClCompile Include="..\common\imagelib.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -270,7 +270,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="..\common\mathlib.c">
+    <ClCompile Include="..\common\mathlib.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -278,7 +278,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="..\common\mutex.c">
+    <ClCompile Include="..\common\mutex.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -286,7 +286,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="..\common\polylib.c">
+    <ClCompile Include="..\common\polylib.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -294,7 +294,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="..\common\scriplib.c">
+    <ClCompile Include="..\common\scriplib.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -302,7 +302,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="..\common\threads.c">
+    <ClCompile Include="..\common\threads.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -310,7 +310,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="brush.c">
+    <ClCompile Include="brush.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -318,7 +318,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="brush_primit.c">
+    <ClCompile Include="brush_primit.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -326,7 +326,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="bsp.c">
+    <ClCompile Include="bsp.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -334,7 +334,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="facebsp.c">
+    <ClCompile Include="facebsp.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -342,7 +342,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="fog.c">
+    <ClCompile Include="fog.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -350,7 +350,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="gldraw.c">
+    <ClCompile Include="gldraw.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -358,7 +358,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="glfile.c">
+    <ClCompile Include="glfile.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -366,7 +366,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="leakfile.c">
+    <ClCompile Include="leakfile.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -374,7 +374,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="light.c">
+    <ClCompile Include="light.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -382,7 +382,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="lightmaps.c">
+    <ClCompile Include="lightmaps.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -390,7 +390,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="lightv.c">
+    <ClCompile Include="lightv.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -398,7 +398,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="light_trace.c">
+    <ClCompile Include="light_trace.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -406,7 +406,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="map.c">
+    <ClCompile Include="map.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -414,7 +414,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="mesh.c">
+    <ClCompile Include="mesh.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -422,7 +422,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="misc_model.c">
+    <ClCompile Include="misc_model.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -430,7 +430,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="patch.c">
+    <ClCompile Include="patch.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -438,7 +438,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="portals.c">
+    <ClCompile Include="portals.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -446,7 +446,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="prtfile.c">
+    <ClCompile Include="prtfile.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -454,7 +454,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="shaders.c">
+    <ClCompile Include="shaders.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -462,7 +462,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="soundv.c">
+    <ClCompile Include="soundv.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -470,7 +470,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="surface.c">
+    <ClCompile Include="surface.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -478,7 +478,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="terrain.c">
+    <ClCompile Include="terrain.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -486,7 +486,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="tjunction.c">
+    <ClCompile Include="tjunction.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -494,7 +494,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="tree.c">
+    <ClCompile Include="tree.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -502,7 +502,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="vis.c">
+    <ClCompile Include="vis.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -510,7 +510,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="visflow.c">
+    <ClCompile Include="visflow.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
@@ -518,7 +518,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseTTimo|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
-    <ClCompile Include="writebsp.c">
+    <ClCompile Include="writebsp.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='DebugTTimo|Win32'">true</BrowseInformation>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>

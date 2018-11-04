@@ -271,7 +271,7 @@ void FacetsForTriangleSurface( dsurface_t *dsurf, shaderInfo_t *si, surfaceTest_
 
 	test->patch = qfalse;
 	test->numFacets = dsurf->numIndexes / 3;
-	test->facets = malloc( sizeof( test->facets[0] ) * test->numFacets );
+	test->facets = (cFacet_t *)malloc( sizeof( test->facets[0] ) * test->numFacets );
 	test->shader = si;
 
 	count = 0;
@@ -332,7 +332,7 @@ void FacetsForPatch( dsurface_t *dsurf, shaderInfo_t *si, surfaceTest_t *test ) 
 
 	test->patch = qtrue;
 	test->numFacets = ( subdivided->width - 1 ) * ( subdivided->height - 1 ) * 2;
-	test->facets = malloc( sizeof( test->facets[0] ) * test->numFacets );
+	test->facets = (cFacet_t *) malloc( sizeof( test->facets[0] ) * test->numFacets );
 	test->shader = si;
 
 	count = 0;
@@ -387,7 +387,7 @@ void InitSurfacesForTesting( void ) {
 			continue;
 		}
 
-		test = malloc( sizeof( *test ) );
+		test = (surfaceTest_t *) malloc( sizeof( *test ) );
 		surfaceTest[i] = test;
 		ClearBounds( test->mins, test->maxs );
 
@@ -622,7 +622,7 @@ Loads the node structure out of a .bsp file to be used for light occlusion
 */
 void InitTrace( void ) {
 	// 32 byte align the structs
-	tnodes = malloc( (MAX_TNODES+1) * sizeof(tnode_t));
+	tnodes = (tnode_t *) malloc( (MAX_TNODES+1) * sizeof(tnode_t));
 	tnodes = (tnode_t *)(((int)tnodes + 31)&~31);
 	tnode_p = tnodes;
 

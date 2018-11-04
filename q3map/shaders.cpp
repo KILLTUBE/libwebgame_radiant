@@ -113,12 +113,12 @@ byte* LoadImageFile(char *filename, qboolean *bTGA)
   *bTGA = qtrue;
   if (FileExists(filename))
   {
-    LoadFileBlock(filename, &buffer);
+    LoadFileBlock(filename, (void **)&buffer);
   }
 #ifdef _WIN32
   else
   {
-    PakLoadAnyFile(filename, &buffer);
+    PakLoadAnyFile(filename, (void **)&buffer);
   }
 #endif
   if ( buffer == NULL)
@@ -129,12 +129,12 @@ byte* LoadImageFile(char *filename, qboolean *bTGA)
     filename[nLen-1] = 'g';
     if (FileExists(filename))
     {
-      LoadFileBlock(filename, &buffer);
+      LoadFileBlock(filename, (void **)&buffer);
     }
 #ifdef _WIN32
     else
     {
-      PakLoadAnyFile(filename, &buffer);
+      PakLoadAnyFile(filename, (void **)&buffer);
     }
 #endif
     if ( buffer )
@@ -199,7 +199,7 @@ static void LoadShaderImage( shaderInfo_t *si ) {
 	si->color[2] = 1;
 	si->width = 64;
 	si->height = 64;
-	si->pixels = malloc( si->width * si->height * 4 );
+	si->pixels = (byte *) malloc( si->width * si->height * 4 );
 	memset ( si->pixels, 255, si->width * si->height * 4 );
 	return;
 
@@ -582,7 +582,7 @@ void LoadShaderInfo( void ) {
 		if ( !GetToken( qtrue ) ) {
 			break;
 		}
-    shaderFiles[numShaderFiles] = malloc(MAX_OS_PATH);
+    shaderFiles[numShaderFiles] = (char *) malloc(MAX_OS_PATH);
 		strcpy( shaderFiles[ numShaderFiles ], token );
 		numShaderFiles++;
 	}

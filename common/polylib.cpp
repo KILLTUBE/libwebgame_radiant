@@ -64,7 +64,7 @@ winding_t	*AllocWinding (int points)
 			c_peak_windings = c_active_windings;
 	}
 	s = sizeof(vec_t)*3*points + sizeof(int);
-	w = malloc (s);
+	w = (winding_t *) malloc (s);
 	memset (w, 0, s); 
 	return w;
 }

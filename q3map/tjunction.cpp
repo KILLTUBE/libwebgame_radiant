@@ -78,7 +78,7 @@ void InsertPointOnEdge( vec3_t v, edgeLine_t *e ) {
 	VectorSubtract( v, e->origin, delta );
 	d = DotProduct( delta, e->dir );
 
-	p = malloc( sizeof(edgePoint_t) );
+	p = (edgePoint_t *) malloc( sizeof(edgePoint_t) );
 	p->intercept = d;
 	VectorCopy( v, p->xyz );
 
@@ -423,7 +423,7 @@ void FixSurfaceJunctions( mapDrawSurface_t *ds ) {
 		c_natural++;
 
 		ds->numVerts = numVerts;
-		ds->verts = malloc( numVerts * sizeof( *ds->verts ) );
+		ds->verts = (drawVert_t *) malloc( numVerts * sizeof( *ds->verts ) );
 		memcpy( ds->verts, verts, numVerts * sizeof( *ds->verts ) );
 
 		return;
@@ -453,7 +453,7 @@ void FixSurfaceJunctions( mapDrawSurface_t *ds ) {
 	}
 
 	ds->numVerts = numVerts;
-	ds->verts = malloc( numVerts * sizeof( *ds->verts ) );
+	ds->verts = (drawVert_t *) malloc( numVerts * sizeof( *ds->verts ) );
 
 	for ( j = 0 ; j < ds->numVerts ; j++ ) {
 		ds->verts[j] = verts[ ( j + i ) % ds->numVerts ];

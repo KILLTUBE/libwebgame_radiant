@@ -34,7 +34,7 @@ AllocBspFace
 bspface_t	*AllocBspFace( void ) {
 	bspface_t	*f;
 
-	f = malloc(sizeof(*f));
+	f = (bspface_t *) malloc(sizeof(*f));
 	memset( f, 0, sizeof(*f) );
 
 	return f;
@@ -177,7 +177,7 @@ void	BuildFaceTree_r( node_t *node, bspface_t *list ) {
 
 	// partition the list
 	node->planenum = splitPlaneNum;
-	node->hint = hintsplit;
+	node->hint = (qboolean) hintsplit;
 	plane = &mapplanes[ splitPlaneNum ];
 	childLists[0] = NULL;
 	childLists[1] = NULL;
