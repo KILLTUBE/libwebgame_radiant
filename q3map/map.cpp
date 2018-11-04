@@ -627,28 +627,11 @@ bspbrush_t *FinishBrush( void ) {
 	return b;
 }
 
-//======================================================================
-
-
-/*
-==================
-textureAxisFromPlane
-==================
-*/
-vec3_t	baseaxis[18] =
-{
-{0,0,1}, {1,0,0}, {0,-1,0},			// floor
-{0,0,-1}, {1,0,0}, {0,-1,0},		// ceiling
-{1,0,0}, {0,1,0}, {0,0,-1},			// west wall
-{-1,0,0}, {0,1,0}, {0,0,-1},		// east wall
-{0,1,0}, {1,0,0}, {0,0,-1},			// south wall
-{0,-1,0}, {1,0,0}, {0,0,-1}			// north wall
-};
-
+extern vec3_t	baseaxis[18];
 void TextureAxisFromPlane(plane_t *pln, vec3_t xv, vec3_t yv)
 {
 	int		bestaxis;
-	vec_t	dot,best;
+	float	dot,best;
 	int		i;
 	
 	best = 0;
@@ -667,9 +650,6 @@ void TextureAxisFromPlane(plane_t *pln, vec3_t xv, vec3_t yv)
 	VectorCopy (baseaxis[bestaxis*3+1], xv);
 	VectorCopy (baseaxis[bestaxis*3+2], yv);
 }
-
-
-
 /*
 =================
 QuakeTextureVecs

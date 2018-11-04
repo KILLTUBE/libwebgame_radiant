@@ -3532,37 +3532,38 @@ void Patch_AdjustSelectedRowCols(int nRows, int nCols)
 }
 
 
+// common/scriptlib.cpp line 302-325 duplicate but different
 
-void Parse1DMatrix(int x, float* p)
-{
+#if 0
+void Parse1DMatrix(int x, float* p) {
   GetToken(true); // (
-  for (int i = 0; i < x; i++)
-  {
+  for (int i = 0; i < x; i++) {
     GetToken(false);
     p[i] = atof(token);
   }
   GetToken(true); // )
 }
 
-void Parse2DMatrix(int y, int x, float* p)
-{
+void Parse2DMatrix(int y, int x, float* p) {
   GetToken(true); // (
-  for (int i = 0; i < y; i++)
-  {
+  for (int i = 0; i < y; i++) {
     Parse1DMatrix(x, p + i*x);
   }
   GetToken(true); // )
 }
 
-void Parse3DMatrix(int z, int y, int x, float* p)
-{
+void Parse3DMatrix(int z, int y, int x, float* p) {
   GetToken(true); // (
-  for (int i = 0; i < z; i++)
-  {
+  for (int i = 0; i < z; i++) {
     Parse2DMatrix(y, x, p + i*(x*MAX_PATCH_HEIGHT));
   }
   GetToken(true); // )
 }
+#endif
+
+void Parse1DMatrix(int x, float* p);
+void Parse2DMatrix(int y, int x, float* p);
+void Parse3DMatrix(int z, int y, int x, float* p);
 
 // parses a patch
 brush_t* Patch_Parse(bool bOld)

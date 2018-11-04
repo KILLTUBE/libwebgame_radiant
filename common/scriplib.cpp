@@ -300,39 +300,27 @@ void MatchToken( char *match ) {
 
 
 void Parse1DMatrix (int x, vec_t *m) {
-	int		i;
-
 	MatchToken( "(" );
-
-	for (i = 0 ; i < x ; i++) {
+	for (int i = 0 ; i < x ; i++) {
 		GetToken( qfalse );
 		m[i] = atof(token);
 	}
-
 	MatchToken( ")" );
 }
 
 void Parse2DMatrix (int y, int x, vec_t *m) {
-	int		i;
-
 	MatchToken( "(" );
-
-	for (i = 0 ; i < y ; i++) {
+	for (int i = 0 ; i < y ; i++) {
 		Parse1DMatrix (x, m + i * x);
 	}
-
 	MatchToken( ")" );
 }
 
 void Parse3DMatrix (int z, int y, int x, vec_t *m) {
-	int		i;
-
 	MatchToken( "(" );
-
-	for (i = 0 ; i < z ; i++) {
+	for (int i = 0 ; i < z ; i++) {
 		Parse2DMatrix (y, x, m + i * x*y);
 	}
-
 	MatchToken( ")" );
 }
 

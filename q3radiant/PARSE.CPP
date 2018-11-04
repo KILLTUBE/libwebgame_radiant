@@ -22,10 +22,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "stdafx.h"
 #include "qe3.h"
 
-char	token[MAXTOKEN];
+extern char	token[MAXTOKEN];
 qboolean	unget;
 char	*script_p;
-int		scriptline;
+extern int		scriptline;
 
 void	StartTokenParsing (char *data)
 {

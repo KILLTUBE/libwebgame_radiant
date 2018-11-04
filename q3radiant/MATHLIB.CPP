@@ -25,9 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cmdlib.h"
 #include "mathlib.h"
 
-vec3_t vec3_origin = {0.0f,0.0f,0.0f};
-
-
 float VectorLength(vec3_t v)
 {
 	int		i;
@@ -205,13 +202,6 @@ void _Vector53Copy (vec5_t in, vec3_t out)
 	out[0] = in[0];
 	out[1] = in[1];
 	out[2] = in[2];
-}
-
-// NOTE: added these from Ritual's Q3Radiant
-void ClearBounds (vec3_t mins, vec3_t maxs)
-{
-	mins[0] = mins[1] = mins[2] = 99999;
-	maxs[0] = maxs[1] = maxs[2] = -99999;
 }
 
 void AddPointToBounds (vec3_t v, vec3_t mins, vec3_t maxs)

@@ -339,6 +339,13 @@ void duktape_update() {
 	}
 }
 
+int q3map_main (int argc, char **argv);
+
+int duk_q3map_main(duk_context *ctx) {
+	q3map_main(0, NULL);
+	return 0;
+}
+
 void duktape_bind_radiant(duk_context *ctx) {
 	struct funcis funcs[] = {
 		{"radiant_camera_origin_set"           , duk_func_radiant_camera_origin_set   },
@@ -365,6 +372,8 @@ void duktape_bind_radiant(duk_context *ctx) {
 		{"LoadShadersFromDir"                  , duk_func_LoadShadersFromDir          },
 		// glfw
 		{"glfw_create_window"                  , duk_glfw_create_window               },
+		// q3map
+		{"q3map_main"                          , duk_q3map_main                       },
 		{NULL, NULL}
 	};
 	for (int i=0; funcs[i].name; i++) {

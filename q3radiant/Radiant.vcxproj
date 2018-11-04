@@ -195,7 +195,7 @@
       <CompileAs>Default</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>winmm.lib;..\libs\jpeg6d.lib;..\libs\pakd.lib;..\libs\cmdlibd.lib;%(AdditionalDependencies);opengl32.lib;D:\Quake-III-Arena-master\craft\src\glfw\build\src\Debug\glfw3.lib</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;..\libs\jpeg6d.lib;..\libs\pakd.lib;..\libs\cmdlibd.lib;%(AdditionalDependencies);opengl32.lib;D:\Quake-III-Arena-master\craft\src\glfw\build\src\Debug\glfw3.lib;D:\Quake-III-Arena-master\q3map\.\Debug\q3map.lib;glu32.lib</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>libc.lib msvcrtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>

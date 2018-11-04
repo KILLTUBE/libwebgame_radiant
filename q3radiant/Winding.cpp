@@ -36,31 +36,7 @@ Plane_Equal
 #define	NORMAL_EPSILON	0.0001
 #define	DIST_EPSILON	0.02
 
-int Plane_Equal(plane_t *a, plane_t *b, int flip)
-{
-	vec3_t normal;
-	float dist;
-
-	if (flip) {
-		normal[0] = - b->normal[0];
-		normal[1] = - b->normal[1];
-		normal[2] = - b->normal[2];
-		dist = - b->dist;
-	}
-	else {
-		normal[0] = b->normal[0];
-		normal[1] = b->normal[1];
-		normal[2] = b->normal[2];
-		dist = b->dist;
-	}
-	if (
-	   fabs(a->normal[0] - normal[0]) < NORMAL_EPSILON
-	&& fabs(a->normal[1] - normal[1]) < NORMAL_EPSILON
-	&& fabs(a->normal[2] - normal[2]) < NORMAL_EPSILON
-	&& fabs(a->dist - dist) < DIST_EPSILON )
-		return true;
-	return false;
-}
+int Plane_Equal(plane_t *a, plane_t *b, int flip);
 
 /*
 ============

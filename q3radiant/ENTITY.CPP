@@ -267,8 +267,9 @@ int Entity_MemorySize(entity_t *e)
 ParseEpair
 =================
 */
-epair_t *ParseEpair (void)
-{
+// already in bspfile.cpp
+
+epair_t *ParseEpair (void) {
 	epair_t	*e;
 	
 	e = (epair_t*)qmalloc (sizeof(*e));
@@ -282,6 +283,7 @@ epair_t *ParseEpair (void)
 
 	return e;
 }
+
 
 /*
 ================

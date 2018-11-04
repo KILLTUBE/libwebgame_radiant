@@ -974,3 +974,28 @@ int	ParseHex( const char *text ) {
 
 	return value;
 }
+/*
+{
+	char    *str;
+	int    num;
+
+	num = 0;
+	str = hex;
+
+	while (*str)
+	{
+		num <<= 4;
+		if (*str >= '0' && *str <= '9')
+			num += *str-'0';
+		else if (*str >= 'a' && *str <= 'f')
+			num += 10 + *str-'a';
+		else if (*str >= 'A' && *str <= 'F')
+			num += 10 + *str-'A';
+		else
+			Error ("Bad hex number: %s",hex);
+		str++;
+	}
+
+	return num;
+}
+*/

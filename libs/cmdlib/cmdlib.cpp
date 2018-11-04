@@ -8,6 +8,8 @@
 
 #define PATHSEPERATOR   '/'
 
+int Q_filelength (FILE *f);
+
 // rad additions
 // 11.29.99
 PFN_ERR *g_pfnError = NULL;
@@ -15,6 +17,7 @@ PFN_PRINTF *g_pfnPrintf = NULL;
 PFN_ERR_NUM *g_pfnErrorNum = NULL;
 PFN_PRINTF_NUM *g_pfnPrintfNum = NULL;
 
+/*
 
 void Error(const char *pFormat, ...)
 {
@@ -37,7 +40,7 @@ void Printf(const char *pFormat, ...)
     va_end(arg_ptr);
   }
 }
-
+*/
 void ErrorNum(int nErr, const char *pFormat, ...)
 {
   if (g_pfnErrorNum)
@@ -109,102 +112,6 @@ void* qmalloc (size_t nSize)
 	return b;
 }
 
-/*
-================
-Q_filelength
-================
-*/
-int Q_filelength (FILE *f)
-{
-	int		pos;
-	int		end;
-
-	pos = ftell (f);
-	fseek (f, 0, SEEK_END);
-	end = ftell (f);
-	fseek (f, pos, SEEK_SET);
-
-	return end;
-}
-
-
-// FIXME: need error handler
-FILE *SafeOpenWrite (const char *filename)
-{
-	FILE	*f;
-
-	f = fopen(filename, "wb");
-
-	if (!f)
-  {
-		Error ("Error opening %s: %s",filename,strerror(errno));
-  }
-
-	return f;
-}
-
-FILE *SafeOpenRead (const char *filename)
-{
-	FILE	*f;
-
-	f = fopen(filename, "rb");
-
-	if (!f)
-  {
-		Error ("Error opening %s: %s",filename,strerror(errno));
-  }
-
-	return f;
-}
-
-
-void SafeRead (FILE *f, void *buffer, int count)
-{
-	if ( (int)fread (buffer, 1, count, f) != count)
-		Error ("File read failure");
-}
-
-
-void SafeWrite (FILE *f, const void *buffer, int count)
-{
-	if ( (int)fwrite (buffer, 1, count, f) != count)
-		Error ("File read failure");
-}
-
-
-
-/*
-==============
-LoadFile
-==============
-*/
-int LoadFile (const char *filename, void **bufferptr)
-{
-	FILE	*f;
-	int    length;
-	void    *buffer;
-
-  *bufferptr = NULL;
-  
-  if (filename == NULL || strlen(filename) == 0)
-  {
-    return -1;
-  }
-
-	f = fopen (filename, "rb");
-	if (!f)
-	{
-		return -1;
-	}
-	length = Q_filelength (f);
-	buffer = qblockmalloc (length+1);
-	((char *)buffer)[length] = 0;
-	SafeRead (f, buffer, length);
-	fclose (f);
-
-	*bufferptr = buffer;
-	return length;
-}
 
 
 /*
@@ -250,84 +157,11 @@ void    SaveFile (const char *filename, void *buffer, int count)
 
 
 
-void DefaultExtension (char *path, char *extension)
-{
-	char    *src;
-//
-// if path doesn't have a .EXT, append extension
-// (extension should include the .)
-//
-	src = path + strlen(path) - 1;
+void DefaultExtension (char *path, char *extension);
+void DefaultPath (char *path, char *basepath);
+void    StripFilename (char *path);
+void    StripExtension (char *path);
 
-	while (*src != PATHSEPERATOR && src != path)
-	{
-		if (*src == '.')
-			return;                 // it has an extension
-		src--;
-	}
-
-	strcat (path, extension);
-}
-
-
-void DefaultPath (char *path, char *basepath)
-{
-	char    temp[128];
-
-	if (path[0] == PATHSEPERATOR)
-		return;                   // absolute path location
-	strcpy (temp,path);
-	strcpy (path,basepath);
-	strcat (path,temp);
-}
-
-
-void    StripFilename (char *path)
-{
-	int             length;
-
-	length = strlen(path)-1;
-	while (length > 0 && path[length] != PATHSEPERATOR)
-		length--;
-	path[length] = 0;
-}
-
-void    StripExtension (char *path)
-{
-	int             length;
-
-	length = strlen(path)-1;
-	while (length > 0 && path[length] != '.')
-	{
-		length--;
-		if (path[length] == '/')
-			return;		// no extension
-	}
-	if (length)
-		path[length] = 0;
-}
-
-
-/*
-====================
-Extract file parts
-====================
-*/
-void ExtractFilePath (const char *path, char *dest)
-{
-	const char *src;
-
-	src = path + strlen(path) - 1;
-
-//
-// back up until a \ or the start
-//
-	while (src != path && *(src-1) != PATHSEPERATOR)
-		src--;
-
-	memcpy (dest, path, src-path);
-	dest[src-path] = 0;
-}
 
 void ExtractFileName (const char *path, char *dest)
 {
@@ -369,27 +203,6 @@ void ExtractFileBase (const char *path, char *dest)
 	*dest = 0;
 }
 
-void ExtractFileExtension (const char *path, char *dest)
-{
-	const char *src;
-
-	src = path + strlen(path) - 1;
-
-//
-// back up until a . or the start
-//
-	while (src != path && *(src-1) != '.')
-		src--;
-	if (src == path)
-	{
-		*dest = 0;	// no extension
-		return;
-	}
-
-	strcpy (dest,src);
-}
-
-
 void ConvertDOSToUnixName( char *dst, const char *src )
 {
 	while ( *src )
@@ -402,7 +215,6 @@ void ConvertDOSToUnixName( char *dst, const char *src )
 	}
 	*dst = 0;
 }
-
 
 char* StrDup(char* pStr)
 { 

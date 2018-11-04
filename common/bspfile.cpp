@@ -375,6 +375,8 @@ void StripTrailing( char *e ) {
 ParseEpair
 =================
 */
+// using version in q3radiant/entity.cpp
+#if 0
 epair_t *ParseEpair( void ) {
 	epair_t	*e;
 
@@ -398,7 +400,7 @@ epair_t *ParseEpair( void ) {
 
 	return e;
 }
-
+#endif
 
 /*
 ================

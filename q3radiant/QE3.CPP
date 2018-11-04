@@ -522,122 +522,6 @@ void QE_CountBrushesAndUpdateStatusBar( void )
 	}
 }
 
-char		com_token[1024];
-qboolean	com_eof;
-
-/*
-================
-I_FloatTime
-================
-*/
-double I_FloatTime (void)
-{
-	time_t	t;
-	
-	time (&t);
-	
-	return t;
-#if 0
-// more precise, less portable
-	struct timeval tp;
-	struct timezone tzp;
-	static int		secbase;
-
-	gettimeofday(&tp, &tzp);
-	
-	if (!secbase)
-	{
-		secbase = tp.tv_sec;
-		return tp.tv_usec/1000000.0;
-	}
-	
-	return (tp.tv_sec - secbase) + tp.tv_usec/1000000.0;
-#endif
-}
-
-
-/*
-==============
-COM_Parse
-
-Parse a token out of a string
-==============
-*/
-char *COM_Parse (char *data)
-{
-	int		c;
-	int		len;
-	
-	len = 0;
-	com_token[0] = 0;
-	
-	if (!data)
-		return NULL;
-		
-// skip whitespace
-skipwhite:
-	while ( (c = *data) <= ' ')
-	{
-		if (c == 0)
-		{
-			com_eof = true;
-			return NULL;			// end of file;
-		}
-		data++;
-	}
-	
-// skip // comments
-	if (c=='/' && data[1] == '/')
-	{
-		while (*data && *data != '\n')
-			data++;
-		goto skipwhite;
-	}
-	
-
-// handle quoted strings specially
-	if (c == '\"')
-	{
-		data++;
-		do
-		{
-			c = *data++;
-			if (c=='\"')
-			{
-				com_token[len] = 0;
-				return data;
-			}
-			com_token[len] = c;
-			len++;
-		} while (1);
-	}
-
-// parse single characters
-	if (c=='{' || c=='}'|| c==')'|| c=='(' || c=='\'' || c==':')
-	{
-		com_token[len] = c;
-		len++;
-		com_token[len] = 0;
-		return data+1;
-	}
-
-// parse a regular word
-	do
-	{
-		com_token[len] = c;
-		data++;
-		len++;
-		c = *data;
-	if (c=='{' || c=='}'|| c==')'|| c=='(' || c=='\'' || c==':')
-			break;
-	} while (c>32);
-	
-	com_token[len] = 0;
-	return data;
-}
-
-
-
 /*
 =============================================================================
 
@@ -714,33 +598,12 @@ int CheckParm (char *check)
 ParseNum / ParseHex
 ==============
 */
-int ParseHex (char *hex)
-{
-	char    *str;
-	int    num;
-
-	num = 0;
-	str = hex;
-
-	while (*str)
-	{
-		num <<= 4;
-		if (*str >= '0' && *str <= '9')
-			num += *str-'0';
-		else if (*str >= 'a' && *str <= 'f')
-			num += 10 + *str-'a';
-		else if (*str >= 'A' && *str <= 'F')
-			num += 10 + *str-'A';
-		else
-			Error ("Bad hex number: %s",hex);
-		str++;
-	}
-
-	return num;
-}
+int ParseHex (char *hex);
 
 
-int ParseNum (char *str)
+
+int ParseNum (char *str);
+/*
 {
 	if (str[0] == '$')
 		return ParseHex (str+1);
@@ -750,3 +613,5 @@ int ParseNum (char *str)
 }
 
 
+
+*/

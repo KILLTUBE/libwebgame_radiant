@@ -359,7 +359,7 @@ int VLightMain (int argc, char **argv);
 int VSoundMain (int argc, char **argv);
 int VisMain( int argc, char **argv );
 
-int main (int argc, char **argv) {
+int q3map_main (int argc, char **argv) {
 	int		i;
 	double		start, end;
 	char		path[1024];

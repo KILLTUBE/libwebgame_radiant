@@ -35,9 +35,7 @@ MESH SUBDIVISION
 int	originalWidths[MAX_EXPANDED_AXIS];
 int	originalHeights[MAX_EXPANDED_AXIS];
 
-int	neighbors[8][2] = {
-	{0,1}, {1,1}, {1,0}, {1,-1}, {0,-1}, {-1,-1}, {-1,0}, {-1,1}
-};
+extern int neighbors[8][2];
 
 /*
 ============

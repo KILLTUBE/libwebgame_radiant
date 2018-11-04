@@ -34,19 +34,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <time.h>
 #include <stdarg.h>
 
-#ifndef __BYTEBOOL__
-#define __BYTEBOOL__
-
-#ifndef __cplusplus
-  typedef enum {false, true} boolean;
-#else
-  typedef unsigned char boolean;
-#endif
-
+#define qtrue 1
+#define qfalse 0
+#define qboolean unsigned char
 
 typedef unsigned char byte;
 //typedef unsigned char byte;
-#endif
+
+void qprintf( const char *format, ... );
 
 FILE	*SafeOpenWrite (const char *filename);
 FILE	*SafeOpenRead (const char *filename);
@@ -55,7 +50,7 @@ void	SafeWrite (FILE *f, const void *buffer, int count);
 int		LoadFile (const char *filename, void **bufferptr);
 int		LoadFileNoCrash (const char *filename, void **bufferptr);
 void	SaveFile (const char *filename, void *buffer, int count);
-void 	DefaultExtension (char *path, char *extension);
+void 	DefaultExtension (char *path, const char *extension);
 void 	DefaultPath (char *path, char *basepath);
 void 	StripFilename (char *path);
 void 	StripExtension (char *path);

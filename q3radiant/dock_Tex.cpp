@@ -659,10 +659,12 @@ void LoadShader(char* pFilename, qtexture_t *q)
 		StartTokenParsing(pBuff);
 		while (GetToken(true))
 		{
+			
 			// first token should be the path + name.. (from base)
 			CShaderInfo *pShader = new CShaderInfo();
 			pShader->setName(token);
 			pShader->m_strShaderName = pFilename;
+			imgui_log("parse image %s\n", pFilename);
 			strTexture = token;
 			bool bGood = true;
 			float fTrans = 1.0;
@@ -2619,6 +2621,7 @@ void CTexWnd::OnTexturesFlush() {
 }
 
 void LoadShaders() {
+	//return;
 	char	dirstring[1024];
 	char	*path;
 	//struct _finddata_t fileinfo;
@@ -2630,6 +2633,7 @@ void LoadShaders() {
 	if (nLen == -1) {
 		nLen = PakLoadAnyFile(dirstring, reinterpret_cast<void**>(&pBuff));
 	}
+#if 0
 	if (nLen > 0) {
 		CStringList lst;
 		StartTokenParsing(pBuff);
@@ -2642,8 +2646,12 @@ void LoadShaders() {
 			nLen++;
 		}
 		POSITION pos = lst.GetHeadPosition();
+		int i=0; 
 		while (pos != NULL)
 		{
+			i++;
+			if (i==9)
+				break;
 			LoadShader(lst.GetAt(pos).GetBuffer(0), NULL);
 			lst.GetNext(pos);
 		}
@@ -2651,6 +2659,8 @@ void LoadShaders() {
 	} else {
 		Sys_Printf("Unable to load shaderlist.txt, shaders not loaded!");
 	}
+#endif
+	LoadShader("D:\\ioq3\\build\\debug-msvc12-x86\\baseq3\\scripts\\custom_new.shader", NULL);
 }
 
 void FreeShaders() {
