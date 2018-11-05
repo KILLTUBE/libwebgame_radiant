@@ -331,6 +331,29 @@ int duk_glfw_create_window(duk_context *ctx) {
 	return 1;
 }
 
+int duk_q3map(duk_context *ctx) {
+	SHELLEXECUTEINFO ShExecInfo;
+	ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+	ShExecInfo.fMask = NULL;
+	ShExecInfo.hwnd = NULL;
+	ShExecInfo.lpVerb = NULL;
+	ShExecInfo.lpFile = "D:\\Quake-III-Arena-master\\q3map\\Debug\\q3map.exe";
+	ShExecInfo.lpParameters = "baseq3/maps/haus.map";
+	ShExecInfo.lpDirectory = "D:\\ioq3\\build\\debug-msvc12-x86";
+	ShExecInfo.nShow = SW_MAXIMIZE;
+	ShExecInfo.hInstApp = NULL;
+	ShellExecuteEx(&ShExecInfo);
+	return 0;
+}
+
+int duk_copyfile(duk_context *ctx) {
+	const char *from = duk_to_string(ctx, 0);
+	const char *to = duk_to_string(ctx, 1);
+	auto ret = CopyFileA(from, to, FALSE);
+	duk_push_boolean(ctx, ret);
+	return 1;
+}
+
 void duktape_update() {
 	if (queue.q.size() > 0) {
 		auto str = queue.dequeue();
@@ -365,6 +388,9 @@ void duktape_bind_radiant(duk_context *ctx) {
 		{"LoadShadersFromDir"                  , duk_func_LoadShadersFromDir          },
 		// glfw
 		{"glfw_create_window"                  , duk_glfw_create_window               },
+		// q3map
+		{"q3map"                               , duk_q3map                            },
+		{"copyfile"                            , duk_copyfile                         },
 		{NULL, NULL}
 	};
 	for (int i=0; funcs[i].name; i++) {
