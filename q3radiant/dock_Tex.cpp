@@ -2558,7 +2558,7 @@ void CTexWnd::OnPaint() {
 	} else {
 		Texture_Draw2 (rctClient.right-rctClient.left, rctClient.bottom-rctClient.top - g_nTextureOffset);
 		qwglSwapBuffers(s_hdcTexture);
-		TRACE("Texture Paint\n");
+		//TRACE("Texture Paint\n");
 	}
 	if (g_PrefsDlg.m_bTextureScrollbar && (m_bNeedRange || g_qeglobals.d_texturewin.m_nTotalHeight != nOld)) {
 		m_bNeedRange = false;
