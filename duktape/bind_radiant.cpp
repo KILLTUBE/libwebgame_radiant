@@ -334,7 +334,7 @@ int duk_glfw_create_window(duk_context *ctx) {
 int duk_q3map(duk_context *ctx) {
 	SHELLEXECUTEINFO ShExecInfo;
 	ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-	ShExecInfo.fMask = NULL;
+	ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
 	ShExecInfo.hwnd = NULL;
 	ShExecInfo.lpVerb = NULL;
 	ShExecInfo.lpFile = "D:\\Quake-III-Arena-master\\q3map\\Debug\\q3map.exe";
@@ -343,6 +343,8 @@ int duk_q3map(duk_context *ctx) {
 	ShExecInfo.nShow = SW_MAXIMIZE;
 	ShExecInfo.hInstApp = NULL;
 	ShellExecuteEx(&ShExecInfo);
+	WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
+	CloseHandle(ShExecInfo.hProcess);
 	return 0;
 }
 
