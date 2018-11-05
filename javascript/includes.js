@@ -61,6 +61,7 @@ includes = function() {
 		["javascript/camera_freefly.js"   , undefined],
 		["javascript/mouse.js"            , undefined],
 		["javascript/update.js"           , undefined],
+		["javascript/quickscripts.js"     , undefined],
 	];
 	for (var i=0; i<files.length; i++) {
 		var file = files[i][0];
