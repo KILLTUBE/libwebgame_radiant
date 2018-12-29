@@ -357,6 +357,9 @@
     <ClCompile Include="..\craft\src\tinycthread\tinycthread.c">
       <Filter>Source Files\tinycthread</Filter>
     </ClCompile>
+    <ClCompile Include="vs2017.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Radiant.rc">

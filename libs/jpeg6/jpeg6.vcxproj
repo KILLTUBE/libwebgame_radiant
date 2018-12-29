@@ -14,6 +14,7 @@
     <SccProjectName>"$/source/q3radiant", FEFAAAAA</SccProjectName>
     <SccLocalPath>..\..\q3radiant</SccLocalPath>
     <ProjectGuid>{B80E7E95-566D-4CB0-8151-0567CB206D5A}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
