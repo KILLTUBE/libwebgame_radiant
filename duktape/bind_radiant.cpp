@@ -1,14 +1,17 @@
-#include "stdafx.h"
+#include <stdafx.h>
+
 #include "duktapestuff.h"
 #include "../duktape-2-3-0/duktape.h"
 //#include <kung/duktape/dukdebugheaders.h>
 #include "../q3radiant/QERTYPES.H"
 #include "../q3radiant/CamWnd.h"
 #include "../q3radiant/qe3.h"
-#include "../craft/src/glfw/include/GLFW/glfw3.h"
-#include "../craft/src/tinycthread/tinycthread.h"
+#ifdef GLFW
+#include "C:\web\glfw-3.2.1\include/GLFW/glfw3.h"
+#endif
+//#include "../tinycthread/tinycthread.h"
 #include "../imgui/imgui_dock_console.h"
-#include "../ThreadsafeQueue.h"
+//#include "../ThreadsafeQueue.h"
 
 extern camera_t *camera;
 
@@ -211,7 +214,7 @@ int duk_func_LoadShadersFromDir(duk_context *ctx) {
 	LoadShadersFromDir(path);
 	return 0;
 }
-
+#ifdef GLFW
 typedef struct glfw_window_thread_s {
 	GLFWwindow *window;
 	int window_id;
@@ -338,7 +341,9 @@ void duktape_update() {
 		//imgui_log("Got: %s", str.c_str());
 	}
 }
-
+#else
+void duktape_update() {}
+#endif
 int q3map_main (int argc, char **argv);
 
 int duk_q3map_main(duk_context *ctx) {
@@ -371,7 +376,9 @@ void duktape_bind_radiant(duk_context *ctx) {
 		{"GetAsyncKeyState"                    , duk_func_GetAsyncKeyState            },
 		{"LoadShadersFromDir"                  , duk_func_LoadShadersFromDir          },
 		// glfw
+#ifdef GLFW
 		{"glfw_create_window"                  , duk_glfw_create_window               },
+#endif
 		// q3map
 		{"q3map_main"                          , duk_q3map_main                       },
 		{NULL, NULL}

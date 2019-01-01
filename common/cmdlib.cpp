@@ -411,6 +411,10 @@ void Q_getwd (char *out)
 }
 
 
+char *strerror(int foo) {
+	return "rip";
+}
+
 void Q_mkdir (const char *path)
 {
 #ifdef WIN32

@@ -354,11 +354,11 @@
     <ClCompile Include="..\tinygltf\render.cpp">
       <Filter>tinygltf</Filter>
     </ClCompile>
-    <ClCompile Include="..\craft\src\tinycthread\tinycthread.c">
-      <Filter>Source Files\tinycthread</Filter>
-    </ClCompile>
     <ClCompile Include="vs2017.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tinycthread\tinycthread.c">
+      <Filter>Source Files\tinycthread</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -670,11 +670,11 @@
     <ClInclude Include="..\tinygltf\trackball.h">
       <Filter>tinygltf</Filter>
     </ClInclude>
-    <ClInclude Include="..\craft\src\tinycthread\tinycthread.h">
-      <Filter>Source Files\tinycthread</Filter>
-    </ClInclude>
     <ClInclude Include="..\ThreadsafeQueue.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tinycthread\tinycthread.h">
+      <Filter>Source Files\tinycthread</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
